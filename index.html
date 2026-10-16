@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Інформатика 6–9: уроки</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+
+:root{--bg:#F2F2F0;--paper:#FFFFFF;--ink:#111111;--muted:#5C5C5C;--rule:#111111;--rule-soft:#9e9e9a;
+  --accent:#0033CC;--on-accent:#FFFFFF;--accent-tint:#E6ECFF;--sun:#FFC93C;--coral:#FF6B4A;--mintb:#2EC4A0;
+  --on-bright:#111111;--body:"Inter","Segoe UI",Arial,sans-serif;color-scheme:light}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 17px/1.5 var(--body)}
+.wrap{max-width:1120px;margin:0 auto;padding:28px 16px 64px}
+.lab{font-size:13px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.top{border-top:3px solid var(--rule);padding-top:14px}
+h1{font-weight:700;font-size:clamp(34px,6vw,64px);line-height:1;letter-spacing:-.04em;margin:10px 0 12px}
+.lead{max-width:62ch;margin:0;color:var(--muted)}
+.back{display:inline-block;margin-bottom:8px;font-weight:700;color:inherit;text-decoration:none;border-bottom:2px solid var(--ink)}
+.grades{margin-top:28px;display:flex;flex-direction:column;gap:14px}
+a.card{display:flex;align-items:center;gap:18px;padding:14px 18px;background:var(--paper);border:3px solid var(--ink);
+  border-left:12px solid var(--grade);text-decoration:none;color:inherit}
+a.card:hover{background:var(--bg)}
+.badge{width:64px;height:64px;flex:none;display:grid;place-items:center;background:var(--grade);color:var(--on-bright);
+  border:3px solid var(--ink);box-shadow:4px 4px 0 var(--ink);font:700 38px/1 var(--body);letter-spacing:-.04em}
+.gt{display:flex;flex-direction:column;gap:2px;min-width:0}
+.gt b{font-size:28px;letter-spacing:-.02em;line-height:1.1}
+.sec{margin-top:22px;background:var(--paper);border:3px solid var(--ink)}
+.sec h2{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:0;padding:12px 16px;border-bottom:3px solid var(--ink);font-size:19px}
+.sec h2 .nm{font-weight:600;flex:1;min-width:180px}
+.cnt{font:600 13px var(--body);letter-spacing:.06em;color:var(--muted);border:2px solid var(--rule-soft);padding:2px 8px}
+.cnt.has{color:var(--on-bright);background:var(--grade);border-color:var(--ink)}
+.open{font-weight:600;font-size:14px;color:var(--on-accent);background:var(--accent);padding:6px 12px;text-decoration:none;border:3px solid var(--accent)}
+.open:hover{background:var(--ink);border-color:var(--ink);color:var(--paper)}
+ol{list-style:none;margin:0;padding:0}
+li a,li .row{display:grid;grid-template-columns:40px 1fr auto auto;gap:14px;align-items:center;padding:9px 10px;
+  border-top:1px solid var(--rule-soft);color:inherit;text-decoration:none}
+li .n{font-weight:700;font-size:18px;text-align:right}
+li .p{color:var(--muted);font-size:14px;white-space:nowrap}
+li .go{font-weight:600;font-size:14px;color:var(--accent);white-space:nowrap}
+li .soon{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);white-space:nowrap}
+li.ok a{border-left:6px solid var(--grade)}
+li.ok a:hover{background:var(--accent-tint)}
+li.ok a:hover .t{text-decoration:underline}
+li:not(.ok) .row{color:var(--muted);padding-left:16px}
+a:focus-visible{outline:3px solid var(--sun);outline-offset:2px}
+@media (max-width:640px){.badge{width:48px;height:48px;font-size:28px}.gt b{font-size:22px}
+  li a,li .row{grid-template-columns:32px 1fr auto}li .p{display:none}}
+
+</style>
+</head>
+<body>
+<div class="wrap"><div class="top"><span class="lab">Інформатика · 6–9 класи</span><h1>Уроки</h1><p class="lead">Оберіть клас. Кожен готовий урок — окрема сторінка.</p></div><div class="grades"><a class="card" href="6/index.html" style="--grade:var(--sun)"><span class="badge">6</span><span class="gt"><b>6 клас</b><span class="lab">Ігровий · готово 4 з 15</span></span></a><a class="card" href="7/index.html" style="--grade:var(--mintb)"><span class="badge">7</span><span class="gt"><b>7 клас</b><span class="lab">Дослідник · готово 3 з 15</span></span></a><a class="card" href="8/index.html" style="--grade:var(--coral)"><span class="badge">8</span><span class="gt"><b>8 клас</b><span class="lab">Конструктор · готово 7 з 24</span></span></a><a class="card" href="9/index.html" style="--grade:var(--accent)"><span class="badge">9</span><span class="gt"><b>9 клас</b><span class="lab">Профі · готово 5 з 24</span></span></a></div></div>
+</body>
+</html>
