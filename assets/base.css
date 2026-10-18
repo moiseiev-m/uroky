@@ -19,6 +19,8 @@
   --positive:var(--mint); --negative:var(--pink);
   --rule:var(--ink); --rule-soft:var(--line); --paper-alt:var(--doc);
   --sec:var(--vio); --on-sec:#FFFFFF; --grade:var(--vio); --on-grade:#FFFFFF;
+  --surface:var(--bg); --card:var(--paper); --ink-muted:var(--muted); --accent-deep:var(--accent);
+  --shadow:0 12px 24px rgba(0,0,0,.10); --r-sm:14px; --r-lg:28px; --r-pill:999px;
 }
 html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
 *,*::before,*::after{box-sizing:inherit}
@@ -48,13 +50,24 @@ img{max-width:100%}
 .blank{position:absolute;inset:0;z-index:6;background:#000;display:none}
 .blank.on{display:block}
 .blank.white{background:#fff}
-.notes{max-width:1280px;margin:12px auto 0;background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:12px 18px}
-.notes h4{margin:0 0 4px;font-family:var(--display);font-size:.85rem;font-weight:700;color:var(--muted)}
-.notes p{margin:0}
+/* нотатки вчителя — колонка справа від слайда; на вузькому екрані — під слайдом */
+#deck.with-notes{display:grid;grid-template-columns:minmax(0,1fr) clamp(260px,24vw,380px);gap:clamp(.6rem,1.4vw,1.1rem);align-items:start}
+#deck.with-notes .viewport{margin:0 0 0 auto}
+.notes{background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:14px 18px;
+  position:sticky;top:4rem;max-height:calc(100vh - 5rem);overflow:auto;font-size:16px;line-height:1.45}
+.notes h4{margin:0 0 8px;font-family:var(--display);font-size:.85rem;font-weight:700;color:var(--muted)}
+.notes p{margin:0 0 .55em}
+.notes p b{font-weight:800}
+.notes p.src{margin-top:.9em;padding-top:.5em;border-top:1px solid var(--line);font-size:13px;color:var(--muted)}
+@media (max-width:900px){#deck.with-notes{display:block}#deck.with-notes .viewport{margin:0 auto}
+  .notes{position:static;max-height:none;max-width:1280px;margin:12px auto 0}}
 
 /* ===== Слайд ===== */
 .slide{position:absolute;inset:0;padding:78px 64px 40px;display:none;flex-direction:column}
 .slide.on{display:flex}
+/* автопідгонка: рушій ставить --fit (0.75–1), коли зміст не вміщається; шапка й Біт — без змін */
+.slide:not(.s-title)>:not(.slide-top,.bit){zoom:var(--fit,1)}
+.s-title h2,.s-title .sub{zoom:var(--fit,1)}
 .slide h2{font-family:var(--display);font-weight:800;font-size:44px;line-height:1.12;margin:0 0 24px;letter-spacing:-.02em;max-width:1120px}
 .slide h3{font-family:var(--display);font-weight:700;font-size:24px;margin:0 0 10px}
 .slide p,.slide li{font-size:28px;line-height:1.38;margin:0 0 14px}
@@ -76,6 +89,7 @@ img{max-width:100%}
 /* кроки: показуються пробілом, кліком або пультом */
 .f{opacity:0;transform:translateY(8px);transition:opacity .3s,transform .3s}
 .f.in{opacity:1;transform:none}
+.slide.fitting .f{transform:none!important;transition:none!important}   /* під час вимірювання (автопідгонка): без зсуву появи */
 
 /* значок ролі слайда — малює тема за data-role */
 h2.has-role{display:flex;align-items:center;gap:16px}
@@ -230,12 +244,19 @@ table.t tr.f{transform:none}
 .hw h3{margin:4px 0 8px}
 .hw .main{font-size:30px;font-weight:800;margin:0}
 .fin{font-family:var(--display);font-weight:800;font-size:40px;margin:24px 0 0}
+.sig-ch{font-size:40px}
 .qr{background:#fff;border:2px solid var(--line);border-radius:20px;padding:14px;display:flex;flex-direction:column;
   align-items:center;gap:4px;color:#1E1B4B;text-align:center}
 .qr .qrimg{width:290px;height:290px}
 .qr .qrimg svg{width:100%;height:100%;display:block}
 .qr b{font-size:22px;display:inline-flex;align-items:center;gap:8px}
 .qr span{font-size:17px;color:#57547E}
+.qrs{display:flex;align-items:flex-start;gap:16px}
+.qrs[data-n="2"] .qrimg{width:200px;height:200px}
+.qrs[data-n="2"] .qr b{font-size:20px}
+.qrs[data-n="2"] .qr span{font-size:15px}
+.qr .btn{display:inline-block;margin-top:6px;padding:7px 16px;font-size:18px;text-decoration:none;text-align:center}
+.qr .btn.primary{color:var(--on-accent)}
 
 /* ===== Віджети: спільні частини (engine/src/widgets.js без змін) ===== */
 .wbox{flex:1;min-height:0;display:flex;flex-direction:column}

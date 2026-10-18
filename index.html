@@ -4,9 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Інформатика 6–9: уроки</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/fonts.css">
 <style>
 
 :root{--bg:#F2F2F0;--paper:#FFFFFF;--ink:#111111;--muted:#5C5C5C;--rule:#111111;--rule-soft:#9e9e9a;
@@ -46,6 +44,11 @@ li.ok a{border-left:6px solid var(--grade)}
 li.ok a:hover{background:var(--accent-tint)}
 li.ok a:hover .t{text-decoration:underline}
 li:not(.ok) .row{color:var(--muted);padding-left:16px}
+li[data-pr]{display:flex;align-items:stretch;border-top:1px solid var(--rule-soft)}
+li[data-pr]>a:first-child,li[data-pr]>.row{flex:1;min-width:0;border-top:0}
+li .pr{display:flex;align-items:center;padding:0 14px;font-weight:600;font-size:14px;color:var(--ink);
+  background:var(--sun);border-left:3px solid var(--ink);text-decoration:none;white-space:nowrap}
+li .pr:hover{background:var(--ink);color:var(--paper)}
 a:focus-visible{outline:3px solid var(--sun);outline-offset:2px}
 @media (max-width:640px){.badge{width:48px;height:48px;font-size:28px}.gt b{font-size:22px}
   li a,li .row{grid-template-columns:32px 1fr auto}li .p{display:none}}
@@ -53,6 +56,6 @@ a:focus-visible{outline:3px solid var(--sun);outline-offset:2px}
 </style>
 </head>
 <body>
-<div class="wrap"><div class="top"><span class="lab">Інформатика · 6–9 класи</span><h1>Уроки</h1><p class="lead">Оберіть клас. Кожен готовий урок — окрема сторінка.</p></div><div class="grades"><a class="card" href="6/index.html" style="--grade:var(--sun)"><span class="badge">6</span><span class="gt"><b>6 клас</b><span class="lab">Ігровий · готово 4 з 15</span></span></a><a class="card" href="7/index.html" style="--grade:var(--mintb)"><span class="badge">7</span><span class="gt"><b>7 клас</b><span class="lab">Дослідник · готово 3 з 15</span></span></a><a class="card" href="8/index.html" style="--grade:var(--coral)"><span class="badge">8</span><span class="gt"><b>8 клас</b><span class="lab">Конструктор · готово 7 з 24</span></span></a><a class="card" href="9/index.html" style="--grade:var(--accent)"><span class="badge">9</span><span class="gt"><b>9 клас</b><span class="lab">Профі · готово 5 з 24</span></span></a></div></div>
+<div class="wrap"><div class="top"><span class="lab">Інформатика · 6–9 класи</span><h1>Уроки</h1><p class="lead">Оберіть клас. Кожен готовий урок — окрема сторінка.</p></div><div class="grades"><a class="card" href="6/index.html" style="--grade:var(--sun)"><span class="badge">6</span><span class="gt"><b>6 клас</b><span class="lab">Ігровий · готово 4 з 15</span></span></a><a class="card" href="7/index.html" style="--grade:var(--mintb)"><span class="badge">7</span><span class="gt"><b>7 клас</b><span class="lab">Дослідник · готово 3 з 15</span></span></a><a class="card" href="8/index.html" style="--grade:var(--coral)"><span class="badge">8</span><span class="gt"><b>8 клас</b><span class="lab">Конструктор · готово 8 з 24</span></span></a><a class="card" href="9/index.html" style="--grade:var(--accent)"><span class="badge">9</span><span class="gt"><b>9 клас</b><span class="lab">Профі · готово 5 з 24</span></span></a></div></div>
 </body>
 </html>

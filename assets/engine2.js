@@ -49,7 +49,7 @@ function buildLesson(){
      '<option value="'+x.url+'"'+(x.id===L.id?' selected':'')+'>Урок '+x.num+'. '+x.title+'</option>').join('')+'</select>':'')+
    '<span class="ttl">Урок '+L.num+'. '+L.title+'</span>'+
    (test?'<a class="pill" href="'+test+'" target="_blank" rel="noopener" title="Відкрити тест у новій вкладці">Тест</a>':'')+
-   (CFG.praktychnaUrl?'<a class="pill" href="'+CFG.praktychnaUrl+'" title="Практична робота">Практична</a>':'')+
+   (CFG.praktychnaUrl?'<a class="pill" href="'+CFG.praktychnaUrl+'" target="_blank" rel="noopener" title="Відкрити практичну в новій вкладці">Практична</a>':'')+
    '<button class="pill" id="penBtn" aria-pressed="false" title="Олівець (P)">Олівець</button>'+
    '<button class="pill" id="gridBtn" title="Усі слайди (G)">Усі слайди</button>'+
    '<button class="pill" id="notesBtn" aria-pressed="false" title="Нотатки (N)">Нотатки</button>'+
@@ -70,7 +70,7 @@ function buildLesson(){
        KEYS.filter(k=>k[0]!=='T'||THEMES.length>1).map(k=>'<tr><td><kbd>'+k[0]+'</kbd></td><td>'+k[1]+'</td></tr>').join('')+'</table></div></div>'+
      '<div class="goto" id="goto" hidden></div>'+
    '</div>'+
-   '<div class="notes" id="notes" hidden><h4>Нотатки вчителя</h4><p id="noteText"></p></div></main>';
+   '<aside class="notes" id="notes" hidden><h4>Нотатки вчителя</h4><div id="noteText"></div></aside></main>';
 
   const stage=$('stage'),colors=secColors(L.slides);S=[];INK={};
   L.slides.forEach((d,i)=>{const r=slideHtml(d,i,L.slides.length);
@@ -81,7 +81,7 @@ function buildLesson(){
     const api={setStep:k=>{if(cur===i){S[i].i=k;applyStep(i)}}};
     let st=r.mount?r.mount(s,d,api):null;
     if(!st){const fr=[...s.querySelectorAll('.f')];st={count:fr.length,step:k=>fr.forEach((f,j)=>f.classList.toggle('in',j<k))}}
-    S.push({el:s,count:st.count,step:st.step,i:0,d,inited:false})});
+    S.push({el:s,count:st.count,step:st.step,relayout:st.relayout,i:0,d,inited:false,fit:1})});
 
   if($('lsel'))$('lsel').onchange=e=>{e.target.blur();location.href=e.target.value};
   $('notesBtn').onclick=()=>toggle('notes');$('gridBtn').onclick=()=>openOv();
@@ -93,22 +93,82 @@ function buildLesson(){
   ['ovl','help'].forEach(id=>$(id).addEventListener('click',e=>{if(e.target===$(id)){id==='ovl'?closeOv():showHelp(false)}}));
   bindHud();new ResizeObserver(fit).observe($('vp'));
   document.addEventListener('fullscreenchange',()=>{fit();hudShow()});
-  initPen();fit()}
+  // картинки й шрифти вантажаться пізніше — тоді розміри змінюються, підгонку повторюємо
+  let imgT=0;stage.addEventListener('load',e=>{if(e.target.tagName!=='IMG')return;clearTimeout(imgT);imgT=setTimeout(()=>fitSlide(cur),30)},true);
+  addEventListener('load',()=>fitAll());
+  if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>fitAll());
+  initPen();fit();
+  try{if(localStorage.getItem('notes2')==='1')toggle('notes',true)}catch(e){}}
 
 const ACT={prevSlide:()=>prevSlide(),stepBack:()=>stepBack(),stepFwd:()=>stepFwd(),nextSlide:()=>nextSlide(),
   pen:()=>pen(!penOn),marker:()=>{penTool.marker=!penTool.marker;pen(true)},undo:()=>undoPen(),clear:()=>clearPen(),
   ov:()=>openOv(),ovClose:()=>closeOv(),blank:()=>blank('black'),help:()=>showHelp(true),helpClose:()=>showHelp(false),fs:()=>fullscreen()};
 
 function toggle(id,force){const e=$(id),on=force!==undefined?force:e.hidden;e.hidden=!on;
-  const b={notes:'notesBtn'}[id];if(b)$(b).setAttribute('aria-pressed',on)}
-function applyStep(i){const s=S[i];s.step(s.i);s.inited=true;
+  const b={notes:'notesBtn'}[id];if(b)$(b).setAttribute('aria-pressed',on);
+  if(id==='notes'){$('deck').classList.toggle('with-notes',on);try{localStorage.setItem('notes2',on?'1':'0')}catch(e){}}}
+/* нотатка: кожен рядок — абзац; «Спитайте:» на початку — жирним; рядок «Джерело:» — дрібно внизу */
+function noteHtml(t){if(!t)return '<p>—</p>';
+  const esc=x=>x.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  return t.split(/\n+/).map(x=>x.trim()).filter(Boolean).map(x=>{
+    const m=/^([^:.!?«]{2,40}):\s+(.*)$/.exec(x);
+    if(m&&/^джерел/i.test(m[1]))return '<p class="src">'+esc(x)+'</p>';
+    return '<p>'+(m?'<b>'+esc(m[1])+':</b> '+esc(m[2]):esc(x))+'</p>'}).join('')}
+function applyStep(i){const s=S[i];const was=s.inited;s.step(s.i);s.inited=true;
   const dots=s.el.querySelector('.stepdots');
   dots.innerHTML=s.count>0?Array.from({length:s.count},(_,k)=>'<b class="'+(k<s.i?'in':'')+'"></b>').join(''):'';
+  // віджет і скріншот міняють розмітку на кожному кроці: якщо крок не вміщається — зменшуємо далі (лише вниз)
+  if(was&&i===cur&&(s.d.type==='widget'||s.d.type==='shot'))fitSlide(i,true);
   if(i===cur)updPos()}
 function updPos(){const s=S[cur];if(!s)return;$('hpos').textContent=(cur+1)+' / '+S.length+(s.count?' · '+s.i+'/'+s.count:'')}
+
+/* ===== Автопідгонка =====
+   Зміст, що не вміщається на слайді, рівномірно зменшується (CSS zoom через --fit) кроками по 5 %, до 75 %.
+   Межа — поле слайда без відступів теми. Шапку, Біта й лупу (.inner) не рахуємо; рамки з прокруткою
+   рахуємо як одне ціле. Титул: заголовок не має налазити на картинки. Не вмістилось і на 75 % —
+   це ловить перевірка збірки (check_fit.py), текст треба скоротити. Розмір — у s.fit і data-fit. */
+const FIT_MIN=.75,FIT_STEP=.05,FIT_GAP=10;   // FIT_GAP — найменший проміжок між текстом і картинкою титулу / Бітом, px
+const FIT_SKIP='.slide-top,.bit,.deco,.stickers,.inner,.t-head,.hud';
+/* перекриття двох прямокутників (висота спільної частини, 0 — не перекриваються) */
+const hitH=(a,b)=>Math.min(a.right,b.right)-Math.max(a.left,b.left)>2?Math.max(0,Math.min(a.bottom,b.bottom)-Math.max(a.top,b.top)):0;
+/* прямокутники самого тексту (по рядках), а не рамки блоку: рядок на всю ширину з коротким текстом не «налазить» */
+function textRects(e){const rg=document.createRange();rg.selectNodeContents(e);return [...rg.getClientRects()].filter(q=>q.width>1&&q.height>1)}
+const TEXT_SEL='h2,h3,p,li,dt,dd,td,th,b,button';
+function overflowOf(e){const r=e.getBoundingClientRect();if(!r.width)return 0;const k=r.width/1280,cs=getComputedStyle(e);
+  const lim={right:r.right-parseFloat(cs.paddingRight)*k,bottom:r.bottom-parseFloat(cs.paddingBottom)*k,left:r.left,top:r.top};
+  let over=0;
+  const visit=n=>{for(const c of n.children){if(c.matches(FIT_SKIP))continue;const st=getComputedStyle(c);
+    if(st.display==='none'||st.visibility==='hidden')continue;
+    const q=c.getBoundingClientRect();
+    if(q.width&&q.height)over=Math.max(over,(q.bottom-lim.bottom)/k,(q.right-lim.right)/k);
+    if(/auto|scroll|hidden/.test(st.overflowX+st.overflowY))continue;   // вміст рамки з прокруткою чи обрізанням — не межа слайда
+    visit(c)}};
+  visit(e);
+  // перешкоди: картинки титулу, Біт у куті — текст не має під них залазити
+  const blocks=[...e.querySelectorAll('.stickers li,.bit:not([data-pos="home"]) .bubble,.bit:not([data-pos="home"]) .bot')]
+    .filter(b=>getComputedStyle(b).display!=='none').map(b=>{const q=b.getBoundingClientRect(),m=FIT_GAP*k;   // + проміжок, щоб не впритул
+      return{left:q.left-m,right:q.right+m,top:q.top-m,bottom:q.bottom+m}});
+  if(blocks.length)e.querySelectorAll(TEXT_SEL+',.sub,.t-meta,.kicker').forEach(t=>{if(t.closest('.bit,.slide-top,.stickers'))return;
+    textRects(t).forEach(q=>blocks.forEach(b=>{over=Math.max(over,hitH(q,b)/k)}))});
+  return over}
+function fitSlide(i,keep){const s=S[i];if(!s)return;const e=s.el;if(!e.classList.contains('on'))return;
+  // вкладки й тест на дошці: розмір один на всі кроки — за найбільшим станом
+  const multi=s.d.type==='tabs'||s.d.type==='quiz';
+  const over=()=>{if(s.relayout)s.relayout();if(!multi)return overflowOf(e);let m=0;
+    for(let k=0;k<=s.count;k++){s.step(k);m=Math.max(m,overflowOf(e))}s.step(s.i);return m};
+  let f=keep?s.fit:1;e.style.setProperty('--fit',f);e.classList.add('fitting');
+  while(over()>2&&f>FIT_MIN+.001){f=Math.round((f-FIT_STEP)*100)/100;e.style.setProperty('--fit',f)}
+  e.classList.remove('fitting');s.fit=f;if(f<1)e.dataset.fit=f;else delete e.dataset.fit}
+/* усі слайди: після шрифтів, картинок і зміни теми */
+function fitAll(){if(!S.length)return;
+  S.forEach((s,k)=>{if(k===cur)return;s.el.classList.add('on');
+    if(!s.inited){try{s.step(0)}catch(e){}s.inited=true}
+    fitSlide(k);s.el.classList.remove('on')});
+  fitSlide(cur)}
+
 function go(i,stepAt){cur=i;S.forEach((s,k)=>s.el.classList.toggle('on',k===i));
-  const s=S[i];s.i=stepAt==='end'?s.count:(stepAt||0);applyStep(i);
-  $('noteText').textContent=s.d.note||'—';redrawPen();if(!$('ovl').hidden)markOv();
+  const s=S[i];s.i=stepAt==='end'?s.count:(stepAt||0);applyStep(i);fitSlide(i);
+  $('noteText').innerHTML=noteHtml(s.d.note);redrawPen();if(!$('ovl').hidden)markOv();
   const h='#'+(i+1);if(location.hash!==h)history.replaceState(null,'',h)}
 /* Кроки (анімація): пробіл, клік, PgDn / PgUp. Слайди: стрілки. */
 function stepFwd(){const s=S[cur];if(s.i<s.count){s.i++;applyStep(cur)}else if(cur<S.length-1)go(cur+1,0)}
@@ -188,7 +248,7 @@ function setTheme(id){if(!THEMES.length)return;
   const link=$('themeCss');
   if(link&&link.getAttribute('href')!==t.css){
     // кольори олівця беруться з теми, а файл теми застосовується не миттєво
-    link.addEventListener('load',()=>{if(L)penPal()},{once:true});
+    link.addEventListener('load',()=>{if(L){penPal();fitAll()}},{once:true});
     link.setAttribute('href',t.css)}
   document.documentElement.dataset.theme=t.id;
   try{localStorage.setItem('theme2',t.id)}catch(e){}
@@ -244,10 +304,11 @@ window.deck={get state(){return{lesson:L&&L.id,slide:cur,step:S[cur]?S[cur].i:0,
   go:(i,k)=>go(i,k),next:()=>stepFwd(),prev:()=>stepBack(),nextSlide:()=>nextSlide(),prevSlide:()=>prevSlide()};
 
 let app=null;
+const hashSlide=()=>parseInt(((location.hash||'').match(/(\d+)$/)||[])[1],10);
 function start(){app=$('app');initTheme();buildLesson();
-  const n=parseInt((location.hash||'').replace('#',''),10);
+  const n=hashSlide();
   go(Math.max(0,Math.min(L.slides.length-1,(n||1)-1)),0);
-  addEventListener('hashchange',()=>{const m=parseInt((location.hash||'').replace('#',''),10);
+  addEventListener('hashchange',()=>{const m=hashSlide();
     if(m&&m-1!==cur)go(Math.max(0,Math.min(S.length-1,m-1)),0)})}
 
 /* ===== Рушій v2: дані уроку → семантична розмітка =====
@@ -271,10 +332,10 @@ const today=()=>new Date().toLocaleDateString('uk-UA',{day:'2-digit',month:'2-di
    У декоративних полях (частина, заголовок, картка, домашнє) піктограма
    прибирається, а замість неї йде data-icon; у тексті лишаються текстові
    символи (© ® ™ ♪ ↔), кольорові прибираються, ✅ ❌ → ✓ ✗. */
-const PICTO=/(?:[\u{1F1E6}-\u{1F1FF}]{2}|\p{Extended_Pictographic})[\uFE0F\u200D]*\s?/gu;
-const PICTO_COLOR=/(?:[\u{1F1E6}-\u{1F1FF}]{2}|\p{Emoji_Presentation}|\p{Extended_Pictographic}\uFE0F)[\uFE0F\u200D]*\s?/gu;
-const PICTO_LEAD=/^(\s*(?:<[^>]+>)*)\s*(?:\p{Extended_Pictographic}[\uFE0F\u200D]*\s*)+/u;
-const PICTO_ONE=/(?:[\u{1F1E6}-\u{1F1FF}]{2}|\p{Extended_Pictographic})[\uFE0F\u200D]*/u;
+const PICTO=/(?:[\u{1F1E6}-\u{1F1FF}]{2}|(?![\u00A9\u00AE\u2122])\p{Extended_Pictographic})[\uFE0F\u200D]*\s?/gu;
+const PICTO_COLOR=/(?:[\u{1F1E6}-\u{1F1FF}]{2}|\p{Emoji_Presentation}|(?![\u00A9\u00AE\u2122])\p{Extended_Pictographic}\uFE0F)[\uFE0F\u200D]*\s?/gu;
+const PICTO_LEAD=/^(\s*(?:<[^>]+>)*)\s*(?:(?![\u00A9\u00AE\u2122])\p{Extended_Pictographic}[\uFE0F\u200D]*\s*)+/u;
+const PICTO_ONE=/(?:[\u{1F1E6}-\u{1F1FF}]{2}|(?![\u00A9\u00AE\u2122])\p{Extended_Pictographic})[\uFE0F\u200D]*/u;
 const tidy=s=>String(s==null?'':s).replace(/\s{2,}/g,' ').trim();
 /* текст слайда */
 const txt=s=>tidy(String(s==null?'':s).replace(/\u2705\uFE0F?/g,'✓').replace(/\u274C\uFE0F?/g,'✗')
@@ -421,15 +482,26 @@ V.widget=d=>{const w=W[d.w];
   return{html:head(d)+intro(d)+'<div class="wbox">'+w.html(d)+'</div>',
     mount:(r,_,api)=>w.mount(r.querySelector('.wbox'),d,api)}};
 
+/* «Домашнє»: тест (QR) і практична (QR + кнопка) стоять поруч; без них — картинка слайда */
 V.home=d=>{const qr=(typeof QR!=='undefined'&&QR[LESSON.id])||'';const items=d.items||[];
+  const pUrl=CFG.praktychnaUrl||'',pQr=CFG.praktychnaQr||'';
+  const cards=(qr?'<div class="qr"><div class="qrimg">'+qr+'</div><b><span class="ic" data-icon="test" aria-hidden="true"></span>Тест до уроку</b>'+
+       '<span>Скануйте камерою телефона</span></div>':'')+
+    (pUrl?'<div class="qr qr-p">'+(pQr?'<div class="qrimg">'+pQr+'</div>':'')+
+       '<b><span class="ic" data-icon="pencil" aria-hidden="true"></span>Практична</b>'+
+       (pQr?'<span>Скануйте камерою телефона</span>':'')+
+       '<a class="btn primary" href="'+pUrl+'" target="_blank" rel="noopener">Відкрити практичну</a></div>':'');
+  const nQr=(qr?1:0)+(pUrl?1:0);
+  const bt=qr&&pUrl?'Успіхів! Тест — за першим QR-кодом, практична — за другим.':
+    pUrl?'Успіхів! Практична — за QR-кодом або кнопкою.':
+    qr?'Успіхів! Тест — 12 питань, по балу за кожне.':'Успіхів! До зустрічі на наступному уроці.';
   return{html:'<h2>Домашнє завдання</h2><div class="homewrap"'+vars({'--n':items.length})+'>'+
    '<ul class="home">'+items.map((it,i)=>'<li class="hw"'+at('data-icon',iconOf(it[0]))+'>'+
      '<span class="num" aria-hidden="true">'+pad2(i+1)+'</span><h3>'+plain(it[0])+'</h3>'+
      '<p class="main">'+txt(it[1])+'</p>'+(it[2]?'<p class="small">'+txt(it[2])+'</p>':'')+'</li>').join('')+'</ul>'+
-   (qr?'<div class="qr"><div class="qrimg">'+qr+'</div><b><span class="ic" data-icon="test" aria-hidden="true"></span>Тест до уроку</b>'+
-       '<span>Скануйте камерою телефона</span></div>':(d.img?img(d.img,'ill'):''))+'</div>'+
+   (nQr?'<div class="qrs"'+at('data-n',nQr)+'>'+cards+'</div>':(d.img?img(d.img,'ill'):''))+'</div>'+
    '<p class="fin">Успіхів у навчанні!</p>'+
-   (d.bit?'':bit(qr?'Успіхів! Тест — 12 питань, по балу за кожне.':'Успіхів! До зустрічі на наступному уроці.','home'))}};
+   (d.bit?'':bit(bt,'home'))}};
 
 /* ===== Скріншот із підказками: → веде по позначках, лупа наближає ===== */
 function shotMount(box,d,api){
@@ -439,8 +511,12 @@ function shotMount(box,d,api){
   side.append(tx,lupa);
   const frame=el('div','frame'),inner=el('div','inner'),im=el('img'),spot=el('div','spot');
   inner.append(im,spot);frame.append(inner);box.append(side,frame);
-  let dd=null,cur=0,zoom=true;const MW=d.w||790,MH=d.h||520;
-  function layout(){const ar=(im.naturalHeight/im.naturalWidth)||.58;let w=MW,h=w*ar;if(h>MH){h=MH;w=h/ar}
+  let dd=null,cur=0,zoom=true;
+  /* кадр займає вільне місце праворуч від списку й під заголовком; d.w / d.h — найбільший розмір.
+     Слайд схований (розмірів ще немає) — запасні 790×520, рушій перерахує при показі (relayout). */
+  function room(){const aw=box.clientWidth-side.offsetWidth-(parseFloat(getComputedStyle(box).columnGap)||0),ah=box.clientHeight;
+    const MW=aw>0?Math.min(d.w||aw,aw):(d.w||790),MH=ah>0?Math.min(d.h||ah,ah):(d.h||520);return[MW,MH]}
+  function layout(){const ar=(im.naturalHeight/im.naturalWidth)||.58;const m=room(),MW=m[0],MH=m[1];let w=MW,h=w*ar;if(h>MH){h=MH;w=h/ar}
     frame.style.width=w+'px';frame.style.height=h+'px';inner.style.width=w+'px';return[w,h]}
   function show(){const s=cur?d.spots[cur-1]:null;const wh=layout(),w=wh[0],h=wh[1];if(dd)dd.style.display='none';
     btns.forEach((b,k)=>b.classList.toggle('on',k===cur-1));
@@ -453,12 +529,13 @@ function shotMount(box,d,api){
         tX=Math.min(0,Math.max(w-k*w,w/2-k*cx));tY=Math.min(0,Math.max(h-k*h,h/2-k*cy))}
       inner.style.transform='translate('+tX+'px,'+tY+'px) scale('+k+')';spot.style.borderWidth=(3/k)+'px'}
     else{spot.classList.remove('on');inner.style.transform='none'}
-    if(s&&s.dd){if(!dd){dd=el('div','dd',s.dd.map(t=>'<div>'+txt(t)+'</div>').join(''));inner.append(dd)}
+    if(s&&s.dd){if(!dd){dd=el('div','dd');inner.append(dd)}
+      dd.innerHTML=s.dd.map(t=>'<div>'+txt(t)+'</div>').join('');
       dd.style.left=(s.r[0]+18)+'%';dd.style.top=(s.r[1]+s.r[3])+'%';dd.style.display='block'}}
   function step(i){cur=i;const key=(cur?d.spots[cur-1].img:null)||d.img;
-    if(im.dataset.k!==key){im.dataset.k=key;im.onload=show;im.src=IMG[key]||''}else show()}
+    if(im.dataset.k!==key){im.dataset.k=key;im.onload=show;im.src=IMG[key]||'';show()}else show()}
   lupa.onclick=()=>{zoom=!zoom;lupa.classList.toggle('on',zoom);show()};
-  return{count:(d.spots||[]).length,step}}
+  return{count:(d.spots||[]).length,step,relayout:show}}
 
 /* ===== Слайд цілком: рушій дописує колір частини, значки, Біт ===== */
 function slideHtml(d,i,total){const r=V[d.type]?V[d.type](d):{html:'<p class="warn">Невідомий тип «'+plain(d.type)+'»</p>'};
@@ -657,6 +734,17 @@ W.wordlab={html:()=>'<div class="wl-rib" style="position:relative;width:1000px;a
 {
 /* sections/6-r2/widgets/anim.js */
 /* ===== 6 клас, тема «Анімація об'єктів на слайді»: демонстрації, якими керує вчитель (→) ===== */
+const _AIC={
+ play:'<path d="M6 3l14 9-14 9z"/>',
+ leaf:'<path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/>',
+ mouse:'<rect x="6" y="3" width="12" height="18" rx="6"/><path d="M12 7v4"/>',
+ clock:'<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>',
+ next:'<path d="M5 12h14M12 5l7 7-7 7"/>',
+ cycle:'<path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 16h5v5"/>',
+ back:'<path d="M19 12H5M12 19l-7-7 7-7"/>',
+ steps:'<path d="M4 16v-2.38C4 11.5 2.97 10.5 3 8c.03-2.72 1.49-6 4.5-6C9.37 2 10 3.8 10 5.5c0 3.11-2 5.66-2 8.68V16a2 2 0 1 1-4 0Z"/><path d="M20 20v-2.38c0-2.12 1.03-3.12 1-5.62-.03-2.72-1.49-6-4.5-6C14.63 6 14 7.8 14 9.5c0 3.11 2 5.66 2 8.68V20a2 2 0 1 0 4 0Z"/><path d="M16 17h4M4 13h4"/>'
+};
+const _I=n=>typeof I==='function'?I(n):'<svg style="width:1em;height:1em;fill:none;stroke:currentColor;stroke-width:2.3;stroke-linecap:round;stroke-linejoin:round;vertical-align:-.14em;flex:none" viewBox="0 0 24 24" aria-hidden="true">'+(_AIC[n]||'')+'</svg>';
 document.head.insertAdjacentHTML('beforeend','<style>'+
 '.ms{position:relative;background:#fff;border-radius:14px;box-shadow:var(--shadow);overflow:hidden;aspect-ratio:16/9;color:#222}'+
 '.ms .cap{position:absolute;left:14px;top:10px;font:600 14px "Segoe UI",sans-serif;color:#444}'+
@@ -694,16 +782,16 @@ document.head.insertAdjacentHTML('beforeend','<style>'+
 '.ofc [data-k]{transition:box-shadow .25s,background .25s}'+
 '.ofc .hot{box-shadow:0 0 0 3px var(--accent-deep),0 0 0 7px rgba(32,201,151,.25);background:#e6fcf5!important;border-radius:4px;position:relative;z-index:2}'+
 '.ofc .dim{opacity:.35}'+
-'.pane{width:560px}.pane .ph{display:flex;justify-content:space-between;padding:10px 14px;font-size:16px;font-weight:600;border-bottom:1px solid #e3e3e3}'+
-'.pane .tb{display:flex;gap:8px;align-items:center;padding:8px 12px;border-bottom:1px solid #eee}'+
-'.pane .btnx{border:1px solid #c8c8c8;border-radius:3px;padding:2px 10px;background:#fafafa;display:inline-flex;gap:6px;align-items:center}'+
-'.pane .row{display:grid;grid-template-columns:26px 26px 34px 1fr 170px 26px;align-items:center;gap:4px;padding:7px 12px;font-size:15px}'+
-'.pane .row.sel{background:#d5e1f2}'+
-'.pane .bar{height:12px;border-radius:2px;background:#9cc3ea;border:1px solid #6a9fd4}'+
-'.pane .row svg{width:22px;height:22px}'+
-'.pane .ft{display:flex;justify-content:space-between;padding:8px 14px;color:#333;border-top:1px solid #eee;font-size:13px}'+
-'.pane .menu{position:absolute;right:16px;top:150px;background:#fff;border:1px solid #bbb;box-shadow:0 6px 18px rgba(0,0,0,.25);font-size:14px;display:none;z-index:3}'+
-'.pane .menu div{padding:5px 14px}.pane .menu div.s{border-top:1px solid #e3e3e3}'+
+'.ofc.pane{width:560px;background:#fff;overflow:hidden}.ofc.pane .ph{display:flex;justify-content:space-between;padding:10px 14px;font-size:16px;font-weight:600;border-bottom:1px solid #e3e3e3}'+
+'.ofc.pane .tb{display:flex;gap:8px;align-items:center;padding:8px 12px;border-bottom:1px solid #eee}'+
+'.ofc.pane .btnx{border:1px solid #c8c8c8;border-radius:3px;padding:2px 10px;background:#fafafa;display:inline-flex;gap:6px;align-items:center}'+
+'.ofc.pane .row{display:grid;grid-template-columns:26px 26px 34px 1fr 170px 26px;align-items:center;gap:4px;padding:7px 12px;font-size:15px}'+
+'.ofc.pane .row.sel{background:#d5e1f2}'+
+'.ofc.pane .bar{height:12px;border-radius:2px;background:#9cc3ea;border:1px solid #6a9fd4}'+
+'.ofc.pane .row svg{width:22px;height:22px}'+
+'.ofc.pane .ft{display:flex;justify-content:space-between;padding:8px 14px;color:#333;border-top:1px solid #eee;font-size:13px}'+
+'.ofc.pane .menu{position:absolute;right:16px;top:150px;background:#fff;border:1px solid #bbb;box-shadow:0 6px 18px rgba(0,0,0,.25);font-size:14px;display:none;z-index:3}'+
+'.ofc.pane .menu div{padding:5px 14px}.ofc.pane .menu div.s{border-top:1px solid #e3e3e3}'+
 '.rv.two{display:grid;grid-template-columns:1fr 1fr}table.t.sm td{padding:7px 12px;font-size:20px}table.t.sm th{padding:8px 12px}'+
 '.tlrow{display:grid;grid-template-columns:34px 34px 120px 1fr;align-items:center;gap:8px;font-size:19px;font-weight:700;padding:6px 0;border-bottom:1px solid var(--line)}'+
 '.tlrow .sc{position:relative;height:18px;background:repeating-linear-gradient(90deg,var(--line) 0 1px,transparent 1px 25%)}'+
@@ -741,8 +829,8 @@ const GR=[{n:'Вхід',c:GREEN,i:'next',x:'Об’єкт з’являєтьс�
 W.groups={html:()=>'<div class="cols" style="grid-template-columns:1.1fr .9fr;gap:32px;align-items:start"><div>'+
   '<div class="ms"><span class="cap">Слайд</span><svg class="pth" viewBox="0 0 560 315" style="position:absolute;inset:0;width:100%;height:100%;display:none"><path d="M128 158H448" stroke="#888" stroke-width="3" stroke-dasharray="8 6"/><path d="M120 150l12 8-12 8z" fill="'+GREEN+'"/><path d="M448 150l12 8-12 8z" fill="'+RED+'"/></svg>'+
   '<div class="obj sunobj" style="left:14.3%;top:35%">'+SUN+'</div></div>'+
-  '<p class="gcap" style="margin-top:16px;font-size:22px"></p><button class="btn gre" style="font-size:18px">'+I('play')+'Ще раз</button></div>'+
-  '<div class="wcard">'+GR.map(g=>'<button class="gbtn"><span class="dotc">'+I(g.i)+'</span><span><b>'+g.n+'</b><span>'+g.x+'</span></span></button>').join('')+'</div></div>',
+  '<p class="gcap" style="margin-top:16px;font-size:22px"></p><button class="btn gre" style="font-size:18px">'+_I('play')+'Ще раз</button></div>'+
+  '<div class="wcard">'+GR.map(g=>'<button class="gbtn"><span class="dotc">'+_I(g.i)+'</span><span><b>'+g.n+'</b><span>'+g.x+'</span></span></button>').join('')+'</div></div>',
  mount(root,d,api){const o=root.querySelector('.obj'),p=root.querySelector('.pth'),cap=root.querySelector('.gcap'),bt=[...root.querySelectorAll('.gbtn')];let cur=0;
   bt.forEach((b,i)=>b.onclick=()=>api.setStep(i+1));
   const play=()=>{o.getAnimations().forEach(a=>a.cancel());p.style.display=cur===4?'block':'none';const W_=o.parentNode.clientWidth;
@@ -761,7 +849,7 @@ const EF=[{n:'Виліт',g:'Вхід',p:[['Напрямок',['Знизу','З�
  {n:'Фігури',g:'Шляхи переміщення',p:[['Фігура',['Круг','Ромб','Трикутник','Шестикутник']]]}];
 const PRE=[[0,[0]],[0,[2]],[1,[0,1]],[1,[1,3]],[2,[0]],[2,[3]],[3,[0]],[3,[2]]];
 W.efflab={html:()=>'<div class="cols" style="grid-template-columns:.95fr 1.05fr;gap:32px;align-items:start"><div>'+
-  '<div class="seg lef" style="margin-bottom:12px"></div><div class="lpar"></div><button class="btn primary lpl" style="margin-top:12px;font-size:19px">'+I('play')+'Переглянути</button></div>'+
+  '<div class="seg lef" style="margin-bottom:12px"></div><div class="lpar"></div><button class="btn primary lpl" style="margin-top:12px;font-size:19px">'+_I('play')+'Переглянути</button></div>'+
   '<div><div class="ms"><span class="cap">Слайд</span><svg class="lpth" viewBox="0 0 560 315" style="position:absolute;inset:0;width:100%;height:100%"></svg><div class="obj sunobj" style="left:21.4%;top:45.1%">'+SUN+'</div></div><p class="lcap" style="margin-top:14px;font-size:21px"></p></div></div>',
  mount(root,d,api){const ef=root.querySelector('.lef'),par=root.querySelector('.lpar'),o=root.querySelector('.obj'),pth=root.querySelector('.lpth'),cap=root.querySelector('.lcap');
   let e=0,v=[0,0],raf=0;
@@ -819,17 +907,17 @@ W.tour={html:d=>d.layout==='top'?'<div class="tmock">'+MOCK[d.mock]()+'</div><di
 /* --- Хронометраж: Початок, Тривалість, Затримка --- */
 W.timing={html:()=>'<div class="cols" style="grid-template-columns:1fr 1fr;gap:32px;align-items:start"><div>'+
   '<div class="ms tms"><span class="cap">Слайд</span><div class="obj tob" style="left:6%;top:12%;width:88%;height:20%;font:800 34px var(--display);color:#0f2e2a;justify-content:start">ОСІНЬ</div>'+
-  '<div class="obj tob" style="left:6%;top:42%;width:34%;height:48%;background:#ffe8cc;border-radius:10px;font-size:64px;color:#c2410c">'+I('leaf')+'</div>'+
+  '<div class="obj tob" style="left:6%;top:42%;width:34%;height:48%;background:#ffe8cc;border-radius:10px;font-size:64px;color:#c2410c">'+_I('leaf')+'</div>'+
   '<div class="obj tob" style="left:46%;top:46%;width:48%;height:40%;font:600 22px var(--body);color:#333;text-align:left;place-items:start">Листя жовтіє<br>і опадає.</div><span class="click">клац!</span></div>'+
   '<div style="margin-top:14px"><div class="tlrow" style="font-size:15px;color:var(--ink-muted)"><span>№</span><span></span><span>Об’єкт</span><span style="display:flex;justify-content:space-between"><span>0 с</span><span>2 с</span><span>4 с</span></span></div><div class="tl"></div></div></div>'+
   '<div><div class="wl-row"><b>Початок</b><div class="seg tst"></div></div><div class="wl-row"><b>Тривалість</b><div class="seg tdu"></div></div><div class="wl-row"><b>Затримка</b><div class="seg tde"></div></div>'+
-  '<button class="btn primary tpl" style="margin-top:10px;font-size:19px">'+I('play')+'Переглянути</button><p class="tcap" style="margin-top:16px;font-size:21px"></p></div></div>',
+  '<button class="btn primary tpl" style="margin-top:10px;font-size:19px">'+_I('play')+'Переглянути</button><p class="tcap" style="margin-top:16px;font-size:21px"></p></div></div>',
  mount(root,d,api){const ST=['По клацанню','З попереднім','Після попереднього'],DU=[.5,1,2],DE=[0,.5,1],N=['Заголовок','Малюнок','Підпис'];
   let st=0,du=1,de=0,tms=[];const ob=[...root.querySelectorAll('.tob')],clk=root.querySelector('.click'),tl=root.querySelector('.tl'),cap=root.querySelector('.tcap');
   const seg=(c,a,f,get,lab)=>{const r=root.querySelector(c);r.innerHTML=a.map((x,i)=>'<button class="'+(get()===i?'on':'')+'">'+lab(x)+'</button>').join('');[...r.children].forEach((b,i)=>b.onclick=()=>{f(i);ui();play()})};
   const sched=()=>{const D=DU[du],E=DE[de];let t=0;return N.map((_,i)=>{let s;if(st===1)s=E;else if(st===2){s=t+E;t=s+D}else s=E;return[s,D]})};
   const ui=()=>{seg('.tst',ST,i=>st=i,()=>st,x=>x);seg('.tdu',DU,i=>du=i,()=>du,x=>String(x).replace('.',',')+' с');seg('.tde',DE,i=>de=i,()=>de,x=>String(x).replace('.',',')+' с');
-   const S=sched();tl.innerHTML=N.map((n,i)=>'<div class="tlrow"><span>'+(st===0?i+1:'')+'</span><span style="font-size:22px;color:var(--ink-muted)">'+(st===0?I('mouse'):st===2?I('clock'):'')+'</span><span>'+n+'</span><span class="sc"><i style="left:'+(S[i][0]/4*100)+'%;width:'+(S[i][1]/4*100)+'%"></i></span></div>').join('');
+   const S=sched();tl.innerHTML=N.map((n,i)=>'<div class="tlrow"><span>'+(st===0?i+1:'')+'</span><span style="font-size:22px;color:var(--ink-muted)">'+(st===0?_I('mouse'):st===2?_I('clock'):'')+'</span><span>'+n+'</span><span class="sc"><i style="left:'+(S[i][0]/4*100)+'%;width:'+(S[i][1]/4*100)+'%"></i></span></div>').join('');
    cap.innerHTML=['Кожен ефект чекає <b>клацання</b> мишею (або натискання →).','Ефект починається <b>одночасно</b> з попереднім.','Ефект починається <b>одразу після</b> завершення попереднього.'][st]};
   const reset=()=>{tms.forEach(clearTimeout);tms=[];ob.forEach(o=>{o.getAnimations().forEach(a=>a.cancel());o.style.opacity=0});clk.classList.remove('on')};
   const anim=(o,D)=>o.animate([{transform:'translateY(120px)',opacity:0},{transform:'none',opacity:1}],{duration:D*1000,easing:'cubic-bezier(.2,.8,.3,1)',fill:'forwards'});

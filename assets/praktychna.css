@@ -1,0 +1,88 @@
+/* Практична: оформлення вчителя (шапка «ІНФОРМАТИКА N», сині й жовті плашки, «Увага!»).
+   Повторює його «Практична робота 1.docx»: Times New Roman 14, по ширині, відступ першого рядка. */
+:root{
+  --paper:#FFFFFF;--desk:#EEF1F5;--ink:#000000;--ink-soft:#262626;--rule:#808080;
+  --logo-red:#D7263D;--logo-green:#3FA34D;
+  --num-blue:#1F4E79;--plate-blue:#4F81BD;--plate-blue-line:#2E5C8A;
+  --plate-yellow:#FFFF00;--plate-yellow-line:#E6C200;--plate-yellow-ink:#1A1A6E;
+  --warn-label:#F58A24;--warn-body:#FFC845;
+  --sample-bg:#F2F2F2;--sample-line:#BFBFBF;--link:#1155CC;--btn:#1F4E79;--btn-ink:#FFFFFF;
+  --serif:"Times New Roman","Liberation Serif",Tinos,Times,serif;
+  --logo:Oswald,Montserrat,"Arial Narrow",Arial,sans-serif;
+  --indent:35.4pt;--step-left:53pt;
+  color-scheme:light}
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--desk);color:var(--ink);font:400 14pt/1.3 var(--serif)}
+.sheet{max-width:210mm;margin:0 auto;padding:15mm 20mm 18mm;background:var(--paper);box-shadow:0 2px 18px rgba(0,0,0,.14)}
+p{margin:0 0 2pt;text-align:justify;text-indent:var(--indent)}
+b{font-weight:700}
+i,em{font-style:italic}
+a{color:var(--link);font-weight:700}
+
+/* шапка */
+.hdr{display:flex;align-items:flex-end;justify-content:space-between;gap:12pt;border-bottom:2.25pt solid var(--rule)}
+.hdr-l{flex:1;padding:0 8pt 4pt 0;border-right:2.25pt solid var(--rule);font-size:15pt;font-style:italic;color:var(--ink-soft)}
+.logo{flex:none;padding-bottom:2pt;font:800 26pt/1 var(--logo);letter-spacing:.01em;color:var(--logo-red);text-transform:uppercase;white-space:nowrap}
+.logo b{font-size:30pt;color:var(--logo-green)}
+
+/* назва: велика цифра, синя й жовта плашки */
+.ttl{display:grid;grid-template-columns:95pt 1fr;margin-top:10pt}
+.num{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;color:var(--num-blue);font-style:italic;
+  border-right:8pt solid var(--paper)}
+.num b{font-size:60pt;line-height:1}
+.num i{font-size:14pt;line-height:1.3;align-self:center;margin-top:auto}
+.plates{display:flex;flex-direction:column;gap:8pt;min-width:0}
+.plate-b,.plate-y{margin:0;text-align:center;text-indent:0;font-style:italic;font-weight:700}
+.plate-b{padding:8pt 10pt;background:var(--plate-blue);border:1pt solid var(--plate-blue-line);font-size:28pt;line-height:1.15}
+.plate-y{padding:14pt 10pt;background:var(--plate-yellow);border:1pt solid var(--plate-yellow-line);color:var(--plate-yellow-ink);font-size:20pt;line-height:1.2}
+
+/* «Увага!» */
+.uvaga{display:grid;grid-template-columns:110pt 1fr;margin:8pt 0 10pt}
+.uvaga b{display:flex;align-items:center;justify-content:center;padding:4pt;background:var(--warn-label);font-size:15pt;
+  border-right:6pt solid var(--paper)}
+.uvaga p{display:flex;align-items:center;margin:0;padding:3pt 6pt;background:var(--warn-body);font-style:italic;text-indent:0}
+
+/* основний текст */
+.note{font-style:italic}
+.zav{margin-top:8pt}
+.zt{margin-top:8pt}
+.kr{list-style:none;counter-reset:krok;margin:0;padding:0}
+.kr li{counter-increment:krok;margin:0 0 2pt var(--step-left);text-indent:-17.6pt;text-align:justify}
+.kr li::before{content:counter(krok) ")";display:inline-block;width:17.6pt;text-indent:0}
+.zr{margin:4pt 60pt 4pt 0;padding:4pt 8pt;background:var(--sample-bg);border:.75pt solid var(--sample-line);font-size:13pt}
+.zr .l1{margin-left:22pt}
+.zr .l2{margin-left:44pt}
+.end{margin-top:8pt}
+
+/* матеріали: лише посилання Google Диска */
+.files{margin-top:16pt;padding-top:10pt;border-top:.75pt solid var(--sample-line);font-size:14pt}
+.files h2{margin:0 0 6pt;font-size:14pt}
+.files ul{display:flex;flex-wrap:wrap;gap:8pt;margin:0;padding:0;list-style:none}
+.file{display:inline-block;padding:8pt 16pt;background:var(--btn);color:var(--btn-ink);border-radius:6pt;text-decoration:none;
+  font-family:Arial,"Segoe UI",sans-serif;font-size:12pt;font-weight:700}
+.file:hover{filter:brightness(1.18)}
+a:focus-visible{outline:3px solid var(--warn-label);outline-offset:2px}
+
+@media (max-width:640px){
+  :root{--indent:22pt;--step-left:28pt}
+  body{font-size:13pt}
+  p,.kr li{text-align:left}
+  .sheet{padding:12px 12px 24px;box-shadow:none}
+  .hdr{flex-direction:column;align-items:stretch;gap:4pt}
+  .hdr-l{border-right:0;padding:0;font-size:13pt}
+  .logo{align-self:flex-end;font-size:22pt}.logo b{font-size:26pt}
+  .ttl{grid-template-columns:56pt 1fr}
+  .num b{font-size:40pt}
+  .plate-b{font-size:20pt}.plate-y{font-size:16pt;padding:10pt}
+  .uvaga{grid-template-columns:78pt 1fr}.uvaga b{font-size:13pt}
+  .zr{margin-right:0;font-size:12pt}
+  .zr .l1{margin-left:14pt}
+  .zr .l2{margin-left:28pt}}
+
+@media print{
+  body{background:#fff}
+  .sheet{max-width:none;padding:0;box-shadow:none}
+  .files{display:none}
+  .plate-b,.plate-y,.uvaga b,.uvaga p,.zr{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .zav,.kr li,.zr{break-inside:avoid}}
