@@ -334,7 +334,7 @@ function start(){app=$('app');
    віджети й скріншоти працюють без змін. */
 
 const V={};                       // типи слайдів
-const AUTHOR='&copy; М. В. Мойсеєв, вчитель інформатики';
+const AUTHOR='&copy;m.moiseiev';
 
 /* ---- рядки й атрибути ---- */
 const cls=(...a)=>{const s=a.filter(Boolean).join(' ');return s?' class="'+s+'"':''};
@@ -511,16 +511,13 @@ V.widget=d=>{const w=W[d.w];
 
 /* «Домашнє»: тест (QR) і практична (QR + кнопка) стоять поруч; без них — картинка слайда */
 V.home=d=>{const qr=(typeof QR!=='undefined'&&QR[LESSON.id])||'';const items=d.items||[];
-  const pUrl=CFG.praktychnaUrl||'',pQr=CFG.praktychnaQr||'';
-  const cards=(qr?'<div class="qr"><div class="qrimg">'+qr+'</div><b><span class="ic" data-icon="test" aria-hidden="true"></span>Тест до уроку</b>'+
-       '<span>Скануйте камерою телефона</span></div>':'')+
-    (pUrl?'<div class="qr qr-p">'+(pQr?'<div class="qrimg">'+pQr+'</div>':'')+
-       '<b><span class="ic" data-icon="pencil" aria-hidden="true"></span>Практична</b>'+
-       (pQr?'<span>Скануйте камерою телефона</span>':'')+
-       '<a class="btn primary" href="'+pUrl+'" target="_blank" rel="noopener">Відкрити практичну</a></div>':'');
-  const nQr=(qr?1:0)+(pUrl?1:0);
-  const bt=qr&&pUrl?'Успіхів! Тест — за першим QR-кодом, практична — за другим.':
-    pUrl?'Успіхів! Практична — за QR-кодом або кнопкою.':
+  // практична — лише кнопкою «Практична» вгорі (QR практичної на «Домашньому» прибрано на прохання вчителя 19.10.2026)
+  const pUrl=CFG.praktychnaUrl||'';
+  const cards=qr?'<div class="qr"><div class="qrimg">'+qr+'</div><b><span class="ic" data-icon="test" aria-hidden="true"></span>Тест до уроку</b>'+
+       '<span>Скануйте камерою телефона</span></div>':'';
+  const nQr=qr?1:0;
+  const bt=qr&&pUrl?'Успіхів! Тест — за QR-кодом, практична — кнопкою вгорі.':
+    pUrl?'Успіхів! Практична — кнопкою «Практична» вгорі.':
     qr?'Успіхів! Тест — 12 питань, по балу за кожне.':'Успіхів! До зустрічі на наступному уроці.';
   return{html:'<h2>Домашнє завдання</h2><div class="homewrap"'+vars({'--n':items.length})+'>'+
    '<ul class="home">'+items.map((it,i)=>'<li class="hw"'+at('data-icon',iconOf(it[0]))+'>'+

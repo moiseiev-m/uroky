@@ -149,7 +149,7 @@ symbol{overflow:visible}
 .box p:last-child{margin-bottom:0}
 .def{border-left:10px solid var(--accent);padding:8px 0 8px 24px;margin:0 0 20px}
 .def p{font-size:30px}
-.chips{display:flex;flex-wrap:wrap;gap:12px;list-style:none;padding:0!important}
+.slide .chips{display:flex;flex-wrap:wrap;gap:12px;list-style:none;padding:0!important;margin:0 0 22px}
 .chip{border-radius:14px;padding:10px 18px;font-size:24px;font-weight:800;background:var(--sky-soft);margin:0}
 .slide :is(.chips,.cards,.grid,.home,.stickers)>li{margin:0}
 ul.list{list-style:none;padding:0!important}

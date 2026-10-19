@@ -1002,7 +1002,7 @@ G=function(items,o){o=o||{};const n=o.n||Math.min(items.length,4),h=o.h||170;
    '<b style="font-size:'+(o.fs||23)+'px;line-height:1.2;font-weight:600">'+it.t+'</b>'+(it.x?'<span style="font-size:21px;line-height:1.25;color:var(--muted)">'+it.x+'</span>':'')+'</div>').join('')+'</div>'};
 UL=function(a,o){o=o||{};return '<ul style="list-style:none;padding:0;font-size:'+(o.fs||27)+'px">'+a.map(x=>'<li class="'+(o.f===false?'':'f')+'" style="margin:0;padding:9px 0;border-top:2px solid var(--rule-soft)">'+x+'</li>').join('')+'</ul>'};
 /* Титульний слайд; SW_AUTHOR — підпис учителя внизу титулу (рішення 12.10.2026) */
-const SW_AUTHOR='&copy; М. В. Мойсеєв, вчитель інформатики';
+const SW_AUTHOR='&copy;m.moiseiev';
 T.title=d=>{const K=d.kicker||'';const m=K.match(/Урок\s*(\d+)/),g=d._g||9;
   return{cls:'s-title',html:'<div class="sw-shapes"><i class="sw-band"></i><i class="sw-circle"></i><i class="sw-stripes"></i><i class="sw-dots"></i></div>'+
    '<div class="sw-head"><span>Інформатика · '+g+' клас</span><span>'+(m?'Урок '+m[1]:'')+' · '+(K.split('·').pop()||'').trim()+'</span></div>'+

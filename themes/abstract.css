@@ -166,6 +166,8 @@ body{background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased}
 .slide:not(.s-title)::after{content:"";position:absolute;left:14px;bottom:16px;width:96px;height:72px;z-index:-1;pointer-events:none;
   background:var(--topic-deep);-webkit-mask:var(--m-dots) 0 0/96px 96px round;mask:var(--m-dots) 0 0/96px 96px round}
 .slide h2{font-family:var(--display);font-weight:700;font-size:42px;line-height:1.1;letter-spacing:-.01em;margin:0 0 24px}
+/* «Домашнє»: рядок «Успіхів у навчанні!» стоїть у лівому нижньому куті — пляму з крапками там не малюємо */
+.slide[data-type="home"]::before,.slide[data-type="home"]::after{display:none}
 .slide h3{font-family:var(--display);font-weight:700;font-size:24px}
 .slide p,.slide li{font-size:26px;line-height:1.42}
 .small{color:var(--ink-muted)}
@@ -222,6 +224,9 @@ h2.has-role{gap:20px}
   border-right:2px solid var(--ink);border-bottom:2px solid var(--ink);transform:rotate(-45deg)}
 .bit[data-pos="home"]{flex-direction:row-reverse;justify-content:flex-end}
 .bit[data-pos="home"]::after{right:auto;left:-28px}
+/* пляма під Бітом виступає ліворуч на 28px — «Успіхів у навчанні!» тримаємо на відстані */
+.homefoot{gap:64px}
+.homefoot .fin{flex:none}
 .bit[data-pos="home"] .bubble::after{left:-11px;right:auto;border:0;border-radius:0 0 0 5px;border-left:2px solid var(--ink);border-bottom:2px solid var(--ink);transform:rotate(45deg)}
 .bot-sq,.bot-hd{display:none} .bot-ab{display:block}
 .bit{--bit-body:var(--coral);--bit-outline:var(--ink);--bit-foot:var(--ink);--bit-eye:#fff;--bit-eye-line:var(--on-bright);--bit-face:var(--on-bright);
@@ -268,7 +273,7 @@ ul.list li:nth-child(even)::before{border-radius:var(--blob-b)}
   -webkit-mask:var(--m-blob-c) center/100% 100% no-repeat;mask:var(--m-blob-c) center/100% 100% no-repeat}
 .s-title::after{content:"";position:absolute;right:73px;top:13px;width:160px;height:107px;z-index:0;pointer-events:none;background:var(--topic-deep);
   -webkit-mask:var(--m-dots) 0 0/107px 107px round;mask:var(--m-dots) 0 0/107px 107px round}
-.s-title .t-head{position:absolute;left:64px;right:64px;top:22px;z-index:1;display:flex;justify-content:space-between;align-items:center;
+.s-title .t-head{position:absolute;left:64px;right:340px;top:22px;z-index:1;display:flex;justify-content:space-between;align-items:center;
   padding-bottom:16px;font:800 15px var(--body);letter-spacing:.03em;color:var(--ink-muted)}
 .s-title .t-head::after{content:"";position:absolute;left:0;right:0;bottom:0;height:10px;background:var(--rule);
   -webkit-mask:var(--m-wave) 0 50%/38px 10px repeat-x;mask:var(--m-wave) 0 50%/38px 10px repeat-x}
