@@ -375,3 +375,76 @@ kbd{font-family:var(--mono);font-size:.85em;border:1px solid var(--line);border-
 
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 @media print{.bar,.notes,.hud{display:none!important}}
+
+/* ===== Учнівська версія (SITE.student) ===== */
+.bar .spos{flex:none;font:700 .85rem var(--mono);color:var(--muted);white-space:nowrap}
+.student .bar .ttl{font-size:.9rem}
+/* на дотик: панель з'являється від дотику до слайда і ховається сама; кнопки більші */
+.touch .hud button{width:44px;height:44px}
+/* телефон горизонтально: без смуги, слайд на весь екран */
+@media (orientation:landscape) and (max-height:520px){
+  .student .bar{display:none}
+  .student #deck{padding:0}
+  .student .viewport{max-width:none;aspect-ratio:auto;height:100vh;height:100dvh;border-radius:0;box-shadow:none}
+  .touch .hud{bottom:6px;padding:2px 4px}
+  .touch .hud button{width:40px;height:40px}}
+
+/* ===== Стрічка: телефон вертикально ===== */
+/* Слайд верстається на ширину 600 і масштабується (--fz) на ширину екрана; колонки — одна під одною */
+.feed body{background:var(--bg)}
+.feed #deck{padding:10px 10px 24px}
+.feed .viewport{aspect-ratio:auto;overflow:visible;background:none;box-shadow:none;border:0;border-radius:0}
+.feed .stage{position:static;width:auto;height:auto;transform:none!important;background:none}
+.feed .hud,.feed .pen,.feed .blank,.feed .goto{display:none!important}
+.feed .ovl{position:fixed;padding:10px}
+.feed .ovgrid{grid-template-columns:repeat(2,1fr);gap:8px;padding:8px}
+.feed .stage .slide{display:flex;position:relative;inset:auto;width:600px;height:auto;zoom:var(--fz,.6);
+  padding:24px 28px 30px;margin:0 0 18px;background:var(--paper);border-radius:22px;overflow:hidden;
+  box-shadow:0 1px 0 var(--line),0 14px 30px -24px rgba(40,20,120,.5);scroll-margin-top:70px}
+.feed .stage .slide>*{zoom:1!important}
+.feed .stage .slide .f{opacity:1;transform:none;transition:none}
+.feed .stage .slide-top{position:relative;inset:auto;margin:0 0 16px}   /* relative: пунктир «Зошита» — під шапкою, а не внизу картки */
+[data-theme="zoshyt"].feed .stage .slide::after{display:none}   /* червона лінія полів «Зошита» */
+.feed .stage .slide-top .track{display:none}
+.feed .stage .slide-top .stepdots{display:none}
+.feed .stage .slide h2{font-size:38px}
+/* колонки → одна під одною */
+.feed .stage :is(.split.has-img,.cols,.shot,.homewrap,.rv.two,.opts,.home){grid-template-columns:minmax(0,1fr)!important}
+.feed .stage :is(.grid,.cards){grid-template-columns:repeat(2,minmax(0,1fr))!important}
+.feed .stage .split,.feed .stage .cols,.feed .tabpane,.feed .stage .wbox{flex:none}
+.feed .stage .split .ill{max-height:340px}
+.feed .stage .rv.compact .item{flex-wrap:wrap}
+.feed .stage .rv.compact .a{white-space:normal}
+.feed .stage table.t{font-size:20px}
+.feed .stage table.t :is(th,td){padding:6px 8px;overflow-wrap:anywhere;hyphens:auto}   /* широкі таблиці — вужчі клітинки, довгі слова переносяться */
+.feed .stage .fig.has-head{flex-wrap:wrap}   /* картинка з підписом: підпис під картинкою, якщо поруч не влазить */
+.feed .stage .fig figcaption{min-width:0;overflow-wrap:anywhere}
+/* титул */
+.feed .stage .s-title{min-height:0;padding-top:30px}
+.feed .stage .s-title .t-head{position:static;margin:0 0 20px}
+.feed .stage .s-title h2{font-size:46px}
+.feed .stage .stickers{display:none}   /* наліпки титулу розкладені під 1280×720 — у стрічці лише заважають */
+/* Біт — після змісту, не поверх */
+.feed .stage .bit{position:static;align-self:flex-end;margin:20px 0 0;max-width:100%}
+.feed .stage .bit .bot{width:100px;height:116px}
+.feed .stage .homefoot{flex-wrap:wrap;margin-top:32px}   /* на дошці відступ дає margin-top:auto, у стрічці висоти «зайвої» немає */
+/* віджети й скріншоти: висота не від слайда 720, а своя */
+.feed .stage .wbox{min-height:420px}
+.feed .stage .inner img{max-width:100%}
+.feed .stage .fig img{height:auto;max-height:var(--h,none)}   /* висота картинки — за її шириною, без порожніх смуг */
+.feed .stage .frame{box-sizing:content-box}   /* рамка — поза шириною картинки, щоб не обрізала її край */
+.feed .stage .qr .qrimg{width:220px;height:220px}
+/* тест на слайді: власні кнопки */
+.qnav{display:flex;gap:12px;justify-content:space-between;margin-top:18px}
+.qnav .btn{font-size:24px;padding:12px 22px}
+.feed .stage .s-title .deco,.feed .stage .s-title::after,.feed .stage .s-title::before{display:none}
+/* меню «Усі слайди» на телефоні: заголовок в один рядок, без підказки про клавіші */
+.feed .ovl .phead .small{display:none}
+.feed .ovl .phead b{margin-right:auto;white-space:nowrap}
+.feed .ovl .panel{max-height:calc(100dvh - 20px)}
+/* тест в учнівській версії: вердикт (зелений / червоний) і пояснення звичайним текстом під ним */
+.student .qexp:is([data-state="ok"],[data-state="no"]){flex-direction:column;align-items:flex-start;gap:6px}
+.student .qexp .verdict{display:inline-flex;align-items:center;gap:8px;font-weight:800}
+.student .qexp[data-state="ok"] .verdict{color:var(--positive)}
+.student .qexp[data-state="no"] .verdict{color:var(--negative)}
+.student .qexp .why{font-weight:400;color:var(--ink)}

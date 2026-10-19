@@ -42,6 +42,13 @@ const KEYS=[['→','наступний слайд'],['←','попередній
 const CFG=(typeof SITE!=='undefined'&&SITE)||{};
 const THEMES=CFG.themes||[];
 let L=null,cur=0,S=[];    // урок, слайд, кроки слайдів
+/* Учнівська версія (SITE.student): без нотаток, олівця, теми й меню; на дотик — без покрокової появи,
+   гортання свайпом. Телефон вертикально — «стрічка»: усі слайди один під одним, шрифт як у застосунку. */
+const ST=!!CFG.student;
+const TOUCH=ST&&matchMedia('(pointer:coarse)').matches;
+const FEED_MQ=matchMedia('(max-width:760px) and (orientation:portrait)');
+const FEED_W=600;         // ширина картки стрічки до масштабу: 600 → екран телефона (шрифт 28px ≈ 17px)
+let FEED=false;
 
 /* ===== Побудова сторінки уроку ===== */
 function buildLesson(){
@@ -52,7 +59,11 @@ function buildLesson(){
   // кнопки смуги — лише іконки, назва в підказці; смуга завжди в один рядок, довгий заголовок обрізається «…»
   const ib=(k,t,attr)=>'<button class="pill barico" '+attr+' title="'+t+'" aria-label="'+t+'">'+icon(k)+'</button>';
   const il=(k,t,href,blank)=>'<a class="pill barico" href="'+href+'"'+(blank?' target="_blank" rel="noopener"':'')+' title="'+t+'" aria-label="'+t+'">'+icon(k)+'</a>';
-  app.innerHTML='<header class="bar">'+
+  if(ST)document.documentElement.classList.add('student');
+  if(TOUCH)document.documentElement.classList.add('touch');
+  app.innerHTML=(ST?'<header class="bar"><span class="ttl" title="Урок '+L.num+'. '+L.title.replace(/"/g,'&quot;')+'">Урок '+L.num+'. '+L.title+'</span>'+
+     '<span class="spos" id="spos"></span>'+ib('grid','Усі слайди','id="gridBtn"')+'</header>':
+   '<header class="bar">'+
    (CFG.homeUrl?il('home','Усі класи',CFG.homeUrl):'')+
    (CFG.classUrl?il('lessons','Уроки класу',CFG.classUrl):'')+
    (lessons.length>1?'<select class="pill" id="lsel" aria-label="Інший урок">'+lessons.map(x=>
@@ -64,23 +75,25 @@ function buildLesson(){
    ib('grid','Усі слайди (G)','id="gridBtn"')+
    ib('notes','Нотатки (N)','id="notesBtn" aria-pressed="false"')+
    ib('help','Клавіші (?)','id="helpBtn"')+
-   (THEMES.length>1?ib('theme','Інша тема (T)','id="themeBtn"'):'')+'</header>'+
+   (THEMES.length>1&&!ST?ib('theme','Інша тема (T)','id="themeBtn"'):'')+'</header>')+
    '<main id="deck"><div class="viewport" id="vp"><div class="stage" id="stage"></div><canvas class="pen" id="pen"></canvas><div class="blank" id="blank"></div>'+
      '<div class="hud" id="hud" role="toolbar" aria-label="Керування показом">'+
+       (TOUCH?hb('prevSlide','back','Попередній слайд')+'<span class="hud-pos" id="hpos"></span>'+hb('nextSlide','fwd','Наступний слайд'):
        hb('prevSlide','first','Попередній слайд (←)')+hb('stepBack','back','Крок назад (PgUp)')+'<span class="hud-pos" id="hpos"></span>'+
-       hb('stepFwd','fwd','Наступний крок (пробіл, клік)')+hb('nextSlide','last','Наступний слайд (→)')+
+       hb('stepFwd','fwd','Наступний крок (пробіл, клік)')+hb('nextSlide','last','Наступний слайд (→)'))+
+       (ST?'<i class="sep"></i>'+hb('ov','grid','Усі слайди')+hb('fs','fs','На весь екран'):
        '<i class="sep"></i>'+hb('pen','pen','Олівець (P)')+
        '<span class="hud-pal" id="hpal"><button class="c" data-c="0" title="Рожевий"></button><button class="c" data-c="1" title="Синій"></button>'+
          '<button class="c" data-c="2" title="Зелений"></button><button class="c" data-c="3" title="Чорний"></button>'+
          hb('marker','marker','Маркер (напівпрозорий)')+hb('undo','undo','Скасувати штрих (Z)')+hb('clear','clear','Стерти малюнок на слайді (C)')+'</span>'+
-       '<i class="sep"></i>'+hb('ov','grid','Усі слайди (G)')+hb('blank','blank','Чорний екран (B)')+hb('help','help','Клавіші (?)')+hb('fs','fs','На весь екран / вийти (F)')+
+       '<i class="sep"></i>'+hb('ov','grid','Усі слайди (G)')+hb('blank','blank','Чорний екран (B)')+hb('help','help','Клавіші (?)')+hb('fs','fs','На весь екран / вийти (F)'))+
      '</div>'+
      '<div class="ovl" id="ovl" hidden><div class="panel"><div class="phead"><b>Усі слайди</b><span class="small">клік — перейти · Esc — закрити</span>'+hb('ovClose','close','Закрити (Esc)')+'</div><div class="ovgrid" id="ovg"></div></div></div>'+
      '<div class="ovl" id="help" hidden><div class="panel help"><div class="phead"><b>Керування</b>'+hb('helpClose','close','Закрити (Esc)')+'</div><table>'+
        KEYS.filter(k=>k[0]!=='T'||THEMES.length>1).map(k=>'<tr><td><kbd>'+k[0]+'</kbd></td><td>'+k[1]+'</td></tr>').join('')+'</table></div></div>'+
      '<div class="goto" id="goto" hidden></div>'+
    '</div>'+
-   '<aside class="notes" id="notes" hidden><h4>Нотатки вчителя</h4><div id="noteText"></div></aside></main>';
+   (ST?'':'<aside class="notes" id="notes" hidden><h4>Нотатки вчителя</h4><div id="noteText"></div></aside>')+'</main>';
 
   const stage=$('stage'),colors=secColors(L.slides);S=[];INK={};
   L.slides.forEach((d,i)=>{const r=slideHtml(d,i,L.slides.length);
@@ -88,33 +101,36 @@ function buildLesson(){
     s.dataset.type=d.type;s.dataset.secColor=colors[i];s.dataset.grade=L.grade;
     const role=roleOf(d);if(role)s.dataset.role=role;
     stage.append(s);
-    const api={setStep:k=>{if(cur===i){S[i].i=k;applyStep(i)}}};
+    const api={setStep:k=>{if(cur===i||FEED){S[i].i=k;applyStep(i)}}};
     let st=r.mount?r.mount(s,d,api):null;
     if(!st){const fr=[...s.querySelectorAll('.f')];st={count:fr.length,step:k=>fr.forEach((f,j)=>f.classList.toggle('in',j<k))}}
-    S.push({el:s,count:st.count,step:st.step,relayout:st.relayout,i:0,d,inited:false,fit:1})});
+    S.push({el:s,count:st.count,step:st.step,relayout:st.relayout,i:0,d,inited:false,fit:1,own:!!r.mount});
+    if(ST&&r.mount&&st.count>0&&(d.type==='quiz'||d.type==='widget'))addQnav(i)});
 
   if($('lsel'))$('lsel').onchange=e=>{e.target.blur();location.href=e.target.value};
-  $('notesBtn').onclick=()=>toggle('notes');$('gridBtn').onclick=()=>openOv();
-  $('penBtn').onclick=()=>pen(!penOn);$('helpBtn').onclick=()=>showHelp(true);
+  $('gridBtn').onclick=()=>openOv();
+  if(!ST){$('notesBtn').onclick=()=>toggle('notes');$('penBtn').onclick=()=>pen(!penOn);$('helpBtn').onclick=()=>showHelp(true)}
   if($('themeBtn'))$('themeBtn').onclick=()=>nextTheme();
   $('vp').querySelectorAll('[data-a]').forEach(b=>b.onclick=e=>{e.stopPropagation();ACT[b.dataset.a]()});
-  $('hpal').querySelectorAll('[data-c]').forEach(b=>b.onclick=e=>{e.stopPropagation();penTool.c=+b.dataset.c;penTool.marker=false;pen(true)});
+  if($('hpal'))$('hpal').querySelectorAll('[data-c]').forEach(b=>b.onclick=e=>{e.stopPropagation();penTool.c=+b.dataset.c;penTool.marker=false;pen(true)});
   $('vp').addEventListener('click',slideClick);
   ['ovl','help'].forEach(id=>$(id).addEventListener('click',e=>{if(e.target===$(id)){id==='ovl'?closeOv():showHelp(false)}}));
   bindHud();new ResizeObserver(fit).observe($('vp'));
+  if(ST){bindSwipe();new ResizeObserver(()=>{if(FEED)feedZoom()}).observe($('deck'));
+    FEED_MQ.addEventListener('change',()=>setFeed(FEED_MQ.matches))}
   document.addEventListener('fullscreenchange',()=>{fit();hudShow()});
   // картинки й шрифти вантажаться пізніше — тоді розміри змінюються, підгонку повторюємо
   let imgT=0;stage.addEventListener('load',e=>{if(e.target.tagName!=='IMG')return;clearTimeout(imgT);imgT=setTimeout(()=>fitSlide(cur),30)},true);
   addEventListener('load',()=>fitAll());
   if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>fitAll());
   initPen();fit();
-  try{if(localStorage.getItem('notes2')==='1')toggle('notes',true)}catch(e){}}
+  if(!ST)try{if(localStorage.getItem('notes2')==='1')toggle('notes',true)}catch(e){}}
 
 const ACT={prevSlide:()=>prevSlide(),stepBack:()=>stepBack(),stepFwd:()=>stepFwd(),nextSlide:()=>nextSlide(),
   pen:()=>pen(!penOn),marker:()=>{penTool.marker=!penTool.marker;pen(true)},undo:()=>undoPen(),clear:()=>clearPen(),
   ov:()=>openOv(),ovClose:()=>closeOv(),blank:()=>blank('black'),help:()=>showHelp(true),helpClose:()=>showHelp(false),fs:()=>fullscreen()};
 
-function toggle(id,force){const e=$(id),on=force!==undefined?force:e.hidden;e.hidden=!on;
+function toggle(id,force){const e=$(id);if(!e)return;const on=force!==undefined?force:e.hidden;e.hidden=!on;
   const b={notes:'notesBtn'}[id];if(b)$(b).setAttribute('aria-pressed',on);
   if(id==='notes'){$('deck').classList.toggle('with-notes',on);try{localStorage.setItem('notes2',on?'1':'0')}catch(e){}}}
 /* нотатка: кожен рядок — абзац; «Спитайте:» на початку — жирним; рядок «Джерело:» — дрібно внизу */
@@ -124,13 +140,15 @@ function noteHtml(t){if(!t)return '<p>—</p>';
     const m=/^([^:.!?«]{2,40}):\s+(.*)$/.exec(x);
     if(m&&/^джерел/i.test(m[1]))return '<p class="src">'+esc(x)+'</p>';
     return '<p>'+(m?'<b>'+esc(m[1])+':</b> '+esc(m[2]):esc(x))+'</p>'}).join('')}
-function applyStep(i){const s=S[i];const was=s.inited;s.step(s.i);s.inited=true;
+function applyStep(i){const s=S[i];const was=s.inited;s.step(s.i);s.inited=true;if(s.nav)s.nav();
   const dots=s.el.querySelector('.stepdots');
   dots.innerHTML=s.count>0?Array.from({length:s.count},(_,k)=>'<b class="'+(k<s.i?'in':'')+'"></b>').join(''):'';
   // віджет і скріншот міняють розмітку на кожному кроці: якщо крок не вміщається — зменшуємо далі (лише вниз)
   if(was&&i===cur&&(s.d.type==='widget'||s.d.type==='shot'))fitSlide(i,true);
   if(i===cur)updPos()}
-function updPos(){const s=S[cur];if(!s)return;$('hpos').textContent=(cur+1)+' / '+S.length+(s.count?' · '+s.i+'/'+s.count:'')}
+function updPos(){const s=S[cur];if(!s)return;
+  $('hpos').textContent=(cur+1)+' / '+S.length+(s.count&&!TOUCH?' · '+s.i+'/'+s.count:'');
+  if($('spos'))$('spos').textContent=(cur+1)+' / '+S.length}
 
 /* ===== Автопідгонка =====
    Зміст, що не вміщається на слайді, рівномірно зменшується (CSS zoom через --fit) кроками по 5 %, до 75 %.
@@ -161,7 +179,7 @@ function overflowOf(e){const r=e.getBoundingClientRect();if(!r.width)return 0;co
   if(blocks.length)e.querySelectorAll(TEXT_SEL+',.sub,.t-meta,.kicker').forEach(t=>{if(t.closest('.bit,.slide-top,.stickers'))return;
     textRects(t).forEach(q=>blocks.forEach(b=>{over=Math.max(over,hitH(q,b)/k)}))});
   return over}
-function fitSlide(i,keep){const s=S[i];if(!s)return;const e=s.el;if(!e.classList.contains('on'))return;
+function fitSlide(i,keep){const s=S[i];if(!s||FEED)return;const e=s.el;if(!e.classList.contains('on'))return;
   // вкладки й тест на дошці: розмір один на всі кроки — за найбільшим станом
   const multi=s.d.type==='tabs'||s.d.type==='quiz';
   const over=()=>{if(s.relayout)s.relayout();if(!multi)return overflowOf(e);let m=0;
@@ -170,18 +188,22 @@ function fitSlide(i,keep){const s=S[i];if(!s)return;const e=s.el;if(!e.classList
   while(over()>2&&f>FIT_MIN+.001){f=Math.round((f-FIT_STEP)*100)/100;e.style.setProperty('--fit',f)}
   e.classList.remove('fitting');s.fit=f;if(f<1)e.dataset.fit=f;else delete e.dataset.fit}
 /* усі слайди: після шрифтів, картинок і зміни теми */
-function fitAll(){if(!S.length)return;
+function fitAll(){if(!S.length||FEED)return;
   S.forEach((s,k)=>{if(k===cur)return;s.el.classList.add('on');
     if(!s.inited){try{s.step(0)}catch(e){}s.inited=true}
     fitSlide(k);s.el.classList.remove('on')});
   fitSlide(cur)}
 
-function go(i,stepAt){cur=i;S.forEach((s,k)=>s.el.classList.toggle('on',k===i));
+function go(i,stepAt){if(FEED){cur=i;S[i].el.scrollIntoView({block:'start'});updPos();return}
+  if(TOUCH&&!S[i].own)stepAt='end';   // учень з телефона: слайд одразу повністю, без покрокової появи
+  cur=i;S.forEach((s,k)=>s.el.classList.toggle('on',k===i));
   const s=S[i];s.i=stepAt==='end'?s.count:(stepAt||0);applyStep(i);fitSlide(i);
-  $('noteText').innerHTML=noteHtml(s.d.note);redrawPen();if(!$('ovl').hidden)markOv();
+  if($('noteText'))$('noteText').innerHTML=noteHtml(s.d.note);redrawPen();if(!$('ovl').hidden)markOv();
   const h='#'+(i+1);if(location.hash!==h)history.replaceState(null,'',h)}
 /* Кроки (анімація): пробіл, клік, PgDn / PgUp. Слайди: стрілки. */
-function stepFwd(){const s=S[cur];if(s.i<s.count){s.i++;applyStep(cur)}else if(cur<S.length-1)go(cur+1,0)}
+/* тест в учнівській версії: поки відповідь не вибрано, далі не йдемо (інакше одразу видно правильну) */
+const quizLocked=s=>ST&&s.d.type==='quiz'&&s.i%2===0&&!s.el.querySelector('.opt.pick');
+function stepFwd(){const s=S[cur];if(s.i<s.count){if(quizLocked(s))return;s.i++;applyStep(cur)}else if(cur<S.length-1)go(cur+1,0)}
 function stepBack(){const s=S[cur];if(s.i>0){s.i--;applyStep(cur)}else if(cur>0)go(cur-1,'end')}
 function nextSlide(){if(cur<S.length-1)go(cur+1,0)}
 function prevSlide(){if(cur>0)go(cur-1,'end')}
@@ -200,9 +222,11 @@ function blank(kind){const b=$('blank');const on=!(b.classList.contains('on')&&b
 
 /* Клік по слайду = наступний крок (кнопки, вкладки, поля, віджети й скріншоти працюють як раніше) */
 const NOCLICK='button,a,input,select,textarea,label,summary,[contenteditable],.wbox,.shot,.tabs,.opts,.opt,.cell,.seg,.sw,.frame,.qr,.hud,.ovl,.goto';
-function slideClick(e){if(penOn||e.button!==0)return;const t=e.target;
+function slideClick(e){if(penOn||FEED||e.button!==0)return;const t=e.target;
   if(t.closest('#blank')){$('blank').classList.remove('on','white');return}
-  if(t.closest(NOCLICK))return;if(String(getSelection&&getSelection()||''))return;stepFwd()}
+  if(t.closest(NOCLICK))return;if(String(getSelection&&getSelection()||''))return;
+  if(TOUCH){hudShow();return}   // учень на телефоні: дотик показує панель, гортання — свайпом
+  stepFwd()}
 
 /* Панель керування всередині показу: видно й на весь екран; ховається, коли мишка не рухається */
 let hudT=0;
@@ -230,8 +254,8 @@ let penOn=false,INK={},drawing=null;const penTool={c:0,marker:false};
 const PENC=['--pink','--sky','--mint','--ink'],PENF=['#E8336F','#1F8EF1','#0C9B70','#1E1B4B'];
 const penColor=i=>{const cs=getComputedStyle(document.documentElement);
   return cs.getPropertyValue('--pen'+(i+1)).trim()||cs.getPropertyValue(PENC[i]).trim()||PENF[i]};
-function penPal(){$('hpal').querySelectorAll('[data-c]').forEach((b,k)=>{b.style.background=penColor(k);b.classList.toggle('on',k===penTool.c)})}
-function pen(on){penOn=on;$('pen').classList.toggle('on',on);$('penBtn').setAttribute('aria-pressed',on);
+function penPal(){if(!$('hpal'))return;$('hpal').querySelectorAll('[data-c]').forEach((b,k)=>{b.style.background=penColor(k);b.classList.toggle('on',k===penTool.c)})}
+function pen(on){if(ST)return;penOn=on;$('pen').classList.toggle('on',on);$('penBtn').setAttribute('aria-pressed',on);
   const h=$('hud');h.classList.toggle('inking',on);
   h.querySelector('[data-a="pen"]').classList.toggle('on',on);
   h.querySelector('[data-a="marker"]').classList.toggle('on',on&&penTool.marker);
@@ -268,6 +292,11 @@ function nextTheme(){if(THEMES.length<2)return;const now=document.documentElemen
 // вибір теми пам'ятається окремо для кожного класу: T на уроці 9 класу не змінює 6 клас
 function themeKey(){return 'theme2-'+((typeof LESSON!=='undefined'&&LESSON&&LESSON.grade)||'')}
 function initTheme(){if(!THEMES.length)return;let id=null;
+  // учнівська версія: тему задає вчитель у посиланні (…/u/7-6.html?tema=abstract), сам учень її не міняє
+  if(ST){try{id=new URLSearchParams(location.search).get('tema')}catch(e){}
+    const t=THEMES.filter(x=>x.id===id)[0]||THEMES.filter(x=>x.id===CFG.theme)[0]||THEMES[0];
+    const link=$('themeCss');if(link&&link.getAttribute('href')!==t.css)link.setAttribute('href',t.css);
+    document.documentElement.dataset.theme=t.id;return}
   try{id=localStorage.getItem(themeKey())}catch(e){}
   setTheme(THEMES.filter(x=>x.id===id)[0]?id:(CFG.theme||THEMES[0].id))}
 
@@ -289,6 +318,8 @@ document.addEventListener('keydown',e=>{if(!L)return;const k=e.key,a=document.ac
   if(k==='Enter'){if(gotoBuf){e.preventDefault();gotoDo()}else if(tag!=='BUTTON'&&tag!=='A'){e.preventDefault();stepFwd()}return}
   if(k==='Escape'){if(!$('help').hidden)showHelp(false);else if(!$('ovl').hidden)closeOv();
     else if($('blank').classList.contains('on'))$('blank').classList.remove('on','white');else if(penOn)pen(false);return}
+  if(FEED)return;
+  if(ST&&!['ArrowRight','ArrowLeft',' ','Backspace','Home','End','f','а','g','п'].includes(k))return;
   if(k==='ArrowRight'){e.preventDefault();nextSlide()}
   else if(k==='ArrowLeft'){e.preventDefault();prevSlide()}
   else if(k===' '){e.preventDefault();e.shiftKey?stepBack():stepFwd()}
@@ -311,6 +342,39 @@ document.addEventListener('keyup',e=>{if(L&&e.key===' '&&/BUTTON|A/.test((docume
 document.addEventListener('pointerup',e=>{if(!L)return;const b=e.target.closest&&e.target.closest('#deck button,.bar button');
   if(b)setTimeout(()=>b.blur(),0)});
 
+/* ===== Учнівська версія: свайп і стрічка ===== */
+/* тест і віджет із кроками: свої кнопки «Назад / Далі» (на телефоні пробілу немає);
+   у тесті «Далі» неактивна, доки не вибрано відповідь */
+function addQnav(i){const s=S[i];
+  const n=el('div','qnav','<button class="btn" data-q="-1">‹ Назад</button><button class="btn primary" data-q="1">Далі ›</button>');
+  const [bb,bf]=n.querySelectorAll('button');
+  s.nav=()=>{bb.disabled=s.i<=0;bf.disabled=s.i>=s.count||quizLocked(s)};
+  [bb,bf].forEach(b=>b.onclick=e=>{e.stopPropagation();if(b===bf&&quizLocked(s))return;
+    const k=Math.max(0,Math.min(s.count,s.i+ +b.dataset.q));if(k!==s.i){s.i=k;applyStep(i)}});
+  s.el.addEventListener('click',()=>s.nav());   // вибір варіанта — «Далі» стає активною
+  s.el.append(n);s.nav()}
+function bindSwipe(){const vp=$('vp');let x0=null,y0=0;
+  vp.addEventListener('touchstart',e=>{if(FEED||e.touches.length>1){x0=null;return}x0=e.touches[0].clientX;y0=e.touches[0].clientY},{passive:true});
+  vp.addEventListener('touchend',e=>{if(x0===null)return;const t=e.changedTouches[0],dx=t.clientX-x0,dy=t.clientY-y0;x0=null;
+    if(Math.abs(dx)>50&&Math.abs(dx)>1.5*Math.abs(dy)){dx<0?nextSlide():prevSlide()}},{passive:true})}
+function feedZoom(){const w=$('stage').clientWidth;if(!w)return;
+  document.documentElement.style.setProperty('--fz',Math.min(1.3,w/FEED_W));S.forEach(s=>{if(s.relayout)try{s.relayout()}catch(e){}})}
+let feedIO=null;
+function setFeed(on){if(on===FEED)return;
+  if(on){const at=cur;FEED=true;document.documentElement.classList.add('feed');
+    S.forEach(s=>{if(!s.inited){try{s.step(0)}catch(e){}s.inited=true}
+      s.el.style.setProperty('--fit',1);
+      if(!s.own){s.i=s.count;s.step(s.count)}
+    });
+    feedZoom();
+    feedIO=new IntersectionObserver(es=>{es.forEach(x=>{if(x.isIntersecting){cur=S.findIndex(s=>s.el===x.target);updPos();
+      const h='#'+(cur+1);if(location.hash!==h)history.replaceState(null,'',h)}})},{rootMargin:'-30% 0px -60% 0px'});
+    // спершу — на потрібний слайд (#4 у посиланні), лише потім стежимо за прокруткою
+    requestAnimationFrame(()=>{S[at].el.scrollIntoView({block:'start'});
+      requestAnimationFrame(()=>S.forEach(s=>feedIO.observe(s.el)))})}
+  else{FEED=false;document.documentElement.classList.remove('feed');if(feedIO)feedIO.disconnect();
+    scrollTo(0,0);fit();fitAll();go(cur,0)}}
+
 /* API для вікна вчителя, перевірок і відео */
 window.deck={get state(){return{lesson:L&&L.id,slide:cur,step:S[cur]?S[cur].i:0,steps:S[cur]?S[cur].count:0,total:S.length}},
   go:(i,k)=>go(i,k),next:()=>stepFwd(),prev:()=>stepBack(),nextSlide:()=>nextSlide(),prevSlide:()=>prevSlide()};
@@ -323,6 +387,7 @@ function start(){app=$('app');
   initTheme();buildLesson();
   const n=hashSlide();
   go(Math.max(0,Math.min(L.slides.length-1,(n||1)-1)),0);
+  if(ST&&FEED_MQ.matches)setFeed(true);else if(TOUCH)hudShow();
   addEventListener('hashchange',()=>{const m=hashSlide();
     if(m&&m-1!==cur)go(Math.max(0,Math.min(S.length-1,m-1)),0)})}
 
@@ -498,8 +563,13 @@ V.quiz=d=>({html:head(d)+'<div class="qprog" aria-hidden="true"></div><p class="
           O.querySelectorAll('.opt.pick').forEach(x=>x.classList.remove('pick'));b.classList.toggle('pick',on);
           if(on)picked[qi]=k;else delete picked[qi]};li.append(b);O.append(li)});
       E.innerHTML=show?'<span class="ic" data-icon="check" aria-hidden="true"></span><span>'+txt(q.exp||q.a[q.ok])+'</span>':
-        '<span>Варіанти відповідей — голосуйте!</span>';
-      E.dataset.state=show?'ok':'wait'};
+        '<span>'+(ST?'Оберіть відповідь і натисніть «Далі»':'Варіанти відповідей — голосуйте!')+'</span>';
+      E.dataset.state=show?'ok':'wait';
+      // учень сам: спершу вердикт за його вибором, потім пояснення звичайним текстом
+      if(show&&ST){const right=picked[qi]===q.ok;
+        E.innerHTML='<span class="verdict">'+(right?'<span class="ic" data-icon="check" aria-hidden="true"></span>Правильно!':
+          'Ні, правильна відповідь — '+'АБВГ'[q.ok])+'</span>'+(q.exp?'<span class="why">'+txt(q.exp)+'</span>':'');
+        E.dataset.state=right?'ok':'no'}};
     return{count:qs.length*2-1,step}}});
 
 V.shot=d=>({html:head(d)+'<div class="shot"></div>',mount:(r,_,api)=>shotMount(r.querySelector('.shot'),d,api)});
@@ -538,7 +608,11 @@ function shotMount(box,d,api){
   let dd=null,cur=0,zoom=true;
   /* кадр займає вільне місце праворуч від списку й під заголовком; d.w / d.h — найбільший розмір.
      Слайд схований (розмірів ще немає) — запасні 790×520, рушій перерахує при показі (relayout). */
-  function room(){const aw=box.clientWidth-side.offsetWidth-(parseFloat(getComputedStyle(box).columnGap)||0),ah=box.clientHeight;
+  function room(){
+    // стрічка учня (телефон): список над кадром, кадр — на всю ширину, висота — за картинкою
+    if(typeof FEED!=='undefined'&&FEED){const fw=box.clientWidth-(frame.offsetWidth-frame.clientWidth);   // мінус рамка кадру
+      return[fw>0?Math.min(d.w||fw,fw):(d.w||790),1e4]}
+    const aw=box.clientWidth-side.offsetWidth-(parseFloat(getComputedStyle(box).columnGap)||0),ah=box.clientHeight;
     const MW=aw>0?Math.min(d.w||aw,aw):(d.w||790),MH=ah>0?Math.min(d.h||ah,ah):(d.h||520);return[MW,MH]}
   function layout(){const ar=(im.naturalHeight/im.naturalWidth)||.58;const m=room(),MW=m[0],MH=m[1];let w=MW,h=w*ar;if(h>MH){h=MH;w=h/ar}
     frame.style.width=w+'px';frame.style.height=h+'px';inner.style.width=w+'px';return[w,h]}
