@@ -31,9 +31,13 @@ img{max-width:100%}
 [hidden]{display:none!important}
 
 /* ===== Смуга над показом ===== */
-.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;display:flex;gap:.45rem;align-items:center;flex-wrap:wrap;
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;display:flex;gap:.45rem;align-items:center;flex-wrap:nowrap;
   padding:.5rem clamp(.7rem,2.5vw,1.6rem);background:var(--bg);border-bottom:1px solid var(--line)}
-.bar .ttl{font-family:var(--display);font-size:.95rem;font-weight:700;margin-right:auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bar .ttl{flex:1 1 0;font-family:var(--display);font-size:.95rem;font-weight:700;margin-right:auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bar>.pill{flex:none}
+.bar #lsel{flex:0 1 auto;min-width:0;max-width:260px}
+.pill.barico{display:inline-grid;place-items:center;width:2.4rem;height:2.4rem;padding:0}
+.pill.barico svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .pill{border:1.5px solid var(--line);background:var(--paper);border-radius:999px;padding:.32rem .8rem;cursor:pointer;
   font-weight:700;white-space:nowrap;text-decoration:none;color:inherit;max-width:340px}
 .pill[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
@@ -51,8 +55,8 @@ img{max-width:100%}
 .blank.on{display:block}
 .blank.white{background:#fff}
 /* нотатки вчителя — колонка справа від слайда; на вузькому екрані — під слайдом */
-#deck.with-notes{display:grid;grid-template-columns:minmax(0,1fr) clamp(260px,24vw,380px);gap:clamp(.6rem,1.4vw,1.1rem);align-items:start}
-#deck.with-notes .viewport{margin:0 0 0 auto}
+#deck.with-notes{display:grid;grid-template-columns:minmax(0,1280px) clamp(260px,24vw,380px);justify-content:center;gap:clamp(.6rem,1.4vw,1.1rem);align-items:start}
+#deck.with-notes .viewport{margin:0}
 .notes{background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:14px 18px;
   position:sticky;top:4rem;max-height:calc(100vh - 5rem);overflow:auto;font-size:16px;line-height:1.45}
 .notes h4{margin:0 0 8px;font-family:var(--display);font-size:.85rem;font-weight:700;color:var(--muted)}
@@ -105,12 +109,33 @@ h2.has-role{display:flex;align-items:center;gap:16px}
 /* Біт — мальований вигляд у темі */
 .bit{position:absolute;right:48px;bottom:34px;max-width:420px;margin:0}
 .bit .bubble{margin:0;background:var(--paper);border:2px solid var(--line);border-radius:18px;padding:12px 18px;font-size:22px}
-.bit[data-pos="home"]{position:static;max-width:none;margin-top:auto}
-.bot{display:block;flex:none;width:140px;height:163px}
-.bot g{display:none}
-.bit[data-grade="7"] .b-g7,.bit[data-grade="8"] .b-g8,.bit[data-grade="9"] .b-g9{display:inline}
-.b-body{fill:var(--accent)} .b-eye{fill:#fff} .b-pupil,.b-line{fill:var(--ink);stroke:var(--ink)}
-.b-ant{fill:var(--ink)} .b-ball{fill:var(--sun)} .b-tassel{fill:none;stroke:var(--sun)} .b-glass{fill:none;stroke:var(--ink);stroke-width:8}
+.bit[data-pos="home"]{position:static;max-width:none}
+/* «Домашнє»: «Успіхів у навчанні!» і Біт — одним рядком унизу, у потоці (автопідгонка їх рахує) */
+.homefoot{display:flex;align-items:flex-end;gap:28px;margin-top:auto;flex:none}
+.homefoot .fin{margin:0}
+.bit[data-pose="point"] .bubble{margin-right:16px}   /* рука показує на текст — не впритул до хвостика */
+/* Малюнок — спрайт bit.svg: тіло sq (Swiss), hd (Зошит) або ab (Abstract) вибирає тема; руки можуть виходити за поле */
+.bot{display:block;flex:none;width:140px;height:163px;overflow:visible}
+.bot-hd,.bot-ab{display:none}
+symbol{overflow:visible}
+.bit{--bit-body:var(--accent);--bit-outline:none;--bit-foot:var(--ink);--bit-eye:#fff;--bit-eye-line:none;--bit-face:#111;
+  --bit-cheek:var(--coral,#FF6B4A);--bit-hat:var(--ink);--bit-ball:var(--sun,#FFC93C);--bit-ball-line:var(--ink);--bit-pad:var(--sun,#FFC93C);
+  --bit-pad-line:var(--ink);--bit-hatch:none;--bit-arm:var(--ink);--bit-arm-w:12px;--bit-hand:var(--ink);--bit-hand-line:none;--bit-hand-lw:0px;--bit-prop2:#E6E6E6}
+.b-body{fill:var(--bit-body);stroke:var(--bit-outline)} .b-foot{fill:var(--bit-foot)}
+.b-eye{fill:var(--bit-eye);stroke:var(--bit-eye-line)} .b-shine{fill:var(--bit-eye)} .b-pupil{fill:var(--bit-face)}
+.b-mouth{fill:var(--bit-face);stroke:var(--bit-face);stroke-linecap:round;stroke-linejoin:round}
+.b-stroke{fill:none;stroke:var(--bit-face);stroke-linecap:round;stroke-linejoin:round} .b-cheek{fill:var(--bit-cheek)}
+.b-ant{fill:var(--bit-hat);stroke:var(--bit-hat);stroke-linejoin:round} .b-band{fill:none;stroke:var(--bit-hat);stroke-linecap:round}
+.b-ball{fill:var(--bit-ball);stroke:var(--bit-ball-line)} .b-pad{fill:var(--bit-pad);stroke:var(--bit-pad-line)}
+.b-frame{fill:none;stroke:var(--bit-face)} .b-tassel{fill:none;stroke:var(--bit-ball);stroke-linecap:round}
+.b-hatch{fill:none;stroke:var(--bit-hatch);stroke-linecap:round}
+.b-arm{fill:none;stroke:var(--bit-arm);stroke-width:var(--bit-arm-w);stroke-linecap:round;stroke-linejoin:round}
+.b-arm-in{fill:none;stroke:var(--bit-arm-in,none);stroke-width:var(--bit-arm-in-w,0px);stroke-linecap:round;stroke-linejoin:round}
+.b-hand{fill:var(--bit-hand);stroke:var(--bit-hand-line);stroke-width:var(--bit-hand-lw)}
+.b-finger{fill:none;stroke:var(--bit-arm);stroke-width:calc(var(--bit-arm-w) * .7);stroke-linecap:round}
+.b-motion{fill:none;stroke:var(--bit-face);stroke-width:5px;stroke-linecap:round}
+.b-prop{fill:var(--bit-ball);stroke:var(--bit-hat);stroke-width:4px;stroke-linejoin:round}
+.b-prop2{fill:var(--bit-prop2);stroke:var(--bit-hat);stroke-width:4px;stroke-linejoin:round}
 
 /* ===== Блоки тексту ===== */
 .split{display:grid;grid-template-columns:1fr;gap:36px;flex:1;min-height:0}

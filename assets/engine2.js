@@ -1,3 +1,4 @@
+const BIT_SPRITE="\u003csvg xmlns=\"http://www.w3.org/2000/svg\" width=\"0\" height=\"0\" style=\"position:absolute\" aria-hidden=\"true\" id=\"bitSprite\">\u003csymbol id=\"b-sq-base\">\u003crect class=\"b-foot\" x=\"64\" y=\"260\" width=\"28\" height=\"18\"/>\u003crect class=\"b-foot\" x=\"148\" y=\"260\" width=\"28\" height=\"18\"/>\u003crect class=\"b-body\" x=\"20\" y=\"60\" width=\"200\" height=\"200\" rx=\"32\"/>\u003c/symbol>\u003csymbol id=\"b-sq-hi\" viewBox=\"0 0 240 280\">\u003cuse href=\"#b-sq-base\"/>\u003ccircle class=\"b-eye\" cx=\"85\" cy=\"140\" r=\"28\"/>\u003ccircle class=\"b-eye\" cx=\"155\" cy=\"140\" r=\"28\"/>\u003ccircle class=\"b-pupil\" cx=\"90\" cy=\"144\" r=\"12\"/>\u003ccircle class=\"b-pupil\" cx=\"160\" cy=\"144\" r=\"12\"/>\u003ccircle class=\"b-cheek\" cx=\"58\" cy=\"186\" r=\"12\"/>\u003ccircle class=\"b-cheek\" cx=\"182\" cy=\"186\" r=\"12\"/>\u003cpath class=\"b-mouth\" d=\"M96 196Q120 216 144 196\" stroke-width=\"8\"/>\u003c/symbol>\u003csymbol id=\"b-sq-think\" viewBox=\"0 0 240 280\">\u003cuse href=\"#b-sq-base\"/>\u003ccircle class=\"b-eye\" cx=\"85\" cy=\"140\" r=\"28\"/>\u003ccircle class=\"b-eye\" cx=\"155\" cy=\"140\" r=\"28\"/>\u003ccircle class=\"b-pupil\" cx=\"96\" cy=\"128\" r=\"12\"/>\u003ccircle class=\"b-pupil\" cx=\"166\" cy=\"128\" r=\"12\"/>\u003ccircle class=\"b-cheek\" cx=\"58\" cy=\"186\" r=\"12\"/>\u003ccircle class=\"b-cheek\" cx=\"182\" cy=\"186\" r=\"12\"/>\u003cpath class=\"b-stroke\" d=\"M100 204L140 198\" stroke-width=\"8\"/>\u003c/symbol>\u003csymbol id=\"b-sq-happy\" viewBox=\"0 0 240 280\">\u003cuse href=\"#b-sq-base\"/>\u003cpath class=\"b-stroke\" d=\"M62 146Q85 116 108 146\" stroke-width=\"9\"/>\u003cpath class=\"b-stroke\" d=\"M132 146Q155 116 178 146\" stroke-width=\"9\"/>\u003ccircle class=\"b-cheek\" cx=\"58\" cy=\"186\" r=\"12\"/>\u003ccircle class=\"b-cheek\" cx=\"182\" cy=\"186\" r=\"12\"/>\u003cpath class=\"b-mouth\" d=\"M88 188Q120 236 152 188Z\" stroke-width=\"6\"/>\u003c/symbol>\u003csymbol id=\"b-sq-oops\" viewBox=\"0 0 240 280\">\u003cuse href=\"#b-sq-base\"/>\u003ccircle class=\"b-eye\" cx=\"85\" cy=\"140\" r=\"30\"/>\u003ccircle class=\"b-eye\" cx=\"155\" cy=\"140\" r=\"30\"/>\u003ccircle class=\"b-pupil\" cx=\"85\" cy=\"140\" r=\"8\"/>\u003ccircle class=\"b-pupil\" cx=\"155\" cy=\"140\" r=\"8\"/>\u003ccircle class=\"b-cheek\" cx=\"58\" cy=\"186\" r=\"12\"/>\u003ccircle class=\"b-cheek\" cx=\"182\" cy=\"186\" r=\"12\"/>\u003ccircle class=\"b-stroke\" cx=\"120\" cy=\"204\" r=\"14\" stroke-width=\"8\"/>\u003c/symbol>\u003csymbol id=\"b-sq-g6\" viewBox=\"0 0 240 280\">\u003cpath class=\"b-band\" d=\"M120 62V30\" stroke-width=\"8\"/>\u003ccircle class=\"b-ball\" cx=\"120\" cy=\"22\" r=\"18\" stroke-width=\"4\"/>\u003c/symbol>\u003csymbol id=\"b-sq-g7\" viewBox=\"0 0 240 280\">\u003cpath class=\"b-band\" d=\"M18 150V112Q18 26 120 26Q222 26 222 112V150\" stroke-width=\"12\"/>\u003crect class=\"b-pad\" x=\"2\" y=\"118\" width=\"34\" height=\"72\" rx=\"10\" stroke-width=\"4\"/>\u003crect class=\"b-pad\" x=\"204\" y=\"118\" width=\"34\" height=\"72\" rx=\"10\" stroke-width=\"4\"/>\u003c/symbol>\u003csymbol id=\"b-sq-g8\" viewBox=\"0 0 240 280\">\u003cpath class=\"b-band\" d=\"M120 62V30\" stroke-width=\"8\"/>\u003ccircle class=\"b-ball\" cx=\"120\" cy=\"22\" r=\"18\" stroke-width=\"4\"/>\u003crect class=\"b-frame\" x=\"52\" y=\"106\" width=\"68\" height=\"68\" rx=\"10\" stroke-width=\"7\"/>\u003crect class=\"b-frame\" x=\"122\" y=\"106\" width=\"68\" height=\"68\" rx=\"10\" stroke-width=\"7\"/>\u003c/symbol>\u003csymbol id=\"b-sq-g9\" viewBox=\"0 0 240 280\">\u003crect class=\"b-ant\" x=\"66\" y=\"40\" width=\"108\" height=\"30\"/>\u003cpolygon class=\"b-ant\" points=\"120,2 236,34 120,66 4,34\"/>\u003cpath class=\"b-tassel\" d=\"M120 34L214 44L214 92\" stroke-width=\"6\"/>\u003ccircle class=\"b-ball\" cx=\"214\" cy=\"100\" r=\"11\" stroke-width=\"4\"/>\u003c/symbol>\u003csymbol id=\"b-hd-base\">\u003cellipse class=\"b-foot\" cx=\"86\" cy=\"266\" rx=\"20\" ry=\"10\"/>\u003cellipse class=\"b-foot\" cx=\"154\" cy=\"266\" rx=\"20\" ry=\"10\"/>\u003cpath class=\"b-body\" stroke-width=\"6\" stroke-linejoin=\"round\" d=\"M42 66C80 58 160 58 200 64C214 66 220 76 220 92C222 136 222 190 218 232C216 248 206 256 190 257C150 260 92 260 52 257C34 256 24 246 22 230C18 188 18 132 22 92C24 76 30 68 42 66Z\"/>\u003cpath class=\"b-hatch\" stroke-width=\"3\" d=\"M178 238L202 214M162 248L206 204M150 252L208 194\"/>\u003c/symbol>\u003csymbol id=\"b-hd-hi\" viewBox=\"0 0 240 280\">\u003cuse href=\"#b-hd-base\"/>\u003cellipse class=\"b-pupil\" cx=\"88\" cy=\"140\" rx=\"11\" ry=\"14\"/>\u003cellipse class=\"b-pupil\" cx=\"152\" cy=\"140\" rx=\"11\" ry=\"14\"/>\u003ccircle class=\"b-shine\" cx=\"92\" cy=\"135\" r=\"4\"/>\u003ccircle class=\"b-shine\" cx=\"156\" cy=\"135\" r=\"4\"/>\u003ccircle class=\"b-cheek\" cx=\"62\" cy=\"182\" r=\"12\"/>\u003ccircle class=\"b-cheek\" cx=\"178\" cy=\"182\" r=\"12\"/>\u003cpath class=\"b-stroke\" d=\"M100 190Q120 208 140 190\" stroke-width=\"7\"/>\u003c/symbol>\u003csymbol id=\"b-hd-think\" viewBox=\"0 0 240 280\">\u003cuse href=\"#b-hd-base\"/>\u003cellipse class=\"b-pupil\" cx=\"94\" cy=\"132\" rx=\"11\" ry=\"14\"/>\u003cellipse class=\"b-pupil\" cx=\"158\" cy=\"132\" rx=\"11\" ry=\"14\"/>\u003ccircle class=\"b-shine\" cx=\"98\" cy=\"127\" r=\"4\"/>\u003ccircle class=\"b-shine\" cx=\"162\" cy=\"127\" r=\"4\"/>\u003ccircle class=\"b-cheek\" cx=\"62\" cy=\"182\" r=\"12\"/>\u003ccircle class=\"b-cheek\" cx=\"178\" cy=\"182\" r=\"12\"/>\u003cpath class=\"b-stroke\" d=\"M104 198L138 192\" stroke-width=\"7\"/>\u003c/symbol>\u003csymbol id=\"b-hd-happy\" viewBox=\"0 0 240 280\">\u003cuse href=\"#b-hd-base\"/>\u003cpath class=\"b-stroke\" d=\"M74 146Q88 126 102 146\" stroke-width=\"7\"/>\u003cpath class=\"b-stroke\" d=\"M138 146Q152 126 166 146\" stroke-width=\"7\"/>\u003ccircle class=\"b-cheek\" cx=\"62\" cy=\"182\" r=\"12\"/>\u003ccircle class=\"b-cheek\" cx=\"178\" cy=\"182\" r=\"12\"/>\u003cpath class=\"b-mouth\" d=\"M96 182Q120 222 144 182Z\" stroke-width=\"4\"/>\u003c/symbol>\u003csymbol id=\"b-hd-oops\" viewBox=\"0 0 240 280\">\u003cuse href=\"#b-hd-base\"/>\u003ccircle class=\"b-eye\" cx=\"88\" cy=\"140\" r=\"20\" stroke-width=\"5\"/>\u003ccircle class=\"b-eye\" cx=\"152\" cy=\"140\" r=\"20\" stroke-width=\"5\"/>\u003ccircle class=\"b-pupil\" cx=\"88\" cy=\"140\" r=\"7\"/>\u003ccircle class=\"b-pupil\" cx=\"152\" cy=\"140\" r=\"7\"/>\u003ccircle class=\"b-cheek\" cx=\"62\" cy=\"182\" r=\"12\"/>\u003ccircle class=\"b-cheek\" cx=\"178\" cy=\"182\" r=\"12\"/>\u003ccircle class=\"b-stroke\" cx=\"120\" cy=\"200\" r=\"11\" stroke-width=\"6\"/>\u003c/symbol>\u003csymbol id=\"b-hd-g6\" viewBox=\"0 0 240 280\">\u003cpath class=\"b-band\" d=\"M120 60C114 48 126 42 120 32\" stroke-width=\"6\"/>\u003ccircle class=\"b-ball\" cx=\"120\" cy=\"22\" r=\"14\" stroke-width=\"4\"/>\u003c/symbol>\u003csymbol id=\"b-hd-g7\" viewBox=\"0 0 240 280\">\u003cpath class=\"b-band\" d=\"M20 150V114Q20 28 120 28Q220 28 220 114V150\" stroke-width=\"10\"/>\u003crect class=\"b-pad\" x=\"6\" y=\"112\" width=\"30\" height=\"70\" rx=\"12\" stroke-width=\"4\"/>\u003crect class=\"b-pad\" x=\"204\" y=\"112\" width=\"30\" height=\"70\" rx=\"12\" stroke-width=\"4\"/>\u003c/symbol>\u003csymbol id=\"b-hd-g8\" viewBox=\"0 0 240 280\">\u003cpath class=\"b-band\" d=\"M120 60C114 48 126 42 120 32\" stroke-width=\"6\"/>\u003ccircle class=\"b-ball\" cx=\"120\" cy=\"22\" r=\"14\" stroke-width=\"4\"/>\u003ccircle class=\"b-frame\" cx=\"88\" cy=\"140\" r=\"26\" stroke-width=\"6\"/>\u003ccircle class=\"b-frame\" cx=\"152\" cy=\"140\" r=\"26\" stroke-width=\"6\"/>\u003cpath class=\"b-frame\" d=\"M114 136Q120 130 126 136\" stroke-width=\"6\"/>\u003c/symbol>\u003csymbol id=\"b-hd-g9\" viewBox=\"0 0 240 280\">\u003crect class=\"b-ant\" x=\"70\" y=\"44\" width=\"100\" height=\"26\" rx=\"6\"/>\u003cpolygon class=\"b-ant\" points=\"120,6 232,38 120,70 8,38\"/>\u003cpath class=\"b-tassel\" d=\"M120 38L210 50L210 94\" stroke-width=\"6\"/>\u003ccircle class=\"b-ball\" cx=\"210\" cy=\"102\" r=\"11\" stroke-width=\"4\"/>\u003c/symbol>\u003csymbol id=\"b-ab-base\">\u003cellipse class=\"b-foot\" cx=\"88\" cy=\"264\" rx=\"20\" ry=\"11\"/>\u003cellipse class=\"b-foot\" cx=\"152\" cy=\"264\" rx=\"20\" ry=\"11\"/>\u003cpath class=\"b-body\" stroke-width=\"6\" d=\"M120 60C178 58 220 96 218 158C216 222 178 260 120 258C62 256 22 222 24 160C26 98 62 62 120 60Z\"/>\u003c/symbol>\u003csymbol id=\"b-ab-hi\" viewBox=\"0 0 240 280\">\u003cuse href=\"#b-ab-base\"/>\u003ccircle class=\"b-eye\" cx=\"92\" cy=\"146\" r=\"24\" stroke-width=\"5\"/>\u003ccircle class=\"b-eye\" cx=\"148\" cy=\"146\" r=\"24\" stroke-width=\"5\"/>\u003ccircle class=\"b-pupil\" cx=\"96\" cy=\"150\" r=\"10\"/>\u003ccircle class=\"b-pupil\" cx=\"152\" cy=\"150\" r=\"10\"/>\u003ccircle class=\"b-cheek\" cx=\"60\" cy=\"190\" r=\"12\"/>\u003ccircle class=\"b-cheek\" cx=\"180\" cy=\"190\" r=\"12\"/>\u003cpath class=\"b-stroke\" d=\"M100 198Q120 216 140 198\" stroke-width=\"7\"/>\u003c/symbol>\u003csymbol id=\"b-ab-think\" viewBox=\"0 0 240 280\">\u003cuse href=\"#b-ab-base\"/>\u003ccircle class=\"b-eye\" cx=\"92\" cy=\"146\" r=\"24\" stroke-width=\"5\"/>\u003ccircle class=\"b-eye\" cx=\"148\" cy=\"146\" r=\"24\" stroke-width=\"5\"/>\u003ccircle class=\"b-pupil\" cx=\"102\" cy=\"138\" r=\"10\"/>\u003ccircle class=\"b-pupil\" cx=\"158\" cy=\"138\" r=\"10\"/>\u003ccircle class=\"b-cheek\" cx=\"60\" cy=\"190\" r=\"12\"/>\u003ccircle class=\"b-cheek\" cx=\"180\" cy=\"190\" r=\"12\"/>\u003cpath class=\"b-stroke\" d=\"M104 206L138 199\" stroke-width=\"7\"/>\u003c/symbol>\u003csymbol id=\"b-ab-happy\" viewBox=\"0 0 240 280\">\u003cuse href=\"#b-ab-base\"/>\u003cpath class=\"b-stroke\" d=\"M70 152Q92 124 114 152\" stroke-width=\"8\"/>\u003cpath class=\"b-stroke\" d=\"M126 152Q148 124 170 152\" stroke-width=\"8\"/>\u003ccircle class=\"b-cheek\" cx=\"60\" cy=\"190\" r=\"12\"/>\u003ccircle class=\"b-cheek\" cx=\"180\" cy=\"190\" r=\"12\"/>\u003cpath class=\"b-mouth\" d=\"M94 190Q120 234 146 190Z\" stroke-width=\"5\"/>\u003c/symbol>\u003csymbol id=\"b-ab-oops\" viewBox=\"0 0 240 280\">\u003cuse href=\"#b-ab-base\"/>\u003ccircle class=\"b-eye\" cx=\"92\" cy=\"146\" r=\"26\" stroke-width=\"5\"/>\u003ccircle class=\"b-eye\" cx=\"148\" cy=\"146\" r=\"26\" stroke-width=\"5\"/>\u003ccircle class=\"b-pupil\" cx=\"92\" cy=\"146\" r=\"7\"/>\u003ccircle class=\"b-pupil\" cx=\"148\" cy=\"146\" r=\"7\"/>\u003ccircle class=\"b-cheek\" cx=\"60\" cy=\"190\" r=\"12\"/>\u003ccircle class=\"b-cheek\" cx=\"180\" cy=\"190\" r=\"12\"/>\u003ccircle class=\"b-stroke\" cx=\"120\" cy=\"208\" r=\"13\" stroke-width=\"7\"/>\u003c/symbol>\u003csymbol id=\"b-ab-g6\" viewBox=\"0 0 240 280\">\u003cpath class=\"b-band\" d=\"M120 62C106 50 134 42 122 32\" stroke-width=\"6\"/>\u003ccircle class=\"b-ball\" cx=\"122\" cy=\"22\" r=\"14\" stroke-width=\"4\"/>\u003c/symbol>\u003csymbol id=\"b-ab-g7\" viewBox=\"0 0 240 280\">\u003cpath class=\"b-band\" d=\"M26 156V120Q26 30 120 30Q214 30 214 120V156\" stroke-width=\"12\"/>\u003crect class=\"b-pad\" x=\"8\" y=\"118\" width=\"34\" height=\"74\" rx=\"16\" stroke-width=\"5\"/>\u003crect class=\"b-pad\" x=\"198\" y=\"118\" width=\"34\" height=\"74\" rx=\"16\" stroke-width=\"5\"/>\u003c/symbol>\u003csymbol id=\"b-ab-g8\" viewBox=\"0 0 240 280\">\u003cpath class=\"b-band\" d=\"M120 62C106 50 134 42 122 32\" stroke-width=\"6\"/>\u003ccircle class=\"b-ball\" cx=\"122\" cy=\"22\" r=\"14\" stroke-width=\"4\"/>\u003ccircle class=\"b-frame\" cx=\"92\" cy=\"146\" r=\"31\" stroke-width=\"7\"/>\u003ccircle class=\"b-frame\" cx=\"148\" cy=\"146\" r=\"31\" stroke-width=\"7\"/>\u003c/symbol>\u003csymbol id=\"b-ab-g9\" viewBox=\"0 0 240 280\">\u003crect class=\"b-ant\" x=\"70\" y=\"44\" width=\"100\" height=\"30\" rx=\"8\"/>\u003cpolygon class=\"b-ant\" points=\"120,8 232,38 120,68 8,38\"/>\u003cpath class=\"b-tassel\" d=\"M120 38L210 48L210 94\" stroke-width=\"6\"/>\u003ccircle class=\"b-ball\" cx=\"210\" cy=\"102\" r=\"11\" stroke-width=\"4\"/>\u003c/symbol>\u003csymbol id=\"b-pose-wave-back\" viewBox=\"0 0 240 280\" overflow=\"visible\">\u003cpath class=\"b-arm\" d=\"M30 176Q2 196 4 232\"/>\u003cpath class=\"b-arm-in\" d=\"M30 176Q2 196 4 232\"/>\u003ccircle class=\"b-hand\" cx=\"4\" cy=\"236\" r=\"11\"/>\u003cpath class=\"b-arm\" d=\"M206 170Q252 150 246 100\"/>\u003cpath class=\"b-arm-in\" d=\"M206 170Q252 150 246 100\"/>\u003ccircle class=\"b-hand\" cx=\"246\" cy=\"94\" r=\"11\"/>\u003c/symbol>\u003csymbol id=\"b-pose-wave-front\" viewBox=\"0 0 240 280\" overflow=\"visible\">\u003cpath class=\"b-motion\" d=\"M262 74q8 10 2 22\"/>\u003cpath class=\"b-motion\" d=\"M230 62q-6-10 2-20\"/>\u003c/symbol>\u003csymbol id=\"b-pose-point-back\" viewBox=\"0 0 240 280\" overflow=\"visible\">\u003cpath class=\"b-arm\" d=\"M34 170Q-2 162 -6 132\"/>\u003cpath class=\"b-arm-in\" d=\"M34 170Q-2 162 -6 132\"/>\u003ccircle class=\"b-hand\" cx=\"-6\" cy=\"126\" r=\"11\"/>\u003cpath class=\"b-finger\" d=\"M-7 117L-11 101\"/>\u003cpath class=\"b-arm\" d=\"M210 176Q238 196 236 232\"/>\u003cpath class=\"b-arm-in\" d=\"M210 176Q238 196 236 232\"/>\u003ccircle class=\"b-hand\" cx=\"236\" cy=\"236\" r=\"11\"/>\u003c/symbol>\u003csymbol id=\"b-pose-point-front\" viewBox=\"0 0 240 280\" overflow=\"visible\">\u003c/symbol>\u003csymbol id=\"b-pose-think-back\" viewBox=\"0 0 240 280\" overflow=\"visible\">\u003cpath class=\"b-arm\" d=\"M210 176Q238 196 236 232\"/>\u003cpath class=\"b-arm-in\" d=\"M210 176Q238 196 236 232\"/>\u003ccircle class=\"b-hand\" cx=\"236\" cy=\"236\" r=\"11\"/>\u003c/symbol>\u003csymbol id=\"b-pose-think-front\" viewBox=\"0 0 240 280\" overflow=\"visible\">\u003cpath class=\"b-arm\" d=\"M30 188Q40 236 92 214\"/>\u003cpath class=\"b-arm-in\" d=\"M30 188Q40 236 92 214\"/>\u003ccircle class=\"b-hand\" cx=\"96\" cy=\"212\" r=\"11\"/>\u003c/symbol>\u003csymbol id=\"b-pose-cheer-back\" viewBox=\"0 0 240 280\" overflow=\"visible\">\u003cpath class=\"b-arm\" d=\"M34 168Q-8 136 2 92\"/>\u003cpath class=\"b-arm-in\" d=\"M34 168Q-8 136 2 92\"/>\u003ccircle class=\"b-hand\" cx=\"2\" cy=\"86\" r=\"11\"/>\u003cpath class=\"b-arm\" d=\"M206 168Q248 136 238 92\"/>\u003cpath class=\"b-arm-in\" d=\"M206 168Q248 136 238 92\"/>\u003ccircle class=\"b-hand\" cx=\"238\" cy=\"86\" r=\"11\"/>\u003c/symbol>\u003csymbol id=\"b-pose-cheer-front\" viewBox=\"0 0 240 280\" overflow=\"visible\">\u003cpath class=\"b-motion\" d=\"M40 44l-12-12M200 44l12-12\"/>\u003c/symbol>\u003csymbol id=\"b-pose-pencil-back\" viewBox=\"0 0 240 280\" overflow=\"visible\">\u003cpath class=\"b-arm\" d=\"M30 176Q2 196 4 232\"/>\u003cpath class=\"b-arm-in\" d=\"M30 176Q2 196 4 232\"/>\u003ccircle class=\"b-hand\" cx=\"4\" cy=\"236\" r=\"11\"/>\u003c/symbol>\u003csymbol id=\"b-pose-pencil-front\" viewBox=\"0 0 240 280\" overflow=\"visible\">\u003cpath class=\"b-prop\" d=\"M162 248L218 186L230 198L174 260Z\"/>\u003cpath class=\"b-ant\" d=\"M162 248L156 268L174 260Z\"/>\u003cpath class=\"b-prop2\" d=\"M218 186L226 178L238 190L230 198Z\"/>\u003cpath class=\"b-arm\" d=\"M206 178Q244 204 206 224\"/>\u003cpath class=\"b-arm-in\" d=\"M206 178Q244 204 206 224\"/>\u003ccircle class=\"b-hand\" cx=\"202\" cy=\"224\" r=\"11\"/>\u003c/symbol>\u003csymbol id=\"b-pose-laptop-back\" viewBox=\"0 0 240 280\" overflow=\"visible\">\u003c/symbol>\u003csymbol id=\"b-pose-laptop-front\" viewBox=\"0 0 240 280\" overflow=\"visible\">\u003cpath class=\"b-prop2\" d=\"M66 204H174V240H66Z\"/>\u003ccircle class=\"b-prop\" cx=\"120\" cy=\"222\" r=\"7\"/>\u003cpath class=\"b-prop2\" d=\"M52 240H188L200 256H40Z\"/>\u003cpath class=\"b-arm\" d=\"M28 180Q18 216 60 226\"/>\u003cpath class=\"b-arm-in\" d=\"M28 180Q18 216 60 226\"/>\u003ccircle class=\"b-hand\" cx=\"62\" cy=\"226\" r=\"11\"/>\u003cpath class=\"b-arm\" d=\"M212 180Q222 216 180 226\"/>\u003cpath class=\"b-arm-in\" d=\"M212 180Q222 216 180 226\"/>\u003ccircle class=\"b-hand\" cx=\"178\" cy=\"226\" r=\"11\"/>\u003c/symbol>\u003csymbol id=\"b-pose-peek-back\" viewBox=\"0 0 240 280\" overflow=\"visible\">\u003c/symbol>\u003csymbol id=\"b-pose-peek-front\" viewBox=\"0 0 240 280\" overflow=\"visible\">\u003ccircle class=\"b-hand\" cx=\"64\" cy=\"196\" r=\"13\"/>\u003ccircle class=\"b-hand\" cx=\"176\" cy=\"196\" r=\"13\"/>\u003c/symbol>\u003c/svg>";
 /* ===== Рушій v2: показ уроку на дошці =====
    Сторінка дає дані: LESSON (урок), IMG (картинки), QR (коди тестів), SITE (посилання, теми).
    Розмітку робить render.js, віджети — engine/src/widgets.js без змін.
@@ -25,7 +26,13 @@ const IC={
   blank:'<rect x="3" y="5" width="18" height="14" fill="currentColor"/>',
   help:'<circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6V14M12 17.5v.01"/>',
   fs:'<path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/>',
-  close:'<path d="M6 6l12 12M18 6L6 18"/>'};
+  close:'<path d="M6 6l12 12M18 6L6 18"/>',
+  home:'<path d="M3 11l9-7 9 7"/><path d="M5 10v10h5v-6h4v6h5V10"/>',
+  lessons:'<path d="M9 6h12M9 12h12M9 18h12"/><path d="M4 6h.01M4 12h.01M4 18h.01"/>',
+  test:'<rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 12l3 3 5-6"/>',
+  prak:'<rect x="3" y="4" width="18" height="12" rx="1"/><path d="M2 20h20M9 16v4M15 16v4"/>',
+  notes:'<path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 12h7M9 16h7"/>',
+  theme:'<circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor"/>'};
 const icon=k=>'<svg viewBox="0 0 24 24" aria-hidden="true">'+IC[k]+'</svg>';
 const KEYS=[['→','наступний слайд'],['←','попередній слайд (повністю розкритий)'],['Пробіл, клік по слайду, PgDn','наступний крок (анімація)'],
   ['Shift+Пробіл, Backspace, PgUp','крок назад'],['номер + Enter','перейти на слайд'],['Home / End','перший / останній слайд'],
@@ -42,19 +49,22 @@ function buildLesson(){
   const hb=(a,k,t)=>'<button data-a="'+a+'" title="'+t+'" aria-label="'+t+'">'+icon(k)+'</button>';
   const lessons=CFG.lessons||[];
   const test=CFG.testUrl&&(CFG.tests||[]).indexOf(L.id)>=0?CFG.testUrl+'?t='+L.id:'';
+  // кнопки смуги — лише іконки, назва в підказці; смуга завжди в один рядок, довгий заголовок обрізається «…»
+  const ib=(k,t,attr)=>'<button class="pill barico" '+attr+' title="'+t+'" aria-label="'+t+'">'+icon(k)+'</button>';
+  const il=(k,t,href,blank)=>'<a class="pill barico" href="'+href+'"'+(blank?' target="_blank" rel="noopener"':'')+' title="'+t+'" aria-label="'+t+'">'+icon(k)+'</a>';
   app.innerHTML='<header class="bar">'+
-   (CFG.homeUrl?'<a class="pill" href="'+CFG.homeUrl+'" title="Головна сторінка з усіма класами">⌂ Усі класи</a>':'')+
-   (CFG.classUrl?'<a class="pill" href="'+CFG.classUrl+'" title="Уроки класу">← Уроки класу</a>':'')+
+   (CFG.homeUrl?il('home','Усі класи',CFG.homeUrl):'')+
+   (CFG.classUrl?il('lessons','Уроки класу',CFG.classUrl):'')+
    (lessons.length>1?'<select class="pill" id="lsel" aria-label="Інший урок">'+lessons.map(x=>
      '<option value="'+x.url+'"'+(x.id===L.id?' selected':'')+'>Урок '+x.num+'. '+x.title+'</option>').join('')+'</select>':'')+
-   '<span class="ttl">Урок '+L.num+'. '+L.title+'</span>'+
-   (test?'<a class="pill" href="'+test+'" target="_blank" rel="noopener" title="Відкрити тест у новій вкладці">Тест</a>':'')+
-   (CFG.praktychnaUrl?'<a class="pill" href="'+CFG.praktychnaUrl+'" target="_blank" rel="noopener" title="Відкрити практичну в новій вкладці">Практична</a>':'')+
-   '<button class="pill" id="penBtn" aria-pressed="false" title="Олівець (P)">Олівець</button>'+
-   '<button class="pill" id="gridBtn" title="Усі слайди (G)">Усі слайди</button>'+
-   '<button class="pill" id="notesBtn" aria-pressed="false" title="Нотатки (N)">Нотатки</button>'+
-   '<button class="pill" id="helpBtn" title="Клавіші (?)">?</button>'+
-   (THEMES.length>1?'<button class="pill" id="themeBtn" title="Інша тема (T)">Тема</button>':'')+'</header>'+
+   '<span class="ttl" title="Урок '+L.num+'. '+L.title.replace(/"/g,'&quot;')+'">Урок '+L.num+'. '+L.title+'</span>'+
+   (test?il('test','Тест (відкриється в новій вкладці)',test,1):'')+
+   (CFG.praktychnaUrl?il('prak','Практична (відкриється в новій вкладці)',CFG.praktychnaUrl,1):'')+
+   ib('pen','Олівець (P)','id="penBtn" aria-pressed="false"')+
+   ib('grid','Усі слайди (G)','id="gridBtn"')+
+   ib('notes','Нотатки (N)','id="notesBtn" aria-pressed="false"')+
+   ib('help','Клавіші (?)','id="helpBtn"')+
+   (THEMES.length>1?ib('theme','Інша тема (T)','id="themeBtn"'):'')+'</header>'+
    '<main id="deck"><div class="viewport" id="vp"><div class="stage" id="stage"></div><canvas class="pen" id="pen"></canvas><div class="blank" id="blank"></div>'+
      '<div class="hud" id="hud" role="toolbar" aria-label="Керування показом">'+
        hb('prevSlide','first','Попередній слайд (←)')+hb('stepBack','back','Крок назад (PgUp)')+'<span class="hud-pos" id="hpos"></span>'+
@@ -128,7 +138,7 @@ function updPos(){const s=S[cur];if(!s)return;$('hpos').textContent=(cur+1)+' / 
    рахуємо як одне ціле. Титул: заголовок не має налазити на картинки. Не вмістилось і на 75 % —
    це ловить перевірка збірки (check_fit.py), текст треба скоротити. Розмір — у s.fit і data-fit. */
 const FIT_MIN=.75,FIT_STEP=.05,FIT_GAP=10;   // FIT_GAP — найменший проміжок між текстом і картинкою титулу / Бітом, px
-const FIT_SKIP='.slide-top,.bit,.deco,.stickers,.inner,.t-head,.hud';
+const FIT_SKIP='.slide-top,.bit:not([data-pos="home"]),.deco,.stickers,.inner,.t-head,.hud';
 /* перекриття двох прямокутників (висота спільної частини, 0 — не перекриваються) */
 const hitH=(a,b)=>Math.min(a.right,b.right)-Math.max(a.left,b.left)>2?Math.max(0,Math.min(a.bottom,b.bottom)-Math.max(a.top,b.top)):0;
 /* прямокутники самого тексту (по рядках), а не рамки блоку: рядок на всю ширину з коротким текстом не «налазить» */
@@ -251,12 +261,14 @@ function setTheme(id){if(!THEMES.length)return;
     link.addEventListener('load',()=>{if(L){penPal();fitAll()}},{once:true});
     link.setAttribute('href',t.css)}
   document.documentElement.dataset.theme=t.id;
-  try{localStorage.setItem('theme2',t.id)}catch(e){}
+  try{localStorage.setItem(themeKey(),t.id)}catch(e){}
   if(L)penPal()}
 function nextTheme(){if(THEMES.length<2)return;const now=document.documentElement.dataset.theme;
   const i=THEMES.map(x=>x.id).indexOf(now);setTheme(THEMES[(i+1)%THEMES.length].id)}
+// вибір теми пам'ятається окремо для кожного класу: T на уроці 9 класу не змінює 6 клас
+function themeKey(){return 'theme2-'+((typeof LESSON!=='undefined'&&LESSON&&LESSON.grade)||'')}
 function initTheme(){if(!THEMES.length)return;let id=null;
-  try{id=localStorage.getItem('theme2')}catch(e){}
+  try{id=localStorage.getItem(themeKey())}catch(e){}
   setTheme(THEMES.filter(x=>x.id===id)[0]?id:(CFG.theme||THEMES[0].id))}
 
 /* Перехід на слайд за номером: цифри + Enter */
@@ -305,7 +317,10 @@ window.deck={get state(){return{lesson:L&&L.id,slide:cur,step:S[cur]?S[cur].i:0,
 
 let app=null;
 const hashSlide=()=>parseInt(((location.hash||'').match(/(\d+)$/)||[])[1],10);
-function start(){app=$('app');initTheme();buildLesson();
+function start(){app=$('app');
+  // Біт: спрайт один на сторінку, слайди беруть його через <use>
+  if(typeof BIT_SPRITE!=='undefined'&&!document.getElementById('bitSprite'))document.body.insertAdjacentHTML('afterbegin',BIT_SPRITE);
+  initTheme();buildLesson();
   const n=hashSlide();
   go(Math.max(0,Math.min(L.slides.length-1,(n||1)-1)),0);
   addEventListener('hashchange',()=>{const m=hashSlide();
@@ -351,7 +366,9 @@ const SEC_ICON={'Старт':'start','Безпека':'shield','Пристрої
  'Повторення':'cycle','Практика':'pencil','Підсумки':'flag','Домашнє':'home','Теорія':'book'};
 const EMO_ICON={'🎓':'cap','🏠':'house','👣':'steps','💡':'bulb','📱':'phone','🔄':'cycle','🗂':'grid','🦺':'shield',
  '⭐':'star','🏁':'flag','💬':'chat','📏':'ruler','🚀':'start','🎬':'film','📖':'book','✍':'pencil','📝':'test',
- '🔍':'search','✅':'check','🔒':'shield','🖥':'phone','⏱':'clock','🧩':'grid','📐':'ruler','🎯':'star','🧠':'bulb'};
+ '🔍':'search','✅':'check','🔒':'shield','⏱':'clock','🧩':'grid','📐':'ruler','🎯':'star','🧠':'bulb',
+ '🖥':'monitor','📄':'doc','📊':'table','🖼':'image','💻':'code','🧊':'cube','🗄':'db','☁':'cloud','🌐':'globe',
+ '🔗':'link','✉':'mail','🖨':'printer','🎨':'palette','⌨':'keyboard'};
 const ICON_NAMES=new Set(Object.keys(SEC_ICON).map(k=>SEC_ICON[k]).concat(Object.keys(EMO_ICON).map(k=>EMO_ICON[k])));
 function iconOf(v){const s=String(v==null?'':v).trim();if(!s)return 'star';
   if(ICON_NAMES.has(s))return s;
@@ -380,17 +397,24 @@ function roleOf(d){if(d.role!==undefined)return d.role||null;
   if(/\?$/.test(t)||/Дайте відповіді/.test(t))return 'think';
   return null}
 
-/* ---- Біт: рушій вирішує, де й що каже; кольори й показ аксесуара класу — у темі ----
-   Малюнок той самий, що в старій темі Swiss: тіло, очі, шапочка (9), окуляри (8), навушники (7). */
-const BOT='<svg class="bot" viewBox="0 0 240 280" aria-hidden="true">'+
-  '<rect class="b-body" x="20" y="60" width="200" height="200" rx="32"/><rect class="b-ant" x="64" y="260" width="28" height="18"/><rect class="b-ant" x="148" y="260" width="28" height="18"/>'+
-  '<g class="b-g9"><rect class="b-ant" x="66" y="40" width="108" height="30"/><polygon class="b-ant" points="120,2 236,34 120,66 4,34"/><path class="b-tassel" d="M120 34 L214 44 L214 92" stroke-width="6"/><circle class="b-ball" cx="214" cy="100" r="11"/></g>'+
-  '<circle class="b-eye" cx="85" cy="140" r="28"/><circle class="b-eye" cx="155" cy="140" r="28"/><circle class="b-pupil" cx="90" cy="144" r="12"/><circle class="b-pupil" cx="160" cy="144" r="12"/>'+
-  '<path class="b-line" d="M96 196 Q120 216 144 196" fill="none" stroke-width="8" stroke-linecap="round"/>'+
-  '<g class="b-g8"><rect class="b-ant" x="114" y="22" width="12" height="40"/><circle class="b-ball" cx="120" cy="18" r="16"/><rect class="b-glass" x="50" y="108" width="70" height="64" rx="8"/><rect class="b-glass" x="122" y="108" width="70" height="64" rx="8"/><rect class="b-ant" x="112" y="132" width="16" height="8"/></g>'+
-  '<g class="b-g7"><path class="b-tassel" d="M44 120 C44 40 196 40 196 120" fill="none" stroke-width="14"/><rect class="b-ant" x="22" y="104" width="34" height="62" rx="12"/><rect class="b-ant" x="184" y="104" width="34" height="62" rx="12"/></g></svg>';
-const bit=(text,where)=>'<aside class="bit"'+at('data-grade',LESSON.grade)+at('data-pos',where||'corner')+
-  '><p class="bubble">'+txt(text)+'</p>'+BOT+'</aside>';
+/* ---- Біт: рушій вирішує, де він, що каже і в якій позі; вигляд — у темі ----
+   Малюнок — з дизайн-систем (site/engine2/bit.svg, збірка вшиває його як BIT_SPRITE):
+   три тіла — sq (синій квадрат, Swiss), hd (намальований ручкою, Зошит), ab (рожевий камінчик, Abstract); тема показує одне.
+   Шари: поза ззаду → настрій → поза спереду → убір класу (6 антена, 7 навушники, 8 окуляри, 9 шапочка).
+   Поза — за типом і роллю слайда (як радить дизайн-система): титул — wave, питання — think,
+   тест — cheer, завдання — laptop, показ (скріншот, віджет, кроки, таблиця, картки) — point, пояснення — pencil. */
+const BIT_MOOD={think:'think',cheer:'happy'};
+function bitPose(d){if(!d)return 'wave';
+  if(d.type==='title')return 'wave';if(d.type==='quiz')return 'cheer';
+  const r=roleOf(d);if(r==='q'||r==='think'||r==='tf'||r==='talk')return 'think';if(r==='task')return 'laptop';
+  if(/^(shot|widget|steps|table|cards|tabs)$/.test(d.type))return 'point';
+  return 'pencil'}
+function botSvg(pose,mood){const g=[6,7,8,9].indexOf(+LESSON.grade)>=0?+LESSON.grade:8;
+  const u=id=>'<use href="#'+id+'" width="240" height="280"/>';mood=mood||BIT_MOOD[pose]||'hi';
+  return ['sq','hd','ab'].map(f=>'<svg class="bot bot-'+f+'" viewBox="0 0 240 280" aria-hidden="true">'+
+    u('b-pose-'+pose+'-back')+u('b-'+f+'-'+mood)+u('b-pose-'+pose+'-front')+u('b-'+f+'-g'+g)+'</svg>').join('')}
+const bit=(text,where,pose)=>'<aside class="bit"'+at('data-grade',LESSON.grade)+at('data-pos',where||'corner')+at('data-pose',pose)+
+  '><p class="bubble">'+txt(text)+'</p>'+botSvg(pose)+'</aside>';
 
 /* ---- заголовок слайда зі значком ролі ---- */
 function head(d,force){const t=force!==undefined?force:d.title;if(!t)return '';
@@ -463,13 +487,16 @@ V.tabs=d=>({html:head(d)+'<div class="tabs" role="tablist">'+(d.tabs||[]).map((t
 
 V.quiz=d=>({html:head(d)+'<div class="qprog" aria-hidden="true"></div><p class="qq"></p><ul class="opts"></ul><p class="qexp"></p>',
   mount(r){const P=r.querySelector('.qprog'),Q=r.querySelector('.qq'),O=r.querySelector('.opts'),E=r.querySelector('.qexp');
-    const qs=d.qs||[];
+    const qs=d.qs||[],picked={};  // picked[номер питання] = вибраний варіант
     const step=i=>{const qi=Math.floor(i/2),show=i%2===1,q=qs[qi];
       P.innerHTML=qs.map((_,k)=>'<span'+cls(k<=qi?'cur':'')+'></span>').join('');
       Q.innerHTML=(qi+1)+'. '+txt(q.q);O.innerHTML='';
       q.a.forEach((o,k)=>{const li=el('li'),b=el('button','opt','<span class="l">'+'АБВГ'[k]+'</span><span class="o">'+txt(o)+'</span>');
-        if(show)b.classList.add(k===q.ok?'ok':'no');
-        b.onclick=()=>{if(!show)b.classList.toggle('pick')};li.append(b);O.append(li)});
+        if(show)b.classList.add(k===q.ok?'ok':k===picked[qi]?'wrong':'no');
+        else if(k===picked[qi])b.classList.add('pick');
+        b.onclick=()=>{if(show)return;const on=!b.classList.contains('pick');
+          O.querySelectorAll('.opt.pick').forEach(x=>x.classList.remove('pick'));b.classList.toggle('pick',on);
+          if(on)picked[qi]=k;else delete picked[qi]};li.append(b);O.append(li)});
       E.innerHTML=show?'<span class="ic" data-icon="check" aria-hidden="true"></span><span>'+txt(q.exp||q.a[q.ok])+'</span>':
         '<span>Варіанти відповідей — голосуйте!</span>';
       E.dataset.state=show?'ok':'wait'};
@@ -500,8 +527,8 @@ V.home=d=>{const qr=(typeof QR!=='undefined'&&QR[LESSON.id])||'';const items=d.i
      '<span class="num" aria-hidden="true">'+pad2(i+1)+'</span><h3>'+plain(it[0])+'</h3>'+
      '<p class="main">'+txt(it[1])+'</p>'+(it[2]?'<p class="small">'+txt(it[2])+'</p>':'')+'</li>').join('')+'</ul>'+
    (nQr?'<div class="qrs"'+at('data-n',nQr)+'>'+cards+'</div>':(d.img?img(d.img,'ill'):''))+'</div>'+
-   '<p class="fin">Успіхів у навчанні!</p>'+
-   (d.bit?'':bit(bt,'home'))}};
+   '<div class="homefoot"><p class="fin">Успіхів у навчанні!</p>'+
+   bit(d.bit||bt,'home',pUrl?'laptop':'wave')+'</div>'}};
 
 /* ===== Скріншот із підказками: → веде по позначках, лупа наближає ===== */
 function shotMount(box,d,api){
@@ -542,7 +569,7 @@ function slideHtml(d,i,total){const r=V[d.type]?V[d.type](d):{html:'<p class="wa
   const top='<header class="slide-top" aria-hidden="true"><span class="sec"'+at('data-icon',secIcon(d.sec))+'>'+plain(d.sec)+'</span>'+
     '<span class="track"><i'+vars({'--p':((i+1)/total*100)+'%'})+'></i></span><span class="stepdots"></span>'+
     '<span class="n">'+(i+1)+'/'+total+'</span></header>';
-  return{cls:r.cls||'',mount:r.mount,html:top+r.html+(d.bit?bit(d.bit):'')}}
+  return{cls:r.cls||'',mount:r.mount,html:top+r.html+(d.bit&&d.type!=='home'?bit(d.bit,'corner',bitPose(d)):'')}}
 
 /* порядок частин уроку → колір (0–3), як було в темі Swiss */
 function secColors(slides){const secs=[];

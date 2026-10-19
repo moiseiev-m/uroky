@@ -2,7 +2,7 @@
    Підключається одним <link id="themeCss">: кнопка «Тема» і клавіша T міняють
    href миттєво, без перезавантаження сторінки (слайд і крок лишаються).
    Рушій дає розмітку й дані: data-sec-color (0–3), data-role, data-icon,
-   data-yn, data-tone, data-grade. Тема їх лише малює.
+   data-yn, data-tone, data-grade, data-topic (тема уроку на html). Тема їх лише малює.
    Значки — SVG-маски (--i-*), жодного JS і жодних емодзі.
    Для 7–9 класів і головної. 6 клас — themes/shkilni.css. */
 
@@ -49,15 +49,36 @@
   --i-check:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='square' stroke-linejoin='miter'%3E%3Cpath d='M4 12.6l5.2 5.2L20 6.4'/%3E%3C/svg%3E");
   --i-balance:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='square' stroke-linejoin='miter'%3E%3Cpath d='M12 3.4v17M7.5 20.4h9M4.5 7.5h15'/%3E%3Cpath d='M4.5 7.5l-3 6.2h6zM19.5 7.5l-3 6.2h6z'/%3E%3C/svg%3E");
   --i-bit:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='square' stroke-linejoin='miter'%3E%3Cpath d='M12 1.8v3'/%3E%3Ccircle cx='12' cy='5.4' r='1.4'/%3E%3Crect x='3.6' y='7.4' width='16.8' height='12.2' rx='3'/%3E%3Ccircle cx='9' cy='13' r='1.7'/%3E%3Ccircle cx='15' cy='13' r='1.7'/%3E%3Cpath d='M9.4 16.6h5.2'/%3E%3Cpath d='M3.6 11H1.8M22.2 11h-1.8'/%3E%3C/svg%3E");
+  --i-monitor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='square' stroke-linejoin='miter'%3E%3Crect x='3' y='4' width='18' height='12.5' rx='1'/%3E%3Cpath d='M12 16.5V20M8.5 20.5h7'/%3E%3C/svg%3E");
+  --i-doc:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='square' stroke-linejoin='miter'%3E%3Cpath d='M6 2.8h8.2l4.8 4.8v13.6H6z'/%3E%3Cpath d='M14 2.8v4.8h5'/%3E%3Cpath d='M8.8 12h6.4M8.8 15.4h6.4M8.8 18.6h4'/%3E%3C/svg%3E");
+  --i-table:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='square' stroke-linejoin='miter'%3E%3Crect x='3' y='4' width='18' height='16'/%3E%3Cpath d='M3 9.4h18M3 14.7h18M9 4v16M15 4v16'/%3E%3C/svg%3E");
+  --i-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='square' stroke-linejoin='miter'%3E%3Crect x='3' y='4.5' width='18' height='15'/%3E%3Ccircle cx='8.5' cy='9.5' r='1.8'/%3E%3Cpath d='M3 17l5.5-5 4 3.5 3-2.5 5.5 4.5'/%3E%3C/svg%3E");
+  --i-code:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='square' stroke-linejoin='miter'%3E%3Cpath d='M8.5 7l-5 5 5 5M15.5 7l5 5-5 5M13.5 4.5l-3 15'/%3E%3C/svg%3E");
+  --i-cube:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='square' stroke-linejoin='miter'%3E%3Cpath d='M12 2.8l8.2 4.6v9.2L12 21.2l-8.2-4.6V7.4z'/%3E%3Cpath d='M3.8 7.4L12 12l8.2-4.6M12 12v9.2'/%3E%3C/svg%3E");
+  --i-db:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='square' stroke-linejoin='miter'%3E%3Cellipse cx='12' cy='5.6' rx='7.5' ry='2.7'/%3E%3Cpath d='M4.5 5.6v12.8c0 1.5 3.4 2.7 7.5 2.7s7.5-1.2 7.5-2.7V5.6'/%3E%3Cpath d='M4.5 12c0 1.5 3.4 2.7 7.5 2.7s7.5-1.2 7.5-2.7'/%3E%3C/svg%3E");
+  --i-cloud:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='square' stroke-linejoin='miter'%3E%3Cpath d='M7 18.5h10.5a4 4 0 0 0 .6-7.95A6 6 0 0 0 6.6 9.3 4.6 4.6 0 0 0 7 18.5z'/%3E%3C/svg%3E");
+  --i-globe:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='square' stroke-linejoin='miter'%3E%3Ccircle cx='12' cy='12' r='8.8'/%3E%3Cpath d='M3.2 12h17.6'/%3E%3Cpath d='M12 3.2c2.6 2.4 3.8 5.4 3.8 8.8s-1.2 6.4-3.8 8.8c-2.6-2.4-3.8-5.4-3.8-8.8s1.2-6.4 3.8-8.8z'/%3E%3C/svg%3E");
+  --i-link:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='square' stroke-linejoin='miter'%3E%3Cpath d='M10 14a4.2 4.2 0 0 0 6 0l3-3a4.2 4.2 0 0 0-6-6l-1.5 1.5'/%3E%3Cpath d='M14 10a4.2 4.2 0 0 0-6 0l-3 3a4.2 4.2 0 0 0 6 6l1.5-1.5'/%3E%3C/svg%3E");
+  --i-mail:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='square' stroke-linejoin='miter'%3E%3Crect x='3' y='5.5' width='18' height='13'/%3E%3Cpath d='M3 6.5l9 7 9-7'/%3E%3C/svg%3E");
+  --i-printer:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='square' stroke-linejoin='miter'%3E%3Cpath d='M7 9V3.5h10V9'/%3E%3Cpath d='M7 16.5H3V9h18v7.5h-4'/%3E%3Cpath d='M7 13.5h10V21H7z'/%3E%3C/svg%3E");
+  --i-palette:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='square' stroke-linejoin='miter'%3E%3Cpath d='M12 3a9 9 0 1 0 0 18c1.4 0 2-.9 2-1.9 0-1.4-1.3-1.9-1.3-3.1 0-1.1.9-2 2-2H17a4 4 0 0 0 4-4C21 6.3 17 3 12 3z'/%3E%3Ccircle cx='7.5' cy='11.5' r='1.2'/%3E%3Ccircle cx='10' cy='7.3' r='1.2'/%3E%3Ccircle cx='14.8' cy='7.3' r='1.2'/%3E%3C/svg%3E");
+  --i-keyboard:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='square' stroke-linejoin='miter'%3E%3Crect x='2.5' y='6' width='19' height='12' rx='1.5'/%3E%3Cpath d='M6 10h1.5M10 10h1.5M14 10h1.5M17.5 10h1M7.5 14h9'/%3E%3C/svg%3E");
 /* значки: кінець */
   --i-testbox:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='3' width='18' height='18'/%3E%3Cpath d='M7 12l3.5 3.5L17 9'/%3E%3C/svg%3E");
 }
 
-/* колір класу на титулі */
-:root[data-grade="6"]{--grade:var(--mintb);--on-grade:var(--on-bright)}
-:root[data-grade="7"]{--grade:var(--sun);--on-grade:var(--on-bright)}
-:root[data-grade="8"]{--grade:var(--coral);--on-grade:var(--on-bright)}
-:root[data-grade="9"]{--grade:var(--accent);--on-grade:var(--on-accent)}
+/* колір теми уроку (data-topic — з розділу календарного плану): значок і смуга титулу, поточний крок,
+   деталь Біта. Клас колір не міняє — його видно по Біту й номеру. «-deep» придатний для тексту на білому. */
+:root{--topic:#A4C639;--topic-soft:#EDF5D3;--topic-deep:#5C7A12;--on-topic:#111111}
+:root[data-topic="text"]{--topic:#1F5BD8;--topic-soft:#DFE8FF;--topic-deep:#1742A8;--on-topic:#FFFFFF}
+:root[data-topic="sheets"]{--topic:#17803F;--topic-soft:#D8F0E0;--topic-deep:#12663A;--on-topic:#FFFFFF}
+:root[data-topic="slides"]{--topic:#F26B1D;--topic-soft:#FFE3D1;--topic-deep:#A8440D;--on-topic:#111111}
+:root[data-topic="code"]{--topic:#FFC93C;--topic-soft:#FFF1C7;--topic-deep:#7A5900;--on-topic:#111111}
+:root[data-topic="graphics"]{--topic:#7B3FE4;--topic-soft:#EBE2FF;--topic-deep:#5B2BC2;--on-topic:#FFFFFF}
+:root[data-topic="web"]{--topic:#0FA3B1;--topic-soft:#D3F2F4;--topic-deep:#08707A;--on-topic:#111111}
+:root[data-topic="db"]{--topic:#B3123F;--topic-soft:#F9DBE3;--topic-deep:#8F0F33;--on-topic:#FFFFFF}
+:root[data-topic="info"]{--topic:#A4C639;--topic-soft:#EDF5D3;--topic-deep:#5C7A12;--on-topic:#111111}
+:root{--grade:var(--topic);--on-grade:var(--on-topic)}
 
 /* колір частини уроку: порядок частин рахує рушій */
 .slide[data-sec-color="1"]{--sec:var(--sun);--on-sec:var(--on-bright)}
@@ -107,6 +128,20 @@ body{background:var(--bg);-webkit-font-smoothing:antialiased}
 [data-icon="search"]{--icon:var(--i-search)}
 [data-icon="check"]{--icon:var(--i-check)}
 [data-icon="balance"]{--icon:var(--i-balance)}
+[data-icon="monitor"]{--icon:var(--i-monitor)}
+[data-icon="doc"]{--icon:var(--i-doc)}
+[data-icon="table"]{--icon:var(--i-table)}
+[data-icon="image"]{--icon:var(--i-image)}
+[data-icon="code"]{--icon:var(--i-code)}
+[data-icon="cube"]{--icon:var(--i-cube)}
+[data-icon="db"]{--icon:var(--i-db)}
+[data-icon="cloud"]{--icon:var(--i-cloud)}
+[data-icon="globe"]{--icon:var(--i-globe)}
+[data-icon="link"]{--icon:var(--i-link)}
+[data-icon="mail"]{--icon:var(--i-mail)}
+[data-icon="printer"]{--icon:var(--i-printer)}
+[data-icon="palette"]{--icon:var(--i-palette)}
+[data-icon="keyboard"]{--icon:var(--i-keyboard)}
 /* зіставлення значків: кінець */
 
 /* ===== Слайд ===== */
@@ -125,7 +160,7 @@ body{background:var(--bg);-webkit-font-smoothing:antialiased}
 .slide-top .sec{gap:10px}
 .slide-top .sec::before{content:"";width:18px;height:18px;flex:none;background:var(--sec);border:2px solid var(--on-bright)}
 .slide-top .track{height:8px;border-radius:0;background:var(--off)}
-.slide-top .track i{border-radius:0;background:var(--accent)}
+.slide-top .track i{border-radius:0;background:var(--topic)}
 .slide-top .track i::after{content:"";float:right;width:22px;height:100%;background:var(--sun)}
 .slide-top .stepdots b{width:10px;height:6px;border-radius:0;background:var(--off)}
 .slide-top .stepdots b.in{background:var(--sec)}
@@ -154,7 +189,7 @@ h2.has-role{gap:22px}
 .yn[data-yn="yes"]{background:var(--mint-soft);color:var(--positive)}
 .yn[data-yn="no"]{background:var(--paper);color:var(--negative)}
 
-/* Біт: робот кольору акценту, аксесуар класу (7 — навушники, 8 — окуляри, 9 — шапочка), репліка з хвостиком */
+/* Біт: робот кольору акценту, убір класу (6 — антена, 7 — навушники, 8 — окуляри, 9 — шапочка), поза — від рушія, репліка з хвостиком */
 .bit{display:flex;align-items:flex-end;gap:20px;right:48px;bottom:24px;max-width:none;z-index:2}
 .bit .bubble{position:relative;max-width:430px;margin:0 0 60px;border:3px solid var(--ink);border-radius:16px;
   background:var(--paper);color:var(--ink);padding:16px 20px;font-size:22px;line-height:1.35}
@@ -162,8 +197,8 @@ h2.has-role{gap:22px}
   border-right:3px solid var(--ink);border-bottom:3px solid var(--ink);transform:rotate(-45deg)}
 .bit[data-pos="home"]{flex-direction:row-reverse;justify-content:flex-end}
 .bit[data-pos="home"] .bubble::after{left:-14px;right:auto;border:0;border-left:3px solid var(--ink);border-bottom:3px solid var(--ink);transform:rotate(45deg)}
-.b-body{fill:var(--accent)} .b-eye{fill:#fff} .b-pupil,.b-line{fill:var(--on-bright);stroke:var(--on-bright)}
-.b-ball{fill:var(--sun)} .b-ant{fill:var(--ink);stroke:var(--ink)} .b-tassel{fill:none;stroke:var(--sun)} .b-glass{fill:none;stroke:var(--on-bright);stroke-width:8}
+/* малюнок — синій квадрат дизайн-системи «Уроки Swiss»: тіло accent, деталь (кулька, подушечки, китиця) — колір теми уроку */
+.bit{--bit-body:var(--accent);--bit-face:var(--on-bright);--bit-cheek:var(--coral);--bit-ball:var(--topic);--bit-pad:var(--topic)}
 
 /* ===== Блоки тексту ===== */
 .box{background:var(--paper-alt);border:3px solid var(--ink)}
@@ -253,13 +288,12 @@ table.t th{background:none;color:var(--ink);border-bottom:4px solid var(--sec);
 .opts li:nth-child(3) .opt .l{background:var(--coral)}
 .opts li:nth-child(4) .opt .l{background:var(--mintb)}
 .opt.pick{background:var(--sun);color:var(--on-bright);border-width:5px;box-shadow:6px 6px 0 var(--ink);transform:translate(-2px,-2px)}
-.opt.pick::after{content:"Вибрано";margin-left:auto;padding:4px 12px;background:var(--on-bright);color:var(--sun);
-  font:700 15px var(--display);letter-spacing:.08em;text-transform:uppercase}
 .opt.ok{background:var(--paper);border-color:var(--positive);box-shadow:none;transform:none}
-.opt.ok::after{content:"✓ Правильно";margin-left:auto;padding-right:10px;color:var(--positive);
-  font:600 15px var(--display);letter-spacing:.08em;text-transform:uppercase}
+.opt.ok::after{content:"✓";margin-left:auto;padding:0 12px;color:var(--positive);font:800 40px/1 var(--display)}
 .opt.no{opacity:.4}
+.opt.wrong{background:var(--paper);border-color:var(--negative);border-width:5px;box-shadow:none;transform:none}
 .qexp{font-weight:600}
+.qexp .ic{color:var(--positive);font-size:34px}
 
 /* ===== Скріншот із підказками ===== */
 .hs-btn{border:3px solid var(--ink);font-weight:600}

@@ -1,0 +1,372 @@
+/* ===== Тема «Зошит» для рушія v2 — лише CSS =====
+   Підключається одним <link id="themeCss">: кнопка «Тема» і клавіша T міняють
+   href миттєво, без перезавантаження сторінки (слайд і крок лишаються).
+   Рушій дає розмітку й дані: data-sec-color (0–3), data-role, data-icon,
+   data-yn, data-tone, data-grade, data-topic (тема уроку на html). Тема їх лише малює.
+   Значки — SVG-маски (--i-*), жодного JS і жодних емодзі.
+   За дизайн-системою «Уроки Зошит»: аркуш у клітинку з полями, текст кольору кулькової ручки,
+   рукописні заголовки (Pangolin), текст Rubik, приглушені «олівцеві» кольори теми уроку.
+   Розміри системи 1920×1080 переведено в сцену 1280×720 (×2/3). Основна для 6 класу. */
+
+/* ===== Токени ===== */
+:root{
+  --paper:#FDFCF7; --paper-alt:#FFFEF9; --ink:#22304A; --ink-muted:#5A6478; --rule-soft:#9AA3B2;
+  --grid:#E3E9F1; --margin-line:#EFAAA1; --note-yellow:#F6DC7A;
+  --key-a:#8FB5E3; --key-b:#F3D27A; --key-c:#EEA08E; --key-d:#9CCAA6;
+  --bit-paper:#FFFDF6; --bit-blush:#F4B4AA;
+  --positive:#2F7A45; --negative:#B8372D;
+  --shadow-note:0 4px 0 rgba(34,48,74,.10); --shadow-card:4px 4px 0 rgba(34,48,74,.12);
+  --r-hand:12px 17px 13px 16px / 16px 12px 17px 13px;
+  --display:"Pangolin","Comic Sans MS","Trebuchet MS",sans-serif;
+  --body:"Rubik","Segoe UI",Arial,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+  --serif:Georgia,"Times New Roman",serif;
+  --pen1:#B8372D; --pen2:#3F6FAE; --pen3:#4A8F5A; --pen4:#22304A;
+  /* тема уроку за замовчуванням — «Комп'ютер та інформація» */
+  --topic:#B3CF63; --topic-soft:#EEF5D8; --topic-deep:#7D9A2E;
+/* значки: початок (створює scripts/theme_icons.py) */
+  --i-start:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 2c3 2.6 4.8 6.3 4.8 10.2L12 16l-4.8-3.8C7.2 8.3 9 4.6 12 2z'/%3E%3Ccircle cx='12' cy='9' r='1.9'/%3E%3Cpath d='M7.2 15l-2.2 5 4.4-1.8M16.8 15l2.2 5-4.4-1.8'/%3E%3C/svg%3E");
+  --i-shield:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 3l8 3v5.5c0 4.8-3.6 7.9-8 9.5-4.4-1.6-8-4.7-8-9.5V6z'/%3E%3C/svg%3E");
+  --i-phone:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='7' y='2.5' width='10' height='19' rx='2'/%3E%3Cpath d='M10.5 18.5h3'/%3E%3C/svg%3E");
+  --i-ruler:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2.8 16.4L16.4 2.8l4.8 4.8L7.6 21.2z'/%3E%3Cpath d='M6.6 12.6l2.2 2.2M9.8 9.4l2.2 2.2M13 6.2l2.2 2.2'/%3E%3C/svg%3E");
+  --i-cycle:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4.5 12a7.5 7.5 0 0 1 12.6-5.5M19.5 12a7.5 7.5 0 0 1-12.6 5.5'/%3E%3Cpath d='M17.5 2.5v4.5H13M6.5 21.5V17h4.5'/%3E%3C/svg%3E");
+  --i-star:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 3.2l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17.2l-5.4 2.9 1-6.1L3.2 9.7l6.1-.9z'/%3E%3C/svg%3E");
+  --i-chat:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 5h16v10.5H9.5L4 20z'/%3E%3Cpath d='M8 9h8M8 12h5'/%3E%3C/svg%3E");
+  --i-grid:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='3' width='7.5' height='7.5'/%3E%3Crect x='13.5' y='3' width='7.5' height='7.5'/%3E%3Crect x='3' y='13.5' width='7.5' height='7.5'/%3E%3Crect x='13.5' y='13.5' width='7.5' height='7.5'/%3E%3C/svg%3E");
+  --i-flag:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 21V4h12l-3 4.2 3 4.2H6'/%3E%3C/svg%3E");
+  --i-bulb:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 3a6 6 0 0 1 3.6 10.8V16.5h-7.2v-2.7A6 6 0 0 1 12 3z'/%3E%3Cpath d='M9.6 19h4.8M10.6 21.5h2.8'/%3E%3C/svg%3E");
+  --i-house:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 11.2L12 4l9 7.2'/%3E%3Cpath d='M5.8 10v10h12.4V10'/%3E%3C/svg%3E");
+  --i-home:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 11.2L12 4l9 7.2'/%3E%3Cpath d='M5.8 10v10h12.4V10'/%3E%3Cpath d='M10 20v-5h4v5'/%3E%3C/svg%3E");
+  --i-cap:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2.5 8.2L12 4l9.5 4.2L12 12.4z'/%3E%3Cpath d='M6.5 10.5v5.2c0 1.8 11 1.8 11 0v-5.2'/%3E%3C/svg%3E");
+  --i-steps:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 20.5h4.5V16H12v-4.5h4.5V7H21'/%3E%3C/svg%3E");
+  --i-film:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='16'/%3E%3Cpath d='M7.5 4v16M16.5 4v16M3 9h4.5M16.5 9H21M3 15h4.5M16.5 15H21'/%3E%3C/svg%3E");
+  --i-sliders:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3.5 7.5h10M18.5 7.5h2M3.5 16.5h4M12 16.5h8.5'/%3E%3Ccircle cx='16' cy='7.5' r='2.2'/%3E%3Ccircle cx='9.5' cy='16.5' r='2.2'/%3E%3C/svg%3E");
+  --i-layout:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='16'/%3E%3Cpath d='M3 9.5h18M9.5 9.5V20'/%3E%3C/svg%3E");
+  --i-clock:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='8.6'/%3E%3Cpath d='M12 6.8V12l3.4 2.2'/%3E%3C/svg%3E");
+  --i-list:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 6.5h11M9 12h11M9 17.5h11M4 6.5h1.6M4 12h1.6M4 17.5h1.6'/%3E%3C/svg%3E");
+  --i-pencil:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M16.2 3.2l4.6 4.6L8 20.6H3.4v-4.6z'/%3E%3Cpath d='M13.4 6l4.6 4.6'/%3E%3C/svg%3E");
+  --i-book:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4.5 5.2A2.2 2.2 0 0 1 6.7 3H19.5v18H6.7a2.2 2.2 0 0 1-2.2-2.2z'/%3E%3Cpath d='M8.5 7.5h7M8.5 11h7'/%3E%3C/svg%3E");
+  --i-test:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6.8 2.8h7.4l5 5v13.4H6.8z'/%3E%3Cpath d='M14 2.8v5.2h5'/%3E%3Cpath d='M9.6 14.2l2 2 3.6-3.8'/%3E%3C/svg%3E");
+  --i-search:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='10.8' cy='10.8' r='6.8'/%3E%3Cpath d='M15.8 15.8l4.6 4.6'/%3E%3C/svg%3E");
+  --i-check:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 12.6l5.2 5.2L20 6.4'/%3E%3C/svg%3E");
+  --i-balance:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 3.4v17M7.5 20.4h9M4.5 7.5h15'/%3E%3Cpath d='M4.5 7.5l-3 6.2h6zM19.5 7.5l-3 6.2h6z'/%3E%3C/svg%3E");
+  --i-bit:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 1.8v3'/%3E%3Ccircle cx='12' cy='5.4' r='1.4'/%3E%3Crect x='3.6' y='7.4' width='16.8' height='12.2' rx='3'/%3E%3Ccircle cx='9' cy='13' r='1.7'/%3E%3Ccircle cx='15' cy='13' r='1.7'/%3E%3Cpath d='M9.4 16.6h5.2'/%3E%3Cpath d='M3.6 11H1.8M22.2 11h-1.8'/%3E%3C/svg%3E");
+  --i-monitor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='12.5' rx='1'/%3E%3Cpath d='M12 16.5V20M8.5 20.5h7'/%3E%3C/svg%3E");
+  --i-doc:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 2.8h8.2l4.8 4.8v13.6H6z'/%3E%3Cpath d='M14 2.8v4.8h5'/%3E%3Cpath d='M8.8 12h6.4M8.8 15.4h6.4M8.8 18.6h4'/%3E%3C/svg%3E");
+  --i-table:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='16'/%3E%3Cpath d='M3 9.4h18M3 14.7h18M9 4v16M15 4v16'/%3E%3C/svg%3E");
+  --i-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4.5' width='18' height='15'/%3E%3Ccircle cx='8.5' cy='9.5' r='1.8'/%3E%3Cpath d='M3 17l5.5-5 4 3.5 3-2.5 5.5 4.5'/%3E%3C/svg%3E");
+  --i-code:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M8.5 7l-5 5 5 5M15.5 7l5 5-5 5M13.5 4.5l-3 15'/%3E%3C/svg%3E");
+  --i-cube:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 2.8l8.2 4.6v9.2L12 21.2l-8.2-4.6V7.4z'/%3E%3Cpath d='M3.8 7.4L12 12l8.2-4.6M12 12v9.2'/%3E%3C/svg%3E");
+  --i-db:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cellipse cx='12' cy='5.6' rx='7.5' ry='2.7'/%3E%3Cpath d='M4.5 5.6v12.8c0 1.5 3.4 2.7 7.5 2.7s7.5-1.2 7.5-2.7V5.6'/%3E%3Cpath d='M4.5 12c0 1.5 3.4 2.7 7.5 2.7s7.5-1.2 7.5-2.7'/%3E%3C/svg%3E");
+  --i-cloud:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M7 18.5h10.5a4 4 0 0 0 .6-7.95A6 6 0 0 0 6.6 9.3 4.6 4.6 0 0 0 7 18.5z'/%3E%3C/svg%3E");
+  --i-globe:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='8.8'/%3E%3Cpath d='M3.2 12h17.6'/%3E%3Cpath d='M12 3.2c2.6 2.4 3.8 5.4 3.8 8.8s-1.2 6.4-3.8 8.8c-2.6-2.4-3.8-5.4-3.8-8.8s1.2-6.4 3.8-8.8z'/%3E%3C/svg%3E");
+  --i-link:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M10 14a4.2 4.2 0 0 0 6 0l3-3a4.2 4.2 0 0 0-6-6l-1.5 1.5'/%3E%3Cpath d='M14 10a4.2 4.2 0 0 0-6 0l-3 3a4.2 4.2 0 0 0 6 6l1.5-1.5'/%3E%3C/svg%3E");
+  --i-mail:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='5.5' width='18' height='13'/%3E%3Cpath d='M3 6.5l9 7 9-7'/%3E%3C/svg%3E");
+  --i-printer:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M7 9V3.5h10V9'/%3E%3Cpath d='M7 16.5H3V9h18v7.5h-4'/%3E%3Cpath d='M7 13.5h10V21H7z'/%3E%3C/svg%3E");
+  --i-palette:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 3a9 9 0 1 0 0 18c1.4 0 2-.9 2-1.9 0-1.4-1.3-1.9-1.3-3.1 0-1.1.9-2 2-2H17a4 4 0 0 0 4-4C21 6.3 17 3 12 3z'/%3E%3Ccircle cx='7.5' cy='11.5' r='1.2'/%3E%3Ccircle cx='10' cy='7.3' r='1.2'/%3E%3Ccircle cx='14.8' cy='7.3' r='1.2'/%3E%3C/svg%3E");
+  --i-keyboard:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='2.5' y='6' width='19' height='12' rx='1.5'/%3E%3Cpath d='M6 10h1.5M10 10h1.5M14 10h1.5M17.5 10h1M7.5 14h9'/%3E%3C/svg%3E");
+/* значки: кінець */
+  --m-check:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 26 24'%3E%3Cpath d='M3 13l7 7L23 4' fill='none' stroke='black' stroke-width='4.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  --m-spark:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M50 4C54 36 64 46 96 50C64 54 54 64 50 96C46 64 36 54 4 50C36 46 46 36 50 4Z'/%3E%3C/svg%3E");
+  --m-arrow:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 100'%3E%3Cpath d='M8 30C60 6 130 14 178 66M148 60L180 70L176 38' fill='none' stroke='black' stroke-width='6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+/* колір теми уроку (data-topic — з розділу календарного плану): основний — плитка, маркер, значок класу,
+   деталь Біта (текст на ньому — ink); -soft — великі площини; -deep — галочки й зірочки, не для дрібного тексту */
+:root[data-topic="text"]{--topic:#6F9FD8;--topic-soft:#DDE9F7;--topic-deep:#3F6FAE}
+:root[data-topic="sheets"]{--topic:#7DBB8A;--topic-soft:#DFF0E2;--topic-deep:#4A8F5A}
+:root[data-topic="slides"]{--topic:#EBA061;--topic-soft:#FBE6D3;--topic-deep:#C06F2C}
+:root[data-topic="code"]{--topic:#F0C95A;--topic-soft:#FBF0CC;--topic-deep:#B8902A}
+:root[data-topic="graphics"]{--topic:#A98BD6;--topic-soft:#ECE3F7;--topic-deep:#7A5BB0}
+:root[data-topic="web"]{--topic:#6CBFC0;--topic-soft:#D8EFF0;--topic-deep:#3D8F91}
+:root[data-topic="db"]{--topic:#D77B8F;--topic-soft:#F7DEE4;--topic-deep:#A84D63}
+:root[data-topic="info"]{--topic:#B3CF63;--topic-soft:#EEF5D8;--topic-deep:#7D9A2E}
+
+/* назви токенів, які чекають рушій і віджети (engine/src/widgets.js — без змін) */
+:root{
+  --bg:#EEF0F3; --muted:var(--ink-muted); --line:var(--rule-soft); --off:#D5DAE2; --doc:var(--paper-alt);
+  --accent:var(--topic); --on-accent:var(--ink); --accent-deep:var(--topic-deep); --accent-soft:var(--topic-soft);
+  --accent-tint:var(--topic-soft); --accent-ink:var(--ink);
+  --vio:var(--ink); --vio-soft:var(--topic-soft); --mint:var(--positive); --mint-soft:#E3F1E6;
+  --sun:var(--note-yellow); --sun-soft:#FBF0CC; --pink:var(--negative); --pink-soft:#F7DEE4;
+  --sky:#3F6FAE; --sky-soft:#DDE9F7; --coral:var(--key-c); --mintb:var(--key-d); --on-bright:var(--ink);
+  --rule:var(--ink); --surface:var(--paper); --card:var(--paper-alt);
+  --sec:var(--topic); --on-sec:var(--ink); --grade:var(--topic); --on-grade:var(--ink);
+  --shadow:var(--shadow-card); --r-sm:var(--r-hand); --r-lg:var(--r-hand); --r-pill:999px;
+}
+
+/* ===== Загальне: аркуш, ручка, рукописні заголовки ===== */
+body{background:var(--bg);color:var(--ink)}
+.bar{background:var(--bg);border-bottom:1px solid var(--rule-soft)}
+.bar .ttl{font-family:var(--display);font-weight:400;font-size:1.05rem}
+.pill{border:2px solid var(--ink);background:var(--paper-alt);border-radius:var(--r-hand);font-weight:500}
+.pill:hover{box-shadow:var(--shadow-card)}
+.pill[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.viewport{border:2px solid var(--ink);border-radius:10px;box-shadow:var(--shadow-card);background:var(--paper)}
+.stage{background:var(--paper)}
+.notes{border:2px solid var(--ink);border-radius:var(--r-hand);background:var(--paper-alt)}
+.notes h4{font-family:var(--display);font-weight:400;font-size:1rem;color:var(--ink)}
+
+/* ===== Значки: рушій дає data-icon, тема — маску ===== */
+.ic{--icon-bg:currentColor}
+/* зіставлення значків: початок */
+[data-icon="start"]{--icon:var(--i-start)}
+[data-icon="shield"]{--icon:var(--i-shield)}
+[data-icon="phone"]{--icon:var(--i-phone)}
+[data-icon="ruler"]{--icon:var(--i-ruler)}
+[data-icon="cycle"]{--icon:var(--i-cycle)}
+[data-icon="star"]{--icon:var(--i-star)}
+[data-icon="chat"]{--icon:var(--i-chat)}
+[data-icon="grid"]{--icon:var(--i-grid)}
+[data-icon="flag"]{--icon:var(--i-flag)}
+[data-icon="bulb"]{--icon:var(--i-bulb)}
+[data-icon="house"]{--icon:var(--i-house)}
+[data-icon="home"]{--icon:var(--i-home)}
+[data-icon="cap"]{--icon:var(--i-cap)}
+[data-icon="steps"]{--icon:var(--i-steps)}
+[data-icon="film"]{--icon:var(--i-film)}
+[data-icon="sliders"]{--icon:var(--i-sliders)}
+[data-icon="layout"]{--icon:var(--i-layout)}
+[data-icon="clock"]{--icon:var(--i-clock)}
+[data-icon="list"]{--icon:var(--i-list)}
+[data-icon="pencil"]{--icon:var(--i-pencil)}
+[data-icon="book"]{--icon:var(--i-book)}
+[data-icon="test"]{--icon:var(--i-test)}
+[data-icon="search"]{--icon:var(--i-search)}
+[data-icon="check"]{--icon:var(--i-check)}
+[data-icon="balance"]{--icon:var(--i-balance)}
+[data-icon="monitor"]{--icon:var(--i-monitor)}
+[data-icon="doc"]{--icon:var(--i-doc)}
+[data-icon="table"]{--icon:var(--i-table)}
+[data-icon="image"]{--icon:var(--i-image)}
+[data-icon="code"]{--icon:var(--i-code)}
+[data-icon="cube"]{--icon:var(--i-cube)}
+[data-icon="db"]{--icon:var(--i-db)}
+[data-icon="cloud"]{--icon:var(--i-cloud)}
+[data-icon="globe"]{--icon:var(--i-globe)}
+[data-icon="link"]{--icon:var(--i-link)}
+[data-icon="mail"]{--icon:var(--i-mail)}
+[data-icon="printer"]{--icon:var(--i-printer)}
+[data-icon="palette"]{--icon:var(--i-palette)}
+[data-icon="keyboard"]{--icon:var(--i-keyboard)}
+/* зіставлення значків: кінець */
+
+/* ===== Слайд: аркуш у клітинку з червоною лінією полів праворуч ===== */
+.slide{padding:88px 72px 48px;overflow:hidden;isolation:isolate;background-color:var(--paper);
+  background-image:linear-gradient(var(--grid) 2px,transparent 2px),linear-gradient(90deg,var(--grid) 2px,transparent 2px);
+  background-size:32px 32px}
+.slide::after{content:"";position:absolute;top:0;bottom:0;right:48px;width:2px;background:var(--margin-line);z-index:-1;pointer-events:none}
+.slide h2{font-family:var(--display);font-weight:400;font-size:46px;line-height:1.05;margin:0 0 24px;letter-spacing:0}
+.slide h3{font-family:var(--display);font-weight:400;font-size:26px}
+.slide p,.slide li{font-size:26px;line-height:1.4}
+.small{color:var(--ink-muted)}
+.slide li::marker{color:var(--topic-deep)}
+b,strong{font-weight:700}
+.mono,code{font-family:var(--mono)}
+
+/* шапка слайда: плитка теми, мітка частини, кружечки прогресу, пунктир ручкою */
+.slide-top{top:24px;left:64px;right:64px;gap:14px;padding-bottom:12px}
+.slide-top::after{content:"";position:absolute;left:0;right:0;bottom:0;height:2px;opacity:.7;
+  background:repeating-linear-gradient(90deg,var(--ink-muted) 0 12px,transparent 12px 20px)}
+.slide-top .sec{position:relative;background:none;color:var(--ink-muted);padding:0;font:500 16px var(--body);letter-spacing:.02em;gap:12px}
+.slide-top .sec::before{content:"";flex:none;width:32px;height:32px;border:2px solid var(--ink);border-radius:5px;background:var(--topic);
+  transform:rotate(-4deg);box-shadow:var(--shadow-note)}
+.slide-top .sec::after{content:"";position:absolute;left:0;top:50%;width:32px;height:32px;margin-top:-16px;transform:rotate(-4deg);
+  background:var(--ink);-webkit-mask:var(--icon,none) center/18px 18px no-repeat;mask:var(--icon,none) center/18px 18px no-repeat}
+.slide-top .track{height:10px;border-radius:999px;background:var(--paper-alt);border:2px solid var(--rule-soft)}
+.slide-top .track i{background:var(--topic);border-radius:999px;box-shadow:inset 0 0 0 2px var(--ink)}
+.slide-top .stepdots b{width:12px;height:12px;background:none;border:2px solid var(--rule-soft)}
+.slide-top .stepdots b.in{background:var(--ink);border-color:var(--ink)}
+.slide-top .n{font:500 15px var(--body);color:var(--ink-muted)}
+
+/* значок ролі: жовтий стікер, нахил лише в підкладки — сам блок не зсувається */
+h2.has-role{gap:20px}
+.role{position:relative;width:64px;height:64px;background:none;color:var(--ink);border:0;font-size:inherit}
+.role::after{content:"";position:absolute;inset:0;z-index:-1;background:var(--note-yellow);border-radius:4px;transform:rotate(-5deg);box-shadow:var(--shadow-note)}
+.role::before{content:"";width:34px;height:34px;background:currentColor;
+  -webkit-mask:var(--icon,none) center/contain no-repeat;mask:var(--icon,none) center/contain no-repeat}
+.role[data-role="tf"]::after,.role[data-role="task"]::after{background:var(--key-c)}
+.role[data-role="talk"]::after{background:var(--key-a)}
+.role[data-role="test"]::after,.role[data-role="think"]::after{background:var(--key-d)}
+.role[data-role="task"]{--icon:var(--i-pencil)}
+.role[data-role="talk"]{--icon:var(--i-chat)}
+.role[data-role="test"]{--icon:var(--i-check)}
+.role[data-role="q"]::before,.role[data-role="think"]::before{content:"?"}
+.role[data-role="tf"]::before{content:"?!"}
+.role[data-role="ex"]::before{content:"!"}
+.role:is([data-role="q"],[data-role="think"],[data-role="tf"],[data-role="ex"])::before{width:auto;height:auto;background:none;
+  -webkit-mask:none;mask:none;font:400 44px/1 var(--display)}
+
+/* Так / Ні — обвідка й слово, не лише колір */
+.yn{border-radius:var(--r-hand);border:2px solid currentColor;background:var(--paper-alt);padding:0 12px;font-weight:500}
+.yn[data-yn="yes"]{color:var(--positive)}
+.yn[data-yn="no"]{color:var(--negative)}
+
+/* Біт: намальований ручкою — тіло-папір і контур ink сталі, кольору теми набуває лише деталь */
+.bit{display:flex;align-items:flex-end;gap:14px;right:72px;bottom:28px;max-width:none;z-index:2}
+.bit .bot{width:120px;height:140px;position:relative}
+.bit .bubble{position:relative;max-width:400px;margin:0 0 54px;border:2px solid var(--ink);border-radius:15px 20px 16px 19px / 19px 15px 20px 16px;
+  background:var(--paper-alt);box-shadow:var(--shadow-card);padding:14px 20px;font-size:22px;line-height:1.35}
+.bit .bubble::after{content:"";position:absolute;right:-11px;bottom:22px;width:16px;height:16px;background:var(--paper-alt);
+  border-right:2px solid var(--ink);border-bottom:2px solid var(--ink);transform:rotate(-45deg)}
+.bit[data-pos="home"]{flex-direction:row-reverse;justify-content:flex-end}
+.bit[data-pos="home"] .bubble::after{left:-11px;right:auto;border:0;border-left:2px solid var(--ink);border-bottom:2px solid var(--ink);transform:rotate(45deg)}
+/* малюнок — Біт дизайн-системи «Уроки Зошит»: тіло hd (ручкою, зі штрихуванням), долоні й щічки сталі */
+.bot-sq{display:none} .bot-hd{display:block}
+.bit{--bit-body:var(--bit-paper);--bit-outline:var(--ink);--bit-foot:var(--ink);--bit-eye:#fff;--bit-eye-line:var(--ink);--bit-face:var(--ink);
+  --bit-cheek:var(--bit-blush);--bit-hat:var(--ink);--bit-ball:var(--topic);--bit-ball-line:var(--ink);--bit-pad:var(--topic);--bit-pad-line:var(--ink);
+  --bit-hatch:var(--rule-soft);--bit-arm:var(--ink);--bit-arm-w:6px;--bit-hand:var(--bit-paper);--bit-hand-line:var(--ink);--bit-hand-lw:5px;--bit-prop2:#E8ECF2}
+
+/* ===== Блоки тексту: «листок поверх аркуша» ===== */
+.box{background:var(--paper-alt);border:2px solid var(--ink);border-radius:var(--r-hand);box-shadow:var(--shadow-card)}
+.box[data-tone="mint"],.box[data-tone="sky"]{background:var(--topic-soft)}
+.box[data-tone="sun"]{background:#FBF0CC}
+.box[data-tone="pink"]{background:#F7DEE4}
+.def{border:2px solid var(--ink);border-left-width:2px;background:var(--paper-alt);border-radius:var(--r-hand);
+  box-shadow:var(--shadow-card);padding:18px 24px;margin:0 0 22px}
+.def p{font-size:27px;margin:0}
+.def b:first-child{background:linear-gradient(transparent 66%,var(--topic) 66%,var(--topic) 98%,transparent 98%)}
+.chip{border:2px solid var(--ink);border-radius:var(--r-hand);background:var(--topic-soft);font-weight:500}
+ul.list li{border-top:0;position:relative;padding:0 0 0 40px;margin:0 0 14px}
+ul.list li::before{content:"";position:absolute;left:2px;top:.32em;width:22px;height:22px;background:var(--topic-deep);
+  -webkit-mask:var(--m-check) center/contain no-repeat;mask:var(--m-check) center/contain no-repeat}
+.grid{gap:24px}
+.gi{background:none;border-top:0;padding:0;gap:8px}
+.gi .ph{background:var(--paper-alt);border:2px solid var(--ink);border-radius:var(--r-hand);box-shadow:var(--shadow-card);padding:10px}
+.gi .ph .ic{color:var(--ink)}
+.gi .ph .num{font:400 20px var(--display);color:var(--ink-muted)}
+.gi b{font:400 23px/1.2 var(--display)}
+.gi .x{font-size:19px;line-height:1.3;color:var(--ink-muted)}
+.split .ill{border:2px solid var(--ink);border-radius:var(--r-hand);background:var(--paper-alt);padding:10px;box-shadow:var(--shadow-card)}
+.fig img{border:2px solid var(--ink);border-radius:var(--r-hand)}
+
+/* ===== Титул: стікер теми, скотч, зірочки, стрілка-дудл, значок класу ===== */
+.s-title{justify-content:center;padding:72px 64px 48px}
+.s-title .deco{position:absolute;inset:0;z-index:0;pointer-events:none}
+/* великий стікер кольору теми праворуч і смужка скотчу над ним */
+.s-title .deco::before{content:"";position:absolute;right:48px;top:200px;width:347px;height:347px;background:var(--topic-soft);
+  transform:rotate(3deg);box-shadow:var(--shadow-note)}
+.s-title .deco::after{content:"";position:absolute;right:160px;top:188px;width:133px;height:32px;background:var(--topic);opacity:.6;transform:rotate(-5deg)}
+/* зірочки й стрілка */
+.s-title::before{content:"";position:absolute;left:767px;top:120px;width:64px;height:64px;z-index:0;background:var(--topic-deep);
+  -webkit-mask:var(--m-spark) center/contain no-repeat;mask:var(--m-spark) center/contain no-repeat}
+.s-title .t-head{position:absolute;left:64px;right:64px;top:24px;display:flex;justify-content:space-between;align-items:center;padding-bottom:12px;
+  font:500 16px var(--body);color:var(--ink-muted)}
+.s-title .t-head::after{content:"";position:absolute;left:0;right:0;bottom:0;height:2px;opacity:.7;
+  background:repeating-linear-gradient(90deg,var(--ink-muted) 0 12px,transparent 12px 20px)}
+.s-title .t-main{position:relative;z-index:1;max-width:700px}
+.s-title .t-badge{position:relative;display:grid;place-items:center;width:84px;height:84px;margin:0 0 22px;color:var(--ink);font:400 52px/1 var(--display);background:none}
+.s-title .t-badge::before{content:"";position:absolute;inset:0;z-index:-1;background:var(--topic);border:2px solid var(--ink);
+  border-radius:50% 46% 52% 48% / 48% 52% 46% 50%;transform:rotate(-6deg);box-shadow:var(--shadow-note)}
+.s-title .kicker{display:inline-block;margin:0 0 18px;padding:8px 20px;background:var(--topic-soft);color:var(--ink);font:400 20px var(--display);
+  transform:rotate(-3deg);clip-path:polygon(0 0,100% 0,97% 25%,100% 50%,97% 75%,100% 100%,0 100%,3% 75%,0 50%,3% 25%)}
+.s-title h2{font-size:62px;line-height:1.02;max-width:700px;margin:0 0 18px}
+.s-title .sub{font-size:23px;color:var(--ink-muted);max-width:640px;margin:0}
+.s-title .author{margin:20px 0 0;font:500 15px var(--body);color:var(--ink-muted)}
+.s-title .date{display:none}
+.stickers{display:block;position:absolute;right:88px;top:232px;width:300px;height:300px;z-index:1;transform:none;margin:0;padding:0;list-style:none}
+.stickers li{position:absolute;inset:0;width:100%;height:100%;display:grid;place-items:center;background:none;border:0;box-shadow:none;padding:24px;font-size:140px;color:var(--topic-deep)}
+.stickers li:nth-child(n+2){display:none}
+.stickers img{width:100%;height:100%;max-height:none;max-width:none;object-fit:contain}
+
+/* ===== Питання → відповідь ===== */
+.rv .item{border:0;border-bottom:2px dashed var(--rule-soft);padding:12px 0;background:none;border-radius:0}
+.rv .q{font-weight:500}
+.rv .a{color:var(--ink);font-weight:500;display:flex;gap:10px;align-items:baseline}
+.rv .a::before{content:"";flex:none;width:20px;height:20px;background:var(--topic-deep);transform:translateY(2px);
+  -webkit-mask:var(--m-check) center/contain no-repeat;mask:var(--m-check) center/contain no-repeat}
+.rv.compact .item{padding:8px 0}
+
+/* ===== Кроки, таблиця ===== */
+.steps li::before{border:2px solid var(--ink);border-radius:50% 46% 54% 48% / 48% 54% 46% 52%;background:var(--topic);color:var(--ink);font:400 22px var(--display)}
+table.t{border-collapse:separate;border-spacing:0;background:var(--paper-alt);border:2px solid var(--ink);border-radius:var(--r-hand);
+  overflow:hidden;box-shadow:var(--shadow-card);font-size:23px}
+table.t th,table.t td{border:0;border-bottom:2px solid var(--grid);padding:10px 16px}
+table.t th{background:var(--topic-soft);color:var(--ink);font:400 22px var(--display);border-bottom:2px solid var(--ink)}
+
+/* ===== Картки ===== */
+.cards{gap:28px}
+.card{background:var(--paper-alt);border:2px solid var(--ink);border-radius:var(--r-hand);box-shadow:var(--shadow-card);padding:20px 18px;gap:10px}
+.card .num{display:inline-grid;place-items:center;width:44px;height:44px;border:2px solid var(--ink);border-radius:50% 46% 54% 48% / 48% 54% 46% 52%;
+  background:var(--topic);color:var(--ink);font:400 22px var(--display)}
+.card:nth-child(4n+2) .num{background:var(--key-b)} .card:nth-child(4n+3) .num{background:var(--key-c)} .card:nth-child(4n) .num{background:var(--key-d)}
+.card .ic{color:var(--ink)}
+.card img{border-radius:8px}
+.card b{font:400 25px/1.2 var(--display)}
+.card .x{color:var(--ink-muted)}
+
+/* ===== Вкладки ===== */
+.tab{border:2px solid var(--ink);background:var(--paper-alt);border-radius:var(--r-hand);font:400 20px var(--display)}
+.tab.on{background:var(--topic);color:var(--ink);box-shadow:var(--shadow-card)}
+
+/* ===== Тест на дошці: ігрові кружечки A–D, стан — обвідкою й словом ===== */
+.qprog span{background:none;border:2px solid var(--rule-soft);border-radius:999px}
+.qprog span.cur{background:var(--topic);border-color:var(--ink)}
+.qq{font:400 32px/1.2 var(--display)}
+.opt{border:2px solid var(--ink);background:var(--paper-alt);border-radius:var(--r-hand);display:flex;align-items:center;gap:16px;
+  font-size:24px;font-weight:500;transition:opacity .25s,box-shadow .15s}
+.opt .l{flex:none;width:46px;height:46px;margin:0;border:2px solid var(--ink);border-radius:50% 46% 54% 48% / 48% 54% 46% 52%;
+  background:var(--key-a);color:var(--ink);display:grid;place-items:center;font:400 24px var(--display)}
+.opts li:nth-child(2) .opt .l{background:var(--key-b)} .opts li:nth-child(3) .opt .l{background:var(--key-c)} .opts li:nth-child(4) .opt .l{background:var(--key-d)}
+.opt.pick{background:var(--accent-soft);box-shadow:0 0 0 3px var(--ink),var(--shadow-card)}
+.opt.ok{border-color:var(--positive);box-shadow:0 0 0 3px var(--positive)}
+.opt.ok::after{content:"✓";margin-left:auto;padding:0 12px;font:700 40px/1 var(--body);color:var(--positive)}
+.opt.no{opacity:.4}
+.opt.wrong{border-color:var(--negative);box-shadow:0 0 0 3px var(--negative)}
+.qexp{color:var(--ink)}
+.qexp .ic{color:var(--positive);font-size:34px}
+
+/* ===== Скріншот із підказками ===== */
+.hs-btn{border:2px solid var(--ink);border-radius:var(--r-hand);background:var(--paper-alt);font-weight:500}
+.hs-btn.on{background:var(--topic);color:var(--ink)}
+.hs-text{background:var(--paper-alt);border:2px solid var(--ink);border-radius:var(--r-hand);box-shadow:var(--shadow-card)}
+.lupa{border:2px solid var(--ink);border-radius:var(--r-hand);background:var(--paper-alt)}
+.lupa.on{background:var(--topic);color:var(--ink)}
+.frame{border:2px solid var(--ink);border-radius:var(--r-hand);box-shadow:var(--shadow-card)}
+.spot{border:3px solid var(--negative);border-radius:10px}
+
+/* ===== Домашнє завдання ===== */
+.hw{background:var(--paper-alt);border:2px solid var(--ink);border-radius:var(--r-hand);box-shadow:var(--shadow-card);
+  position:relative;padding:22px 24px;display:flex;flex-direction:column;gap:8px}
+.hw::before{content:"";position:absolute;left:24px;top:22px;width:48px;height:48px;background:var(--topic);border:2px solid var(--ink);
+  border-radius:50% 46% 54% 48% / 48% 54% 46% 52%}
+.hw::after{content:"";position:absolute;left:37px;top:35px;width:22px;height:22px;background:var(--ink);
+  -webkit-mask:var(--icon,none) center/contain no-repeat;mask:var(--icon,none) center/contain no-repeat}
+.hw .num{display:block;padding-left:62px;margin-bottom:6px;font:400 32px/48px var(--display);color:var(--ink)}
+.hw h3{margin:0;font-size:22px}
+.hw .main{font:400 28px/1.2 var(--display);margin:4px 0}
+.hw .small{margin:0}
+.slide .fin{font:400 52px/1 var(--display)}
+.qr{background:var(--paper-alt);border:2px solid var(--ink);border-radius:var(--r-hand);box-shadow:var(--shadow-card);color:var(--ink)}
+.qr .qrimg{background:#fff;border-radius:6px}
+.qr b{font:400 22px var(--display)}
+.qr span{color:var(--ink-muted)}
+
+/* ===== Віджети: лише форма, кольори зі змінних ===== */
+.btn{border:2px solid var(--ink);border-radius:var(--r-hand);background:var(--paper-alt);font-weight:500}
+.btn.on,.btn.primary{background:var(--topic);color:var(--ink)}
+.field{border:2px solid var(--ink);border-radius:var(--r-hand);font-family:var(--body);font-weight:500;background:var(--paper-alt)}
+.seg button{border:2px solid var(--ink);border-radius:var(--r-hand);background:var(--paper-alt)}
+.seg button.on{background:var(--topic);color:var(--ink)}
+.cell{border-radius:var(--r-hand);border:2px solid var(--ink);background:var(--paper-alt);font-family:var(--display)}
+.cell.one{background:var(--topic);color:var(--ink)}
+.prev{background:var(--paper-alt);border:2px solid var(--ink);border-radius:var(--r-hand)}
+.count{font-family:var(--display);color:var(--ink)}
+.app .ic{border-radius:22px;box-shadow:var(--shadow-card)}
+.hl{background:linear-gradient(transparent 58%,var(--topic) 58%,var(--topic) 90%,transparent 90%);color:var(--ink)}
+
+/* ===== Керування показом ===== */
+.hud{border:2px solid var(--ink);border-radius:var(--r-hand);background:var(--paper-alt);box-shadow:var(--shadow-card);padding:6px 10px}
+.hud button{border-radius:10px}
+.hud button.on{background:var(--topic);color:var(--ink)}
+.hud-pal .c{box-shadow:0 0 0 2px var(--rule-soft)}
+.hud-pal .c.on{box-shadow:0 0 0 3px var(--ink)}
+.ovl .panel{border:2px solid var(--ink);border-radius:var(--r-hand);background:var(--paper-alt);box-shadow:var(--shadow-card)}
+.ovl .phead b{font-family:var(--display);font-weight:400}
+.thumb{border-radius:10px;border:2px solid var(--rule-soft);background:var(--paper)}
+.thumb:hover,.thumb.cur{border-color:var(--ink);box-shadow:0 0 0 3px var(--topic)}
+.tbox{border-radius:8px;background:var(--paper)}
+.goto{background:var(--ink);color:var(--paper);border-radius:10px}
+kbd{font-family:var(--mono)}
+
+/* другорядний текст на проєкторі — не блідий */
+.stage .small,.stage .card .x,.stage .gi .x,.stage .s-title .sub,.stage .qr span,.stage .slide-top .n{color:var(--ink-muted)}

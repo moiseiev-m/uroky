@@ -56,12 +56,16 @@
   --blob-w1:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1280 720' preserveAspectRatio='none'%3E%3Cpath d='M0 720V662C160 622 330 650 480 668C640 690 820 696 980 668C1110 644 1210 630 1280 648V720Z'/%3E%3C/svg%3E");
   --blob-w2:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1280 720' preserveAspectRatio='none'%3E%3Cpath d='M1280 470C1250 482 1238 512 1246 544C1252 572 1242 600 1280 612Z'/%3E%3C/svg%3E");
 }
-/* акцент за класом */
-:root[data-grade="5"]{--accent:#FFD43B;--accent-deep:#FAB005;--accent-soft:#FFF4C2;--ink:#2B1E2A;--ink-muted:#4A3A46;--on-accent:#2B1E2A;--accent-ink:#6B4700}
-:root[data-grade="6"]{--accent:#63E6BE;--accent-deep:#20C997;--accent-soft:#D3F9E8;--ink:#0F2E2A;--ink-muted:#30514C;--on-accent:#0F2E2A;--accent-ink:#0A5C45}
-:root[data-grade="7"]{--accent:#FFA94D;--accent-deep:#FD7E14;--accent-soft:#FFE8CC;--ink:#2E1B12;--ink-muted:#4C342A;--on-accent:#2E1B12;--accent-ink:#8A3A00}
-:root[data-grade="8"]{--accent:#B197FC;--accent-deep:#9775FA;--accent-soft:#EDE6FF;--ink:#221A3A;--ink-muted:#3C3357;--on-accent:#221A3A;--accent-ink:#4B2FB0}
-:root[data-grade="9"]{--accent:#74C0FC;--accent-deep:#339AF0;--accent-soft:#DCEEFF;--ink:#13233A;--ink-muted:#2E4058;--on-accent:#13233A;--accent-ink:#0B4A82}
+/* акцент за темою уроку (data-topic — з розділу календарного плану); клас колір не міняє.
+   Біт сталий (м'ятний), кольору теми набуває лише кулька й китиця. */
+:root[data-topic="text"]{--accent:#74C0FC;--accent-deep:#339AF0;--accent-soft:#DCEEFF;--ink:#13233A;--ink-muted:#2E4058;--on-accent:#13233A;--accent-ink:#0B4A82}
+:root[data-topic="sheets"]{--accent:#8CE99A;--accent-deep:#40C057;--accent-soft:#D3F9D8;--ink:#12301A;--ink-muted:#2F4D35;--on-accent:#12301A;--accent-ink:#2B6A36}
+:root[data-topic="slides"]{--accent:#FFA94D;--accent-deep:#FD7E14;--accent-soft:#FFE8CC;--ink:#2E1B12;--ink-muted:#4C342A;--on-accent:#2E1B12;--accent-ink:#8A3A00}
+:root[data-topic="code"]{--accent:#FFD43B;--accent-deep:#FAB005;--accent-soft:#FFF4C2;--ink:#2B1E2A;--ink-muted:#4A3A46;--on-accent:#2B1E2A;--accent-ink:#6B4700}
+:root[data-topic="graphics"]{--accent:#B197FC;--accent-deep:#9775FA;--accent-soft:#EDE6FF;--ink:#221A3A;--ink-muted:#3C3357;--on-accent:#221A3A;--accent-ink:#4B2FB0}
+:root[data-topic="web"]{--accent:#63E6BE;--accent-deep:#20C997;--accent-soft:#D3F9E8;--ink:#0F2E2A;--ink-muted:#30514C;--on-accent:#0F2E2A;--accent-ink:#0A5C45}
+:root[data-topic="db"]{--accent:#F783AC;--accent-deep:#E64980;--accent-soft:#FFDEEB;--ink:#3A1424;--ink-muted:#5A3344;--on-accent:#3A1424;--accent-ink:#A61E4D}
+:root[data-topic="info"]{--accent:#CED4DA;--accent-deep:#868E96;--accent-soft:#F1F3F5;--ink:#1F2328;--ink-muted:#3D434A;--on-accent:#1F2328;--accent-ink:#495057}
 
 /* старі назви токенів (віджети з engine/src/widgets.js — без змін) */
 :root{
@@ -171,7 +175,7 @@ body{background:var(--surface);color:var(--ink)}
 .bit .bubble::after{content:"";position:absolute;right:-11px;bottom:22px;width:16px;height:16px;background:var(--card);
   border-right:2px solid var(--accent);border-bottom:2px solid var(--accent);transform:rotate(-45deg)}
 .bit[data-pos="home"]{display:none}
-.b-body{fill:var(--accent)} .b-eye{fill:#fff} .b-pupil,.b-line{fill:var(--ink);stroke:var(--ink)}
+.b-body{fill:#63E6BE} .b-eye{fill:#fff} .b-pupil,.b-line{fill:var(--ink);stroke:var(--ink)}
 .b-ant{fill:var(--ink)} .b-ball{fill:var(--accent-deep)} .b-tassel{fill:none;stroke:var(--accent-deep)} .b-glass{fill:none;stroke:var(--ink);stroke-width:8}
 
 /* ===== Блоки тексту ===== */

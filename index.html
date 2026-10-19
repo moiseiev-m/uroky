@@ -9,7 +9,12 @@
 
 :root{--bg:#F2F2F0;--paper:#FFFFFF;--ink:#111111;--muted:#5C5C5C;--rule:#111111;--rule-soft:#9e9e9a;
   --accent:#0033CC;--on-accent:#FFFFFF;--accent-tint:#E6ECFF;--sun:#FFC93C;--coral:#FF6B4A;--mintb:#2EC4A0;
-  --on-bright:#111111;--body:"Inter","Segoe UI",Arial,sans-serif;color-scheme:light}
+  --on-bright:#111111;--body:"Inter","Segoe UI",Arial,sans-serif;color-scheme:light;
+  --topic:#A4C639;--on-topic:#111111}
+[data-topic="text"]{--topic:#1F5BD8;--on-topic:#FFFFFF} [data-topic="sheets"]{--topic:#17803F;--on-topic:#FFFFFF}
+[data-topic="slides"]{--topic:#F26B1D;--on-topic:#111111} [data-topic="code"]{--topic:#FFC93C;--on-topic:#111111}
+[data-topic="graphics"]{--topic:#7B3FE4;--on-topic:#FFFFFF} [data-topic="web"]{--topic:#0FA3B1;--on-topic:#111111}
+[data-topic="db"]{--topic:#B3123F;--on-topic:#FFFFFF} [data-topic="info"]{--topic:#A4C639;--on-topic:#111111}
 *,*::before,*::after{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);font:400 17px/1.5 var(--body)}
 .wrap{max-width:1120px;margin:0 auto;padding:28px 16px 64px}
@@ -18,19 +23,34 @@ body{margin:0;background:var(--bg);color:var(--ink);font:400 17px/1.5 var(--body
 h1{font-weight:700;font-size:clamp(34px,6vw,64px);line-height:1;letter-spacing:-.04em;margin:10px 0 12px}
 .lead{max-width:62ch;margin:0;color:var(--muted)}
 .back{display:inline-block;margin-bottom:8px;font-weight:700;color:inherit;text-decoration:none;border-bottom:2px solid var(--ink)}
-.grades{margin-top:28px;display:flex;flex-direction:column;gap:14px}
-a.card{display:flex;align-items:center;gap:18px;padding:14px 18px;background:var(--paper);border:3px solid var(--ink);
-  border-left:12px solid var(--grade);text-decoration:none;color:inherit}
-a.card:hover{background:var(--bg)}
-.badge{width:64px;height:64px;flex:none;display:grid;place-items:center;background:var(--grade);color:var(--on-bright);
-  border:3px solid var(--ink);box-shadow:4px 4px 0 var(--ink);font:700 38px/1 var(--body);letter-spacing:-.04em}
+.tf{margin-top:24px;display:flex;flex-wrap:wrap;gap:8px}
+.tf button{display:inline-flex;align-items:center;gap:8px;padding:6px 12px;border:2px solid var(--ink);background:var(--paper);
+  color:var(--ink);font:600 14px var(--body);cursor:pointer}
+.tf button i{width:14px;height:14px;background:var(--topic);border:2px solid var(--ink)}
+.tf button.on{background:var(--ink);color:var(--paper)}
+.cols{margin-top:24px;display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:28px 20px;align-items:start}
+.col-h{display:flex;align-items:center;gap:14px;padding:10px 12px;background:var(--paper);border:3px solid var(--ink);
+  text-decoration:none;color:inherit}
+.col-h:hover{background:var(--bg)}
+.badge{width:56px;height:56px;flex:none;display:grid;place-items:center;background:var(--ink);color:var(--paper);
+  font:700 34px/1 var(--body);letter-spacing:-.04em}
+.tcards{margin-top:12px;display:flex;flex-direction:column;gap:10px}
+a.tcard{display:flex;flex-direction:column;gap:4px;padding:12px 14px;min-height:96px;background:var(--topic);color:var(--on-topic);
+  border:3px solid var(--ink);text-decoration:none;transition:opacity .2s}
+a.tcard:hover{box-shadow:4px 4px 0 var(--ink)}
+.tcard .tl{font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
+.tcard b{font-size:18px;line-height:1.2}
+.tcard .tc{margin-top:auto;font-size:13px;font-weight:600}
+a.tcard.is-dim{opacity:.2}
 .gt{display:flex;flex-direction:column;gap:2px;min-width:0}
 .gt b{font-size:28px;letter-spacing:-.02em;line-height:1.1}
 .sec{margin-top:22px;background:var(--paper);border:3px solid var(--ink)}
 .sec h2{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:0;padding:12px 16px;border-bottom:3px solid var(--ink);font-size:19px}
 .sec h2 .nm{font-weight:600;flex:1;min-width:180px}
 .cnt{font:600 13px var(--body);letter-spacing:.06em;color:var(--muted);border:2px solid var(--rule-soft);padding:2px 8px}
-.cnt.has{color:var(--on-bright);background:var(--grade);border-color:var(--ink)}
+.cnt.has{color:var(--on-topic);background:var(--topic);border-color:var(--ink)}
+.sec h2 .chip{display:inline-flex;align-items:center;padding:3px 10px;background:var(--topic);color:var(--on-topic);
+  border:2px solid var(--ink);font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase}
 .open{font-weight:600;font-size:14px;color:var(--on-accent);background:var(--accent);padding:6px 12px;text-decoration:none;border:3px solid var(--accent)}
 .open:hover{background:var(--ink);border-color:var(--ink);color:var(--paper)}
 ol{list-style:none;margin:0;padding:0}
@@ -40,7 +60,7 @@ li .n{font-weight:700;font-size:18px;text-align:right}
 li .p{color:var(--muted);font-size:14px;white-space:nowrap}
 li .go{font-weight:600;font-size:14px;color:var(--accent);white-space:nowrap}
 li .soon{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);white-space:nowrap}
-li.ok a{border-left:6px solid var(--grade)}
+li.ok a{border-left:6px solid var(--topic)}
 li.ok a:hover{background:var(--accent-tint)}
 li.ok a:hover .t{text-decoration:underline}
 li:not(.ok) .row{color:var(--muted);padding-left:16px}
@@ -56,6 +76,9 @@ a:focus-visible{outline:3px solid var(--sun);outline-offset:2px}
 </style>
 </head>
 <body>
-<div class="wrap"><div class="top"><span class="lab">Інформатика · 6–9 класи</span><h1>Уроки</h1><p class="lead">Оберіть клас. Кожен готовий урок — окрема сторінка.</p></div><div class="grades"><a class="card" href="6/index.html" style="--grade:var(--sun)"><span class="badge">6</span><span class="gt"><b>6 клас</b><span class="lab">Ігровий · готово 4 з 15</span></span></a><a class="card" href="7/index.html" style="--grade:var(--mintb)"><span class="badge">7</span><span class="gt"><b>7 клас</b><span class="lab">Дослідник · готово 3 з 15</span></span></a><a class="card" href="8/index.html" style="--grade:var(--coral)"><span class="badge">8</span><span class="gt"><b>8 клас</b><span class="lab">Конструктор · готово 8 з 24</span></span></a><a class="card" href="9/index.html" style="--grade:var(--accent)"><span class="badge">9</span><span class="gt"><b>9 клас</b><span class="lab">Профі · готово 5 з 24</span></span></a></div></div>
+<div class="wrap"><div class="top"><span class="lab">Інформатика · 6–9 класи</span><h1>Уроки</h1><p class="lead">Оберіть клас або розділ. Колір — тема розділу, однаковий у всіх класах.</p></div><div class="tf" role="group" aria-label="Тема розділу"><button type="button" data-t="" class="on" aria-pressed="true">Усі теми</button><button type="button" data-t="text" data-topic="text" aria-pressed="false"><i></i>Текст</button><button type="button" data-t="slides" data-topic="slides" aria-pressed="false"><i></i>Презентації</button><button type="button" data-t="code" data-topic="code" aria-pressed="false"><i></i>Програмування</button><button type="button" data-t="graphics" data-topic="graphics" aria-pressed="false"><i></i>Графіка</button><button type="button" data-t="web" data-topic="web" aria-pressed="false"><i></i>Інтернет</button><button type="button" data-t="info" data-topic="info" aria-pressed="false"><i></i>Комп’ютер</button></div><div class="cols"><section class="col"><a class="col-h" href="6/index.html"><span class="badge">6</span><span class="gt"><b>6 клас</b><span class="lab">Ігровий · готово 5 з 15</span></span></a><div class="tcards"><a class="tcard" data-topic="info" href="6/index.html#t1"><span class="tl">Тема 1 · Комп’ютер</span><b>Цифрові пристрої. Цифрові технології</b><span class="tc">готово 2 з 2</span></a><a class="tcard" data-topic="slides" href="6/index.html#t2"><span class="tl">Тема 2 · Презентації</span><b>Комп’ютерні презентації</b><span class="tc">готово 2 з 4</span></a><a class="tcard" data-topic="text" href="6/index.html#t3"><span class="tl">Тема 3 · Текст</span><b>Текстові документи</b><span class="tc">готово 1 з 4</span></a><a class="tcard" data-topic="graphics" href="6/index.html#t4"><span class="tl">Тема 4 · Графіка</span><b>Графічні зображення</b><span class="tc">готово 0 з 5</span></a></div></section><section class="col"><a class="col-h" href="7/index.html"><span class="badge">7</span><span class="gt"><b>7 клас</b><span class="lab">Дослідник · готово 3 з 15</span></span></a><div class="tcards"><a class="tcard" data-topic="web" href="7/index.html#t1"><span class="tl">Тема 1 · Інтернет</span><b>Пошук в Інтернеті. Електронна пошта. Хмарні сервіси</b><span class="tc">готово 3 з 7</span></a><a class="tcard" data-topic="code" href="7/index.html#t2"><span class="tl">Тема 2 · Програмування</span><b>Алгоритми та програми</b><span class="tc">готово 0 з 8</span></a></div></section><section class="col"><a class="col-h" href="8/index.html"><span class="badge">8</span><span class="gt"><b>8 клас</b><span class="lab">Конструктор · готово 8 з 24</span></span></a><div class="tcards"><a class="tcard" data-topic="info" href="8/index.html#t1"><span class="tl">Тема 1 · Комп’ютер</span><b>Кодування</b><span class="tc">готово 4 з 5</span></a><a class="tcard" data-topic="info" href="8/index.html#t2"><span class="tl">Тема 2 · Комп’ютер</span><b>Архіви даних</b><span class="tc">готово 3 з 3</span></a><a class="tcard" data-topic="info" href="8/index.html#t3"><span class="tl">Тема 3 · Комп’ютер</span><b>Апаратне забезпечення персонального комп’ютера</b><span class="tc">готово 1 з 8</span></a><a class="tcard" data-topic="code" href="8/index.html#t4"><span class="tl">Тема 4 · Програмування</span><b>Алгоритми та програми</b><span class="tc">готово 0 з 8</span></a></div></section><section class="col"><a class="col-h" href="9/index.html"><span class="badge">9</span><span class="gt"><b>9 клас</b><span class="lab">Профі · готово 7 з 24</span></span></a><div class="tcards"><a class="tcard" data-topic="info" href="9/index.html#t1"><span class="tl">Тема 1 · Комп’ютер</span><b>Програмне забезпечення</b><span class="tc">готово 2 з 6</span></a><a class="tcard" data-topic="text" href="9/index.html#t2"><span class="tl">Тема 2 · Текст</span><b>Опрацювання текстових даних</b><span class="tc">готово 5 з 7</span></a><a class="tcard" data-topic="code" href="9/index.html#t3"><span class="tl">Тема 3 · Програмування</span><b>Алгоритми та програми</b><span class="tc">готово 0 з 11</span></a></div></section></div></div>
+<script>
+document.querySelectorAll('.tf button').forEach(function(b){b.onclick=function(){var t=b.dataset.t;document.querySelectorAll('.tf button').forEach(function(x){x.classList.toggle('on',x===b);x.setAttribute('aria-pressed',x===b)});document.querySelectorAll('a.tcard').forEach(function(c){c.classList.toggle('is-dim',!!t&&c.dataset.topic!==t)})}})
+</script>
 </body>
 </html>

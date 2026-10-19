@@ -1,88 +1,111 @@
-/* Практична: оформлення вчителя (шапка «ІНФОРМАТИКА N», сині й жовті плашки, «Увага!»).
-   Повторює його «Практична робота 1.docx»: Times New Roman 14, по ширині, відступ першого рядка. */
+/* Практична у стилі «Зошит» (дизайн-система «Уроки Зошит», розділ «Практичні»):
+   колір — тема уроку (data-topic на html, з розділу plan.json, як у слайдів), рукописні заголовки Pangolin,
+   текст Rubik, шапка з лінією кольору теми, номер і назва на плашках теми, «Увага!», підказка з Бітом,
+   «Завдання N» з маркером, кроки «1)», зразок у рамці, «Перевірте себе». Стиль один для всіх уроків. */
 :root{
-  --paper:#FFFFFF;--desk:#EEF1F5;--ink:#000000;--ink-soft:#262626;--rule:#808080;
-  --logo-red:#D7263D;--logo-green:#3FA34D;
-  --num-blue:#1F4E79;--plate-blue:#4F81BD;--plate-blue-line:#2E5C8A;
-  --plate-yellow:#FFFF00;--plate-yellow-line:#E6C200;--plate-yellow-ink:#1A1A6E;
-  --warn-label:#F58A24;--warn-body:#FFC845;
-  --sample-bg:#F2F2F2;--sample-line:#BFBFBF;--link:#1155CC;--btn:#1F4E79;--btn-ink:#FFFFFF;
-  --serif:"Times New Roman","Liberation Serif",Tinos,Times,serif;
-  --logo:Oswald,Montserrat,"Arial Narrow",Arial,sans-serif;
-  --indent:35.4pt;--step-left:53pt;
+  --paper:#FDFCF7;--paper-alt:#FFFEF9;--desk:#E7E8EB;--ink:#22304A;--ink-muted:#5A6478;
+  --key-c:#EEA08E;--bit-paper:#FFFDF6;--bit-blush:#F4B4AA;--rule-soft:#9AA3B2;
+  --doc-key:#ECEFF4;--doc-warn:#FBF0CC;--doc-check:#E3F1E6;--doc-sample:#F3F5F8;--doc-sample-line:#C9D0DA;
+  --tp:#B3CF63;--tp-soft:#EEF5D8;--tp-deep:#7D9A2E;
+  --display:"Pangolin","Comic Sans MS","Trebuchet MS",sans-serif;
+  --body:"Rubik","Segoe UI",Arial,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
   color-scheme:light}
+:root[data-topic="text"]{--tp:#6F9FD8;--tp-soft:#DDE9F7;--tp-deep:#3F6FAE}
+:root[data-topic="sheets"]{--tp:#7DBB8A;--tp-soft:#DFF0E2;--tp-deep:#4A8F5A}
+:root[data-topic="slides"]{--tp:#EBA061;--tp-soft:#FBE6D3;--tp-deep:#C06F2C}
+:root[data-topic="code"]{--tp:#F0C95A;--tp-soft:#FBF0CC;--tp-deep:#B8902A}
+:root[data-topic="graphics"]{--tp:#A98BD6;--tp-soft:#ECE3F7;--tp-deep:#7A5BB0}
+:root[data-topic="web"]{--tp:#6CBFC0;--tp-soft:#D8EFF0;--tp-deep:#3D8F91}
+:root[data-topic="db"]{--tp:#D77B8F;--tp-soft:#F7DEE4;--tp-deep:#A84D63}
+:root[data-topic="info"]{--tp:#B3CF63;--tp-soft:#EEF5D8;--tp-deep:#7D9A2E}
+
 *,*::before,*::after{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
-body{margin:0;background:var(--desk);color:var(--ink);font:400 14pt/1.3 var(--serif)}
-.sheet{max-width:210mm;margin:0 auto;padding:15mm 20mm 18mm;background:var(--paper);box-shadow:0 2px 18px rgba(0,0,0,.14)}
-p{margin:0 0 2pt;text-align:justify;text-indent:var(--indent)}
-b{font-weight:700}
+body{margin:0;background:var(--desk);color:var(--ink);font:400 16px/1.5 var(--body)}
+.sheet{max-width:210mm;margin:0 auto;padding:44px 60px 56px;background:var(--paper);box-shadow:0 2px 18px rgba(34,48,74,.12)}
+p{margin:0 0 12px}
+b,strong{font-weight:700}
 i,em{font-style:italic}
-a{color:var(--link);font-weight:700}
+a{color:var(--ink);font-weight:700;text-decoration:underline;text-underline-offset:2px}
+a:focus-visible{outline:3px solid var(--tp-deep);outline-offset:2px}
 
-/* шапка */
-.hdr{display:flex;align-items:flex-end;justify-content:space-between;gap:12pt;border-bottom:2.25pt solid var(--rule)}
-.hdr-l{flex:1;padding:0 8pt 4pt 0;border-right:2.25pt solid var(--rule);font-size:15pt;font-style:italic;color:var(--ink-soft)}
-.logo{flex:none;padding-bottom:2pt;font:800 26pt/1 var(--logo);letter-spacing:.01em;color:var(--logo-red);text-transform:uppercase;white-space:nowrap}
-.logo b{font-size:30pt;color:var(--logo-green)}
+/* шапка: «Урок №N · Практичне завдання» і «Інформатика · N клас», лінія кольору теми */
+.hdr{display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding-bottom:6px;border-bottom:3px solid var(--tp-deep);margin-bottom:18px}
+.hdr-l{font-size:14px;color:var(--ink-muted)}
+.logo{flex:none;font:400 24px/1 var(--display);white-space:nowrap}
 
-/* назва: велика цифра, синя й жовта плашки */
-.ttl{display:grid;grid-template-columns:95pt 1fr;margin-top:10pt}
-.num{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;color:var(--num-blue);font-style:italic;
-  border-right:8pt solid var(--paper)}
-.num b{font-size:60pt;line-height:1}
-.num i{font-size:14pt;line-height:1.3;align-self:center;margin-top:auto}
-.plates{display:flex;flex-direction:column;gap:8pt;min-width:0}
-.plate-b,.plate-y{margin:0;text-align:center;text-indent:0;font-style:italic;font-weight:700}
-.plate-b{padding:8pt 10pt;background:var(--plate-blue);border:1pt solid var(--plate-blue-line);font-size:28pt;line-height:1.15}
-.plate-y{padding:14pt 10pt;background:var(--plate-yellow);border:1pt solid var(--plate-yellow-line);color:var(--plate-yellow-ink);font-size:20pt;line-height:1.2}
+/* назва: номер на плашці теми, назва на світлій плашці */
+.ttl{display:grid;grid-template-columns:96px 1fr;margin:0 0 16px}
+.num{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:12px 8px;background:var(--tp)}
+.num b{font:400 64px/1 var(--display)}
+.num i{font-size:14px;font-style:normal}
+.plate{padding:12px 16px;background:var(--tp-soft);min-width:0}
+.kick{margin:0;font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-muted)}
+.plate h1{margin:4px 0 6px;font:400 30px/1.15 var(--display)}
+.tp{margin:0;font-size:13px;color:var(--ink-muted)}
 
 /* «Увага!» */
-.uvaga{display:grid;grid-template-columns:110pt 1fr;margin:8pt 0 10pt}
-.uvaga b{display:flex;align-items:center;justify-content:center;padding:4pt;background:var(--warn-label);font-size:15pt;
-  border-right:6pt solid var(--paper)}
-.uvaga p{display:flex;align-items:center;margin:0;padding:3pt 6pt;background:var(--warn-body);font-style:italic;text-indent:0}
+.uvaga{display:grid;grid-template-columns:48px 1fr;margin:0 0 16px}
+.uvaga b{display:grid;place-items:center;background:var(--key-c);font:400 28px/1 var(--display)}
+.uvaga p{margin:0;padding:12px 16px;background:var(--doc-warn);font-size:14px}
 
-/* основний текст */
-.note{font-style:italic}
-.zav{margin-top:8pt}
-.zt{margin-top:8pt}
-.kr{list-style:none;counter-reset:krok;margin:0;padding:0}
-.kr li{counter-increment:krok;margin:0 0 2pt var(--step-left);text-indent:-17.6pt;text-align:justify}
-.kr li::before{content:counter(krok) ")";display:inline-block;width:17.6pt;text-indent:0}
-.zr{margin:4pt 60pt 4pt 0;padding:4pt 8pt;background:var(--sample-bg);border:.75pt solid var(--sample-line);font-size:13pt}
-.zr .l1{margin-left:22pt}
-.zr .l2{margin-left:44pt}
-.end{margin-top:8pt}
+/* підказка з аватаром Біта */
+.tip{display:grid;grid-template-columns:72px 1fr;align-items:center;margin:0 0 16px;background:var(--tp-soft)}
+.tip p{margin:0;padding:12px 16px 12px 0;font-size:15px;font-style:italic}
+/* аватар Біта (дизайн-система: us-bit-avatar) — спрайт bit.svg, тіло hd, убір класу */
+.av{display:block;width:56px;height:56px;justify-self:center;border-radius:50%;overflow:hidden;border:2px solid var(--ink);background:var(--paper-alt)}
+.av svg{display:block;width:100%;height:100%}
+symbol{overflow:visible}
+.b-body{fill:var(--bit-paper);stroke:var(--ink)} .b-foot{fill:var(--ink)} .b-eye{fill:#fff;stroke:var(--ink)} .b-shine{fill:#fff}
+.b-pupil{fill:var(--ink)} .b-mouth{fill:var(--ink);stroke:var(--ink);stroke-linecap:round;stroke-linejoin:round}
+.b-stroke{fill:none;stroke:var(--ink);stroke-linecap:round;stroke-linejoin:round} .b-cheek{fill:var(--bit-blush)}
+.b-ant{fill:var(--ink);stroke:var(--ink);stroke-linejoin:round} .b-band{fill:none;stroke:var(--ink);stroke-linecap:round}
+.b-ball,.b-pad{fill:var(--tp);stroke:var(--ink)} .b-frame{fill:none;stroke:var(--ink)} .b-tassel{fill:none;stroke:var(--tp);stroke-linecap:round}
+.b-hatch{fill:none;stroke:var(--rule-soft);stroke-linecap:round}
+
+/* назви кнопок, клавіші й імена файлів — жирні на сірому */
+main b{background:var(--doc-key);padding:0 3px;border-radius:3px;-webkit-box-decoration-break:clone;box-decoration-break:clone}
+
+/* завдання */
+.zav{margin-top:20px}
+.zav h2{margin:0 0 8px;font:400 24px/1.2 var(--display)}
+.zav mark{background:var(--tp);color:var(--ink);padding:0 6px}
+.kr{list-style:none;counter-reset:krok;margin:4px 0 12px;padding:0 0 0 28px}
+.kr li{counter-increment:krok;position:relative;margin:0 0 6px}
+.kr li::before{content:counter(krok) ")";position:absolute;left:-28px}
+.zr{margin:4px 0 12px;padding:10px 14px;background:var(--doc-sample);border:1px solid var(--doc-sample-line);font-size:15px}
+.zr .l1{margin-left:22px}
+.zr .l2{margin-left:44px}
+.chk{margin:4px 0 12px;padding:12px 16px;background:var(--doc-check);font-size:15px}
+.chk-h{margin:0 0 4px;font-weight:700}
+.chk-t{margin:0;position:relative;padding-left:28px}
+.chk-t::before{content:"";position:absolute;left:2px;top:4px;width:14px;height:14px;border:2px solid var(--ink);background:var(--paper-alt)}
+.end{margin-top:20px}
 
 /* матеріали: лише посилання Google Диска */
-.files{margin-top:16pt;padding-top:10pt;border-top:.75pt solid var(--sample-line);font-size:14pt}
-.files h2{margin:0 0 6pt;font-size:14pt}
-.files ul{display:flex;flex-wrap:wrap;gap:8pt;margin:0;padding:0;list-style:none}
-.file{display:inline-block;padding:8pt 16pt;background:var(--btn);color:var(--btn-ink);border-radius:6pt;text-decoration:none;
-  font-family:Arial,"Segoe UI",sans-serif;font-size:12pt;font-weight:700}
-.file:hover{filter:brightness(1.18)}
-a:focus-visible{outline:3px solid var(--warn-label);outline-offset:2px}
+.files{margin-top:24px;padding-top:12px;border-top:2px dashed var(--doc-sample-line)}
+.files h2{margin:0 0 8px;font:400 22px var(--display)}
+.files ul{display:flex;flex-wrap:wrap;gap:10px;margin:0;padding:0;list-style:none}
+.file{display:inline-block;padding:9px 18px;background:var(--tp);color:var(--ink);border:2px solid var(--ink);
+  border-radius:12px 17px 13px 16px / 16px 12px 17px 13px;box-shadow:4px 4px 0 rgba(34,48,74,.12);text-decoration:none;font-weight:700}
+.file:hover{box-shadow:5px 5px 0 rgba(34,48,74,.2)}
 
 @media (max-width:640px){
-  :root{--indent:22pt;--step-left:28pt}
-  body{font-size:13pt}
-  p,.kr li{text-align:left}
-  .sheet{padding:12px 12px 24px;box-shadow:none}
-  .hdr{flex-direction:column;align-items:stretch;gap:4pt}
-  .hdr-l{border-right:0;padding:0;font-size:13pt}
-  .logo{align-self:flex-end;font-size:22pt}.logo b{font-size:26pt}
-  .ttl{grid-template-columns:56pt 1fr}
-  .num b{font-size:40pt}
-  .plate-b{font-size:20pt}.plate-y{font-size:16pt;padding:10pt}
-  .uvaga{grid-template-columns:78pt 1fr}.uvaga b{font-size:13pt}
-  .zr{margin-right:0;font-size:12pt}
-  .zr .l1{margin-left:14pt}
-  .zr .l2{margin-left:28pt}}
+  body{font-size:15px}
+  .sheet{padding:16px 14px 28px;box-shadow:none}
+  .hdr{flex-direction:column;align-items:flex-start;gap:4px}
+  .logo{font-size:20px}
+  .ttl{grid-template-columns:64px 1fr}
+  .num b{font-size:44px}
+  .plate h1{font-size:24px}
+  .tip{grid-template-columns:60px 1fr}.tip .av{width:44px;height:44px}
+  .zr .l1{margin-left:14px}
+  .zr .l2{margin-left:28px}}
 
 @media print{
   body{background:#fff}
   .sheet{max-width:none;padding:0;box-shadow:none}
   .files{display:none}
-  .plate-b,.plate-y,.uvaga b,.uvaga p,.zr{-webkit-print-color-adjust:exact;print-color-adjust:exact}
-  .zav,.kr li,.zr{break-inside:avoid}}
+  .num,.plate,.uvaga b,.uvaga p,.tip,.zav mark,.zr,.chk,main b{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .zav,.kr li,.zr,.chk{break-inside:avoid}}
