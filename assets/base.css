@@ -143,7 +143,8 @@ symbol{overflow:visible}
 .split .ill{max-height:430px;object-fit:contain;justify-self:center;align-self:center;border-radius:16px}
 .cols{display:grid;grid-template-columns:repeat(var(--n,2),1fr);gap:32px;flex:1;min-height:0}
 .cols>.col{min-width:0}
-.box{background:var(--accent-tint);border-radius:20px;padding:20px 26px}
+.box{background:var(--accent-tint);border-radius:20px;padding:20px 26px;margin:0 0 20px}
+.box:last-child{margin-bottom:0}
 .box[data-tone="mint"]{background:var(--mint-soft)} .box[data-tone="sun"]{background:var(--sun-soft)}
 .box[data-tone="pink"]{background:var(--pink-soft)} .box[data-tone="sky"]{background:var(--sky-soft)}
 .box p:last-child{margin-bottom:0}
@@ -169,7 +170,7 @@ ul.list li{font-size:var(--fs,28px);margin:0;padding:9px 0;border-top:2px solid 
 .gi b{font-size:var(--fs,24px);line-height:1.2;font-weight:700}
 .gi .x{font-size:21px;line-height:1.25;color:var(--muted)}
 .intro{margin:0 0 14px}
-.foot{margin-top:auto}
+.foot{margin-top:auto;padding-top:18px}   /* підпис під картками й таблицею — не впритул */
 
 /* ===== Титул ===== */
 .s-title{justify-content:center;overflow:hidden}
@@ -227,6 +228,7 @@ table.t tr.f{transform:none}
 .tab.on{background:var(--ink);color:var(--paper);border-color:var(--ink)}
 .tabpane{display:none;flex:1;min-height:0}
 .tabpane.on{display:block}
+.tabpane .f{opacity:1;transform:none}   /* у вкладці крок — це вкладка: список і картки в ній видно одразу */
 
 /* ===== Тест на дошці ===== */
 .qprog{display:flex;gap:6px;margin-bottom:18px}

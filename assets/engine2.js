@@ -161,7 +161,7 @@ const FIT_SKIP='.slide-top,.bit:not([data-pos="home"]),.deco,.stickers,.inner,.t
 const hitH=(a,b)=>Math.min(a.right,b.right)-Math.max(a.left,b.left)>2?Math.max(0,Math.min(a.bottom,b.bottom)-Math.max(a.top,b.top)):0;
 /* прямокутники самого тексту (по рядках), а не рамки блоку: рядок на всю ширину з коротким текстом не «налазить» */
 function textRects(e){const rg=document.createRange();rg.selectNodeContents(e);return [...rg.getClientRects()].filter(q=>q.width>1&&q.height>1)}
-const TEXT_SEL='h2,h3,p,li,dt,dd,td,th,b,button';
+const TEXT_SEL='h2,h3,p,li,dt,dd,td,th,b,button',BOX_SEL='.card,img';
 function overflowOf(e){const r=e.getBoundingClientRect();if(!r.width)return 0;const k=r.width/1280,cs=getComputedStyle(e);
   const lim={right:r.right-parseFloat(cs.paddingRight)*k,bottom:r.bottom-parseFloat(cs.paddingBottom)*k,left:r.left,top:r.top};
   let over=0;
@@ -178,6 +178,9 @@ function overflowOf(e){const r=e.getBoundingClientRect();if(!r.width)return 0;co
       return{left:q.left-m,right:q.right+m,top:q.top-m,bottom:q.bottom+m}});
   if(blocks.length)e.querySelectorAll(TEXT_SEL+',.sub,.t-meta,.kicker').forEach(t=>{if(t.closest('.bit,.slide-top,.stickers'))return;
     textRects(t).forEach(q=>blocks.forEach(b=>{over=Math.max(over,hitH(q,b)/k)}))});
+  // рамки карток і картинки — цілим прямокутником: Біт не налазить і на край рамки
+  if(blocks.length)e.querySelectorAll(BOX_SEL).forEach(t=>{if(t.closest('.bit,.slide-top,.stickers,.inner'))return;
+    const q=t.getBoundingClientRect();if(q.width&&q.height)blocks.forEach(b=>{over=Math.max(over,hitH(q,b)/k)})});
   return over}
 function fitSlide(i,keep){const s=S[i];if(!s||FEED)return;const e=s.el;if(!e.classList.contains('on'))return;
   // вкладки й тест на дошці: розмір один на всі кроки — за найбільшим станом
@@ -292,7 +295,7 @@ function nextTheme(){if(THEMES.length<2)return;const now=document.documentElemen
 // вибір теми пам'ятається окремо для кожного класу: T на уроці 9 класу не змінює 6 клас
 function themeKey(){return 'theme2-'+((typeof LESSON!=='undefined'&&LESSON&&LESSON.grade)||'')}
 function initTheme(){if(!THEMES.length)return;let id=null;
-  // учнівська версія: тему задає вчитель у посиланні (…/u/7-6.html?tema=abstract), сам учень її не міняє
+  // учнівська версія: тему задає вчитель у посиланні (…/u/7/7-6.html?tema=abstract), сам учень її не міняє
   if(ST){try{id=new URLSearchParams(location.search).get('tema')}catch(e){}
     const t=THEMES.filter(x=>x.id===id)[0]||THEMES.filter(x=>x.id===CFG.theme)[0]||THEMES[0];
     const link=$('themeCss');if(link&&link.getAttribute('href')!==t.css)link.setAttribute('href',t.css);
@@ -486,7 +489,8 @@ function head(d,force){const t=force!==undefined?force:d.title;if(!t)return '';
   const r=roleOf(d);
   return '<h2'+cls(r?'has-role':'')+'>'+(r?'<span class="role"'+at('data-role',r)+at('title',ROLE_T[r])+' aria-hidden="true"></span>':'')+txt(t)+'</h2>'}
 const intro=d=>d.intro?'<p class="intro">'+txt(d.intro)+'</p>':'';
-const foot=d=>d.foot?'<p class="foot">'+txt(d.foot)+'</p>':'';
+/* підпис під картками й таблицею: з'являється останнім кроком, якщо картки чи рядки з'являються по черзі */
+const foot=(d,f)=>d.foot?'<p'+cls('foot',f?'f':'')+'>'+txt(d.foot)+'</p>':'';
 const ill=k=>k?img(k,'ill'):'';
 
 /* ===== Блоки тексту ===== */
@@ -533,14 +537,14 @@ V.steps=d=>({html:head(d)+intro(d)+'<ol class="steps">'+(d.steps||[]).map(s=>'<l
 
 V.table=d=>({html:head(d)+intro(d)+'<table class="t"><thead><tr>'+(d.head||[]).map(h=>'<th>'+txt(h)+'</th>').join('')+'</tr></thead><tbody>'+
   (d.rows||[]).map(r=>'<tr'+cls(d.frag?'f':'')+'>'+r.map((c,i)=>'<td'+cls(i===0&&d.leftFirst?'l':'')+'>'+yn(txt(c))+'</td>').join('')+'</tr>').join('')+
-  '</tbody></table>'+foot(d)});
+  '</tbody></table>'+foot(d,d.frag)});
 
 V.cards=d=>{const list=d.cards||[];
   return{html:head(d)+intro(d)+'<ul class="cards"'+vars({'--n':d.n||Math.min(list.length,4)})+'>'+
    list.map((c,i)=>'<li'+cls('card',d.frag===false?'':'f')+at('data-icon',c.img?null:iconOf(c.e))+'>'+
     '<span class="num" aria-hidden="true">'+pad2(i+1)+'</span>'+
     (c.img?img(c.img,'ci'):'<i class="ic"'+at('data-icon',iconOf(c.e))+' aria-hidden="true"></i>')+
-    '<b>'+txt(c.t)+'</b>'+(c.x?'<span class="x">'+txt(c.x)+'</span>':'')+'</li>').join('')+'</ul>'+foot(d)}};
+    '<b>'+txt(c.t)+'</b>'+(c.x?'<span class="x">'+txt(c.x)+'</span>':'')+'</li>').join('')+'</ul>'+foot(d,d.frag!==false)}};
 
 V.tabs=d=>({html:head(d)+'<div class="tabs" role="tablist">'+(d.tabs||[]).map((t,i)=>
    '<button class="tab" role="tab" aria-selected="false" data-i="'+i+'">'+txt(t.label)+'</button>').join('')+'</div>'+
@@ -1212,6 +1216,127 @@ W.rehearse={html:()=>'<div style="display:grid;grid-template-columns:.75fr 1.25f
    for(let k=0;k<3;k++)if(rec[k]==null)rec[k]=DEF[k];
    if(i===4){st.innerHTML=SLIDES[2]+'<div class="tw-dlg"><div class="dh">Microsoft PowerPoint</div><div class="db">Загальний час показу слайдів: '+fmt3(total())+'.<br>Зберегти новий хронометраж показу слайдів?</div><div class="dbt"><span class="y">Так</span><span>Ні</span></div></div>';return}
    st.innerHTML=sorter(rec)}}}};
+})();
+}
+{
+/* sections/6-r3/widgets/table.js */
+/* ===== 6 клас, урок 6-8 «Таблиці в текстовому документі»: демонстрація, якою керує вчитель (пробіл або клік — далі) =====
+   W.tbl6 — таблиця у Word: виділення клітинки, рядка, стовпця, усієї таблиці, сусідніх і несуміжних клітинок (Ctrl),
+            Tab в останній клітинці, вставлення рядка позначкою «+», об'єднання клітинок, видалення рядка Backspace.
+   Усе в IIFE: імена не перетинаються з іншими віджетами. */
+(function(){
+document.head.insertAdjacentHTML('beforeend','<style>'+
+'.t6w{display:grid;grid-template-columns:660px 1fr;gap:34px;align-items:start}'+
+'.t6pg{position:relative;background:#fff;border-radius:10px;box-shadow:0 2px 0 var(--line);border:2px solid var(--line);padding:46px 40px 34px 64px;min-height:470px}'+
+'.t6tb{position:relative;border-collapse:collapse;width:100%;font:24px/1.25 Calibri,Carlito,"Segoe UI",sans-serif;color:#111}'+
+'.t6tb td{border:1.5px solid #222;padding:10px 12px;height:34px;transition:background .2s}'+
+'.t6tb tr:first-child td{font-weight:700}'+
+'.t6tb td.sel{background:#C7DDF5}'+
+'.t6tb td.new{background:var(--sun-soft)}'+
+'.t6tb td.mrg{text-align:center;font-style:italic}'+
+'.t6cur{display:inline-block;width:2px;height:22px;background:#111;vertical-align:middle;animation:t6b 1s steps(1) infinite}'+
+'@keyframes t6b{50%{opacity:0}}'+
+'.t6p svg{display:block;width:100%;height:100%}'+
+'.t6p{position:absolute;width:40px;height:40px;pointer-events:none;transition:left .3s,top .3s;z-index:3}'+
+'.t6mk{position:absolute;width:22px;height:22px;border:1.5px solid #777;background:#fff;display:grid;place-items:center;font:16px sans-serif;color:#444}'+
+'.t6plus{position:absolute;width:24px;height:24px;border-radius:50%;border:2px solid #2B6CD4;color:#2B6CD4;background:#fff;display:grid;place-items:center;font:700 19px/1 sans-serif}'+
+'.t6line{position:absolute;height:3px;background:#2B6CD4}'+
+'.t6s{display:flex;flex-direction:column;gap:16px}'+
+'.t6tag{align-self:flex-start;font:700 20px var(--display);padding:4px 14px;border-radius:999px;background:var(--accent-tint);color:var(--ink)}'+
+'.t6cap{font-size:26px;line-height:1.35;margin:0}'+
+'.feed .stage .t6w{grid-template-columns:minmax(0,1fr);gap:18px}.feed .stage .t6pg{min-height:0;min-width:0;box-sizing:border-box;padding:46px 10px 24px 50px}.feed .stage .t6tb{font-size:18px;table-layout:fixed}.feed .stage .t6tb td{padding:6px 4px;overflow-wrap:anywhere}'+
+'.t6k{font-size:23px;margin:0;color:var(--muted)}.t6k kbd{display:inline-block;border:2px solid var(--line);border-bottom-width:4px;border-radius:8px;padding:1px 10px;margin:0 2px;color:var(--ink);font-size:21px}'+
+'</style>');
+const HEAD=['Країна','Площа (тис. кв. км)','Населення (млн)','Столиця'];
+const BASE=[HEAD,['Україна','603 700','45,9','Київ'],['Польща','312 685','38,1','Варшава'],['Франція','547 030','65,2','Париж'],['Італія','301 230','60,1','Рим']];
+const SVG={
+  cell:'<svg viewBox="0 0 24 24"><path d="M20 4 L9 9 L13 11 L11 20 Z" fill="#111" stroke="#fff" stroke-width="1.2"/></svg>',
+  row:'<svg viewBox="0 0 24 24"><path d="M4 3 L4 19 L8.5 15 L11.5 21.5 L14 20.3 L11 14 L17 14 Z" fill="#fff" stroke="#111" stroke-width="1.6" transform="scale(-1,1) translate(-24,0) rotate(-35 12 12)"/></svg>',
+  col:'<svg viewBox="0 0 24 24"><path d="M12 22 L5 13 L10 13 L10 2 L14 2 L14 13 L19 13 Z" fill="#111" stroke="#fff" stroke-width="1.2"/></svg>',
+  arrow:'<svg viewBox="0 0 24 24"><path d="M4 3 L4 19 L8.5 15 L11.5 21.5 L14 20.3 L11 14 L17 14 Z" fill="#fff" stroke="#111" stroke-width="1.6"/></svg>',
+  ibeam:'<svg viewBox="0 0 24 24"><path d="M9 3 H15 M12 3 V21 M9 21 H15" stroke="#111" stroke-width="2" fill="none"/></svg>'
+};
+// Кроки: [мітка, підпис, клавіші]
+const STEPS=[
+  ['Об’єкти таблиці','Таблиця: 4 стовпці і 5 рядків. На перетині рядка й стовпця — клітинка.',''],
+  ['Виділити клітинку','Вказівник — усередині клітинки біля її лівої межі, чорна стрілка. Клацаємо.',''],
+  ['Виділити рядок','Вказівник — зовні, біля лівої межі рядка, біла стрілка. Клацаємо.',''],
+  ['Виділити стовпець','Вказівник — над верхньою межею стовпця, чорна стрілка вниз. Клацаємо.',''],
+  ['Виділити всю таблицю','Клацаємо маркер над лівим верхнім кутом таблиці.',''],
+  ['Сусідні клітинки','Протягуємо мишею з натиснутою лівою кнопкою по потрібних клітинках.',''],
+  ['Несуміжні клітинки','Виділяємо першу клітинку, решту — утримуючи Ctrl.','<kbd>Ctrl</kbd> + клацання'],
+  ['Новий рядок у кінці','Курсор в останній клітинці таблиці (праворуч унизу) — натискаємо Tab.','<kbd>Tab</kbd> — наступна клітинка, <kbd>Shift</kbd> + <kbd>Tab</kbd> — попередня'],
+  ['Вставити рядок','Наводимо вказівник на межу між рядками ліворуч і клацаємо позначку «+».',''],
+  ['Об’єднати клітинки','Виділяємо клітинки рядка ⇒ Макет ⇒ Об’єднати клітинки. Тепер це одна клітинка.',''],
+  ['Видалити рядок','Виділяємо порожній рядок і натискаємо Backspace — рядок зник. Delete лише очистив би текст.','<kbd>Backspace</kbd>']
+];
+W.tbl6={html:()=>'<div class="t6w"><div class="t6pg" id="t6P"></div><div class="t6s"><span class="t6tag" id="t6T"></span><p class="t6cap" id="t6C"></p><p class="t6k" id="t6K"></p></div></div>',
+  mount(r,d,api){
+    const P=r.querySelector('#t6P');
+    const st=i=>{ // стан таблиці після i кроків
+      let rows=BASE.map(x=>x.slice()),merged=-1,ins=-1,sel=[],ptr=null,cur=null,marker=false,plus=null;
+      const all=(f)=>{const s=[];rows.forEach((row,a)=>row.forEach((_,b)=>{if(f(a,b))s.push(a+','+b)}));return s};
+      if(i===1){sel=['2,1'];ptr=['cell',2,1]}
+      if(i===2){sel=all(a=>a===3);ptr=['row',3,0]}
+      if(i===3){sel=all((a,b)=>b===2);ptr=['col',0,2]}
+      if(i===4){sel=all(()=>true);marker=true;ptr=['arrow','mk']}
+      if(i===5){sel=['1,1','1,2','2,1','2,2'];ptr=['arrow',2,2]}
+      if(i===6){sel=['1,0','3,0','2,3'];ptr=['arrow',2,3]}
+      if(i>=7)rows.push(['','','','']);
+      if(i===7){cur=[5,0];ptr=['ibeam',5,0]}
+      if(i>=8&&i<=9){rows.splice(3,0,['','','',''])}
+      if(i===8){ins=3;plus=3}
+      if(i>=9){merged=rows.length-1;rows[merged]=['Джерело: підручник'];if(i===9)sel=[merged+',0']}
+      if(i===10){merged=rows.length-1}
+      return{rows,merged,ins,sel,ptr,cur,marker,plus}};
+    function draw(i){const s=st(i);
+      let h='<table class="t6tb">';
+      s.rows.forEach((row,a)=>{h+='<tr>';
+        if(a===s.merged)h+='<td colspan="4" class="mrg'+(s.sel.includes(a+',0')?' sel':'')+'">'+row[0]+'</td>';
+        else row.forEach((c,b)=>{const k=a+','+b;h+='<td class="'+(s.sel.includes(k)?'sel':'')+(a===s.ins?' new':'')+'">'+(s.cur&&s.cur[0]===a&&s.cur[1]===b?'<span class="t6cur"></span>':'')+c+'</td>'});
+        h+='</tr>'});
+      h+='</table>';P.innerHTML=h;
+      const tb=P.querySelector('table'),td=(a,b)=>tb.rows[a]&&tb.rows[a].cells[b];
+      const add=(cls,html,x,y,w)=>{const e=document.createElement('div');e.className=cls;e.innerHTML=html;e.style.left=x+'px';e.style.top=y+'px';if(w)e.style.width=w+'px';P.append(e);return e};
+      if(s.marker||i===0)add('t6mk','✥',tb.offsetLeft-26,tb.offsetTop-26);
+      if(s.plus!=null){const c=td(s.plus,0);add('t6plus','+',tb.offsetLeft-32,tb.offsetTop+c.offsetTop-12);add('t6line','',tb.offsetLeft,tb.offsetTop+c.offsetTop-1,tb.offsetWidth)}
+      if(s.ptr){const [kind,a,b]=s.ptr;let x,y;
+        if(a==='mk'){x=tb.offsetLeft-20;y=tb.offsetTop-18}
+        else{const c=td(a,b);const cx=tb.offsetLeft+c.offsetLeft,cy=tb.offsetTop+c.offsetTop;
+          if(kind==='cell'){x=cx+2;y=cy+c.offsetHeight/2-20}
+          else if(kind==='row'){x=tb.offsetLeft-48;y=cy+c.offsetHeight/2-20}
+          else if(kind==='col'){x=cx+c.offsetWidth/2-20;y=tb.offsetTop-44}
+          else if(kind==='ibeam'){x=cx+14;y=cy+c.offsetHeight/2-20}
+          else{x=cx+c.offsetWidth*.6;y=cy+c.offsetHeight*.55}}
+        add('t6p',SVG[kind],x,y)}
+      const [tag,cap,k]=STEPS[i];r.querySelector('#t6T').textContent=tag;r.querySelector('#t6C').textContent=cap;
+      r.querySelector('#t6K').innerHTML=k||(i===0?'Пробіл або клік — далі.':'')}
+    return{count:STEPS.length-1,step(i){draw(i)}}}};
+})();
+
+/* W.tblobj — об'єкти таблиці: по кроках підсвічуються стовпець, рядок, клітинка (6-8, слайд «Об'єкти таблиці»). */
+(function(){
+document.head.insertAdjacentHTML('beforeend','<style>'+
+'.to6{display:grid;grid-template-columns:640px 1fr;gap:40px;align-items:center}'+
+'.to6 table{border-collapse:collapse;width:100%;font:24px/1.2 Calibri,Carlito,"Segoe UI",sans-serif;color:#111;background:#fff}'+
+'.to6 td{border:2px solid #333;padding:14px 12px;height:40px;transition:background .25s,box-shadow .25s}'+
+'.to6 tr:first-child td{font-weight:700}'+
+'.to6 td.c{background:var(--mint-soft)}.to6 td.r{background:var(--sun-soft)}'+
+'.to6 td.k{background:var(--accent-tint);box-shadow:inset 0 0 0 4px var(--accent)}'+
+'.to6 .tg{display:inline-block;font:700 22px var(--display);padding:4px 16px;border-radius:999px;background:var(--accent-tint);color:var(--ink);margin:0 0 14px}'+
+'.to6 .cp{font-size:30px;line-height:1.3;margin:0}.to6 .sm{font-size:21px;color:var(--muted);margin:16px 0 0}'+
+'.feed .stage .to6{grid-template-columns:minmax(0,1fr);gap:18px}.feed .stage .to6 table{font-size:19px;table-layout:fixed}.feed .stage .to6 td{padding:8px 5px}'+
+'</style>');
+const T=[['№','Понеділок','Вівторок','Середа'],['1','Математика','Українська','Англійська'],['2','Інформатика','Математика','Історія'],['3','Українська','Мистецтво','Математика']];
+const S=[['Таблиця','Таблиця складається зі стовпців і рядків. Пробіл або клік — далі.'],
+  ['Стовпець','Вертикальний ряд клітинок — згори донизу. Тут стовпець «Вівторок».'],
+  ['Рядок','Горизонтальний ряд клітинок — зліва направо. Тут рядок уроку № 2.'],
+  ['Клітинка','Перетин рядка і стовпця. Другий урок у вівторок — Математика.']];
+W.tblobj={html:()=>'<div class="to6"><table id="toT"></table><div><span class="tg" id="toG"></span><p class="cp" id="toC"></p><p class="sm">Стовпці, рядки й клітинки — об’єкти таблиці. У Word — до 63 стовпців і скільки завгодно рядків.</p></div></div>',
+  mount(r){const tb=r.querySelector('#toT');
+    function draw(i){tb.innerHTML=T.map((row,a)=>'<tr>'+row.map((v,b)=>'<td class="'+(i===1&&b===2?'c':i===2&&a===2?'r':i===3&&a===2&&b===2?'k':'')+'">'+v+'</td>').join('')+'</tr>').join('');
+      r.querySelector('#toG').textContent=S[i][0];r.querySelector('#toC').textContent=S[i][1]}
+    return{count:S.length-1,step:draw}}};
 })();
 }
 {

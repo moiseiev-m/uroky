@@ -11,7 +11,7 @@
 /* ===== Токени ===== */
 :root{
   --paper:#FDFCF7; --paper-alt:#FFFEF9; --ink:#22304A; --ink-muted:#5A6478; --rule-soft:#9AA3B2;
-  --grid:#E3E9F1; --margin-line:#EFAAA1; --note-yellow:#F6DC7A;
+  --grid:#E3E9F1; --grid-cell:#EDF1F6; --margin-line:#EFAAA1; --note-yellow:#F6DC7A;
   --key-a:#8FB5E3; --key-b:#F3D27A; --key-c:#EEA08E; --key-d:#9CCAA6;
   --bit-paper:#FFFDF6; --bit-blush:#F4B4AA;
   --positive:#2F7A45; --negative:#B8372D;
@@ -152,7 +152,7 @@ body{background:var(--bg);color:var(--ink)}
 
 /* ===== Слайд: аркуш у клітинку з червоною лінією полів праворуч ===== */
 .slide{padding:88px 72px 48px;overflow:hidden;isolation:isolate;background-color:var(--paper);
-  background-image:linear-gradient(var(--grid) 2px,transparent 2px),linear-gradient(90deg,var(--grid) 2px,transparent 2px);
+  background-image:linear-gradient(var(--grid-cell) 2px,transparent 2px),linear-gradient(90deg,var(--grid-cell) 2px,transparent 2px);
   background-size:32px 32px}
 .slide::after{content:"";position:absolute;top:0;bottom:0;right:48px;width:2px;background:var(--margin-line);z-index:-1;pointer-events:none}
 .slide h2{font-family:var(--display);font-weight:400;font-size:46px;line-height:1.05;margin:0 0 24px;letter-spacing:0}
