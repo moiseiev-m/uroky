@@ -141,7 +141,8 @@ symbol{overflow:visible}
 .split{display:grid;grid-template-columns:1fr;gap:36px;flex:1;min-height:0}
 .split.has-img{grid-template-columns:1.25fr .75fr}
 .split .ill{max-height:430px;object-fit:contain;justify-self:center;align-self:center;border-radius:16px}
-.cols{display:grid;grid-template-columns:repeat(var(--n,2),1fr);gap:32px;flex:1;min-height:0}
+.cols{display:grid;grid-template-columns:repeat(var(--n,2),1fr);gap:32px;flex:1;min-height:0;margin-bottom:20px}
+.cols:last-child{margin-bottom:0}
 .cols>.col{min-width:0}
 .box{background:var(--accent-tint);border-radius:20px;padding:20px 26px;margin:0 0 20px}
 .box:last-child{margin-bottom:0}

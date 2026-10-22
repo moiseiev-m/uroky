@@ -1219,6 +1219,55 @@ W.rehearse={html:()=>'<div style="display:grid;grid-template-columns:.75fr 1.25f
 })();
 }
 {
+/* sections/6-r3/widgets/picture.js */
+/* ===== 6 клас, урок 6-9 «Зображення і схеми в текстовому документі»: демонстрація, якою керує вчитель (пробіл або клік — далі) =====
+   W.wrap6 — способи обтікання зображення текстом: у тексті, навколо рамки, за контуром, згори та знизу, за текстом, перед текстом.
+   Малюнок (соняшник) намальовано тут же, кольори — лише токени теми. Усе в IIFE: імена не перетинаються з іншими віджетами. */
+(function(){
+document.head.insertAdjacentHTML('beforeend','<style>'+
+'.wr6{display:grid;grid-template-columns:720px 1fr;gap:34px;align-items:start}'+
+'.wr6pg{position:relative;background:#fff;border-radius:10px;border:2px solid var(--line);padding:30px 38px;height:500px;overflow:hidden;box-sizing:border-box}'+
+'.wr6pg p{margin:0;font:23px/1.45 Calibri,Carlito,"Segoe UI",sans-serif;color:#111;position:relative;z-index:1}'+
+'.wr6pic{display:inline-block;width:150px;height:150px;vertical-align:bottom;border:2px dashed transparent;box-sizing:border-box}'+
+'.wr6pic svg{display:block;width:100%;height:100%}'+
+'.wr6pic.on{border-color:#2B6CD4}'+
+'.wr6s{display:flex;flex-direction:column;gap:16px}'+
+'.wr6tag{align-self:flex-start;font:700 22px var(--display);padding:4px 16px;border-radius:999px;background:var(--accent-tint);color:var(--ink)}'+
+'.wr6cap{font-size:27px;line-height:1.35;margin:0}'+
+'.wr6k{font-size:22px;margin:0;color:var(--muted)}'+
+'.feed .stage .wr6{grid-template-columns:minmax(0,1fr);gap:16px}.feed .stage .wr6pg{height:auto;min-height:330px;padding:18px 16px}.feed .stage .wr6pg p{font-size:18px}.feed .stage .wr6pic{width:110px!important;height:110px!important}'+
+'</style>');
+const PET=Array.from({length:12},(_,i)=>'<ellipse cx="50" cy="20" rx="7" ry="16" transform="rotate('+(i*30)+' 50 42)" fill="var(--sun)" stroke="var(--ink)" stroke-width="1.2"/>').join('');
+const PIC='<svg viewBox="0 0 100 100"><rect x="47.5" y="55" width="5" height="45" fill="var(--mint)"/><ellipse cx="34" cy="78" rx="15" ry="6" transform="rotate(-25 34 78)" fill="var(--mint)"/><ellipse cx="66" cy="70" rx="15" ry="6" transform="rotate(25 66 70)" fill="var(--mint)"/>'+PET+'<circle cx="50" cy="42" r="13" fill="var(--ink)"/></svg>';
+const A='Соняшник — справжній символ України, родючості та процвітання. ';
+const B='Його квітка повертається слідом за сонцем, тому й назва така. Улітку українські поля стають золотими від соняшників. З насіння соняшнику роблять олію, а ще його люблять смажити. Соняшник малюють на листівках, вишивають на рушниках і сорочках, зображують на картинах і в книжках. Майстрині прикрашають ним писанки, а діти — свої малюнки.';
+// [назва, пояснення, як розмістити малюнок]
+const M=[
+  ['Обтікання текстом','Малюнок і текст. Подивімося, як по-різному вони можуть розташовуватися на сторінці.','none'],
+  ['У тексті','Малюнок стоїть у рядку, як велика буква. Рядок стає дуже високим, поруч з малюнком — порожнеча.','inline'],
+  ['Навколо рамки','Текст обтікає малюнок з боків по прямокутній рамці.','square'],
+  ['За контуром','Текст підходить упритул до краю самого малюнка, а не рамки.','tight'],
+  ['Згори та знизу','Текст лише над малюнком і під ним, з боків — порожньо.','tb'],
+  ['За текстом','Малюнок під текстом, як фон. Текст читається поверх нього.','behind'],
+  ['Перед текстом','Малюнок над текстом і закриває його частину.','front']
+];
+W.wrap6={html:()=>'<div class="wr6"><div class="wr6pg" id="wr6P"></div><div class="wr6s"><span class="wr6tag" id="wr6T"></span><p class="wr6cap" id="wr6C"></p><p class="wr6k">Word: <b>Формат</b> ⇒ <b>Обтікання текстом</b> або кнопка <b>Параметри макета</b> біля малюнка.</p></div></div>',
+  mount(r,d,api){
+    const P=r.querySelector('#wr6P');
+    const pic=(st,on)=>'<span class="wr6pic'+(on?' on':'')+'" style="'+(st||'')+'">'+PIC+'</span>';
+    function draw(i){const m=M[i][2],on=i>0;let h;
+      if(m==='none')h='<p>'+pic('float:right;margin:0 0 8px 18px')+A+B+'</p>';
+      else if(m==='inline')h='<p>'+A+pic('',on)+' '+B+'</p>';
+      else if(m==='square')h='<p>'+pic('float:right;margin:0 0 6px 18px',on)+A+B+'</p>';
+      else if(m==='tight')h='<p>'+pic('float:right;margin:0 -6px 0 0;shape-outside:circle(46% at 50% 45%);shape-margin:4px;border-radius:50%',on)+A+B+'</p>';
+      else if(m==='tb')h='<p>'+A+'</p><p style="text-align:center">'+pic('margin:6px 0',on)+'</p><p>'+B+'</p>';
+      else h='<p>'+A+B+'</p>'+pic('position:absolute;left:42%;top:18%;width:180px;height:180px;z-index:'+(m==='front'?2:0),on);
+      P.innerHTML=h;
+      r.querySelector('#wr6T').textContent=M[i][0];r.querySelector('#wr6C').textContent=M[i][1]}
+    return{count:M.length-1,step(i){draw(i)}}}};
+})();
+}
+{
 /* sections/6-r3/widgets/table.js */
 /* ===== 6 клас, урок 6-8 «Таблиці в текстовому документі»: демонстрація, якою керує вчитель (пробіл або клік — далі) =====
    W.tbl6 — таблиця у Word: виділення клітинки, рядка, стовпця, усієї таблиці, сусідніх і несуміжних клітинок (Ctrl),
