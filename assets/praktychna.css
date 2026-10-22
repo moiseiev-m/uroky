@@ -83,6 +83,24 @@ main b{background:var(--doc-key);padding:0 3px;border-radius:3px;-webkit-box-dec
 .chk-t::before{content:"";position:absolute;left:2px;top:4px;width:14px;height:14px;border:2px solid var(--ink);background:var(--paper-alt)}
 .end{margin-top:20px}
 
+/* «Як має вийти»: картинка з написом «ЗРАЗОК» у рамці з тінню — видно, що це картинка, а не текст сторінки */
+.rez{margin:6px 0 14px;padding:10px 12px 12px;background:var(--doc-sample);border:2px dashed var(--doc-sample-line);border-radius:10px}
+.rez figcaption{margin:0 0 8px;font:400 19px/1.2 var(--display)}
+/* високий зразок (сторінка документа) — у віконці з прокруткою; клік — на весь екран */
+.rez-b{display:block;width:100%;max-height:min(620px,72vh);overflow:auto;padding:4px;border:0;background:none;cursor:zoom-in}
+.rez img{display:block;max-width:100%;height:auto;margin:0 auto;border:1px solid var(--rule-soft);box-shadow:0 3px 12px rgba(34,48,74,.18);
+  background:#fff;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.rez.big{position:fixed;inset:0;z-index:50;display:block;margin:0;border:0;border-radius:0;background:rgba(34,48,74,.94);overflow:auto;padding:16px}
+.rez.big figcaption{color:#fff;text-align:center}
+.rez.big .rez-b{max-height:none;overflow:visible;width:auto;margin:0 auto;cursor:zoom-out}
+.rez.big img{max-width:100%}
+/* телефон: збільшений зразок — на всю ширину екрана (не ширше), високий гортається вниз; дрібне — розтягнути пальцями */
+@media (max-width:640px){
+  .rez{padding:8px 8px 10px}
+  .rez.big{padding:12px 8px;overflow-x:hidden}
+  .rez.big .rez-b{width:100%}
+  .rez.big img{max-width:100%;max-height:none}}
+
 /* матеріали: лише посилання Google Диска */
 .files{margin-top:24px;padding-top:12px;border-top:2px dashed var(--doc-sample-line)}
 .files h2{margin:0 0 8px;font:400 22px var(--display)}
@@ -108,4 +126,5 @@ main b{background:var(--doc-key);padding:0 3px;border-radius:3px;-webkit-box-dec
   .sheet{max-width:none;padding:0;box-shadow:none}
   .files{display:none}
   .num,.plate,.uvaga b,.uvaga p,.tip,.zav mark,.zr,.chk,main b{-webkit-print-color-adjust:exact;print-color-adjust:exact}
-  .zav,.kr li,.zr,.chk{break-inside:avoid}}
+  .rez{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .zav,.kr li,.zr,.chk,.rez{break-inside:avoid}}
