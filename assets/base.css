@@ -79,6 +79,8 @@ img{max-width:100%}
 .slide li::marker{color:var(--accent)}
 .small{font-size:21px!important;color:var(--muted)}
 .mono{font-family:var(--mono)}
+/* код показуємо як набирають: без лігатур JetBrains Mono (>= не стає ≥, == не зливається, != не стає ≠) */
+*,*::before,*::after{font-variant-ligatures:none!important;font-feature-settings:"calt" 0,"liga" 0!important}
 .warn{color:var(--negative);font-weight:800}
 .slide-top{position:absolute;top:22px;left:64px;right:64px;display:flex;align-items:center;gap:14px}
 .slide-top .sec{font-weight:800;font-size:17px;background:var(--accent-tint);color:var(--accent);border-radius:999px;

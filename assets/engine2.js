@@ -1389,6 +1389,239 @@ W.tblobj={html:()=>'<div class="to6"><table id="toT"></table><div><span class="t
 })();
 }
 {
+/* sections/6-r4/widgets/grafika.js */
+/* ===== 6 клас, урок 6-11 «Базові поняття комп’ютерної графіки»: демонстрації, якими керує вчитель (пробіл або клік — далі) =====
+   W.pix6    — растровий малюнок із пікселів: сітка, розташування й колір пікселя, зміна кольору пікселя.
+   W.prim6   — векторна фігура (графічний примітив) і її опис у файлі: розмір, форма, контур, заливка.
+   W.rastvec — той самий малюнок растровий і векторний, збільшення ×1 → ×16: пікселізація лише в растрового.
+   Кольори — лише токени теми (canvas читає їх із CSS під час кожного кроку). Усе в IIFE: імена не перетинаються з іншими віджетами. */
+(function(){
+document.head.insertAdjacentHTML('beforeend','<style>'+
+'.g6{display:grid;grid-template-columns:auto 1fr;gap:40px;align-items:start}'+
+'.g6s{display:flex;flex-direction:column;gap:16px;min-width:0}'+
+'.g6tag{align-self:flex-start;font:700 22px var(--display);padding:4px 16px;border-radius:999px;background:var(--accent-tint);color:var(--ink)}'+
+'.g6cap{font-size:27px;line-height:1.35;margin:0}'+
+'.g6info{font-size:25px;line-height:1.4;margin:0;padding:12px 18px;border-radius:12px;border:2px solid var(--line);background:var(--paper);min-height:40px}'+
+'.px6{display:grid;grid-template-columns:repeat(16,28px);grid-auto-rows:28px;gap:0;border:2px solid var(--line);background:var(--line);transition:gap .3s}'+
+'.px6.px6g{gap:2px}'+
+'.px6 i{display:block;transition:background .3s,box-shadow .3s}'+
+'.px6 i.px6h{box-shadow:inset 0 0 0 4px var(--ink)}'+
+'.px6 i.px6l{filter:brightness(.9)}'+
+'.pr6svg{width:560px;height:380px;border:2px solid var(--line);border-radius:12px;background:var(--paper);display:block}'+
+'.pr6l{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}'+
+'.pr6l li{font-size:25px;padding:6px 14px;border-radius:10px;border:2px solid transparent;transition:background .3s,border-color .3s}'+
+'.pr6l li.on{background:var(--accent-tint);border-color:var(--accent)}'+
+'.pr6l b{font-weight:700}'+
+'.rv6{display:grid;grid-template-columns:1fr 1fr;gap:30px}'+
+'.rv6b{display:flex;flex-direction:column;gap:8px;align-items:center}'+
+'.rv6b canvas,.rv6b svg{width:440px;height:340px;border:2px solid var(--line);border-radius:12px;background:var(--paper);display:block}'+
+'.rv6h{font:700 25px var(--display);margin:0}'+
+'.rv6z{font:800 30px var(--display);color:var(--accent);margin:0 0 0 10px}'+
+'.rv6cap{font-size:27px;line-height:1.35;margin:14px 0 0;text-align:center}'+
+'.feed .stage .g6{grid-template-columns:minmax(0,1fr);gap:18px}'+
+'.feed .stage .px6{grid-template-columns:repeat(16,1fr);grid-auto-rows:auto;width:100%}.feed .stage .px6 i{aspect-ratio:1}'+
+'.feed .stage .pr6svg{width:100%;height:auto;aspect-ratio:56/38}'+
+'.feed .stage .rv6{grid-template-columns:minmax(0,1fr);gap:16px}'+
+'.feed .stage .rv6b canvas,.feed .stage .rv6b svg{width:100%;height:auto;aspect-ratio:44/34}'+
+'</style>');
+const css=(r,v)=>getComputedStyle(r).getPropertyValue(v).trim()||'#888';
+
+/* ---------- W.pix6: малюнок 16 × 12 пікселів ---------- */
+// . — тло, r — червоний, y — жовтий (відблиск), g — зелений
+const ART=[
+ '................',
+ '...rr.....rr....',
+ '..ryrr...rrrr...',
+ '.ryrrrr.rrrrrr..',
+ '.rrrrrrrrrrrrrr.',
+ '.rrrrrrrrrrrrrr.',
+ '..rrrrrrrrrrrr..',
+ '...rrrrrrrrrr...',
+ '....rrrrrrrr....',
+ '.....rrrrrr.....',
+ '......rrrr......',
+ '.......rr.......'];
+const PCOL={'.':'var(--paper)',r:'var(--coral)',y:'var(--sun)',g:'var(--mint)'};
+const PNAME={'.':'біле тло',r:'червоний',y:'жовтий',g:'зелений'};
+const PS=[
+ ['Растровий малюнок','Сердечко на екрані. З чого воно складається?','',null],
+ ['Пікселі','Кожна клітинка — **піксель**. Тут 16 × 12 = 192 пікселі.','Піксель — найменша частинка растрового малюнка.',null],
+ ['Розташування і колір','Піксель має дві властивості: **розташування** і **колір**.','Стовпець 4, рядок 4 · колір: червоний',[3,3]],
+ ['Розташування і колір','Інший піксель — інше місце й інший колір.','Стовпець 3, рядок 4 · колір: жовтий',[2,3]],
+ ['Змінюємо малюнок','Редактор лише міняє колір пікселів: замалюємо «ямку» зверху.','Стовпець 8, рядок 4 · було: біле тло → стало: червоний',[7,3]]];
+const b2h=t=>t.replace(/\*\*(.+?)\*\*/g,'<b>$1</b>');
+W.pix6={html:()=>'<div class="g6"><div class="px6" id="px6G"></div><div class="g6s"><span class="g6tag" id="px6T"></span><p class="g6cap" id="px6C"></p><p class="g6info" id="px6I"></p></div></div>',
+  mount(r){
+    const G=r.querySelector('#px6G');
+    function draw(i){const s=PS[i],hl=s[3],fill=i>=4;let h='';
+      ART.forEach((row,y)=>{for(let x=0;x<16;x++){let c=row[x]||'.';if(fill&&x===7&&y===3)c='r';
+        const on=hl&&hl[0]===x&&hl[1]===y,ln=hl&&!on&&(hl[0]===x||hl[1]===y);
+        h+='<i class="'+(on?'px6h':ln?'px6l':'')+'" style="background:'+PCOL[c]+'"></i>'}});
+      G.innerHTML=h;G.classList.toggle('px6g',i>=1);
+      r.querySelector('#px6T').textContent=s[0];r.querySelector('#px6C').innerHTML=b2h(s[1]);
+      const I=r.querySelector('#px6I');I.textContent=s[2];I.style.visibility=s[2]?'visible':'hidden'}
+    return{count:PS.length-1,step(i){draw(i)}}}};
+
+/* ---------- W.prim6: графічний примітив і його опис ---------- */
+// [заголовок, пояснення, рядок опису, що підсвітити, стан фігури]
+const FS=[
+ {t:'Графічний примітив',c:'Векторна фігура — овал. У файлі зберігається не малюнок, а **опис**.',on:-1,w:260,h:160,sh:'овал',st:'var(--accent)',sw:4,stn:'синій',fl:'solid',fln:'жовта, суцільна'},
+ {t:'Розмір',c:'Змінили ширину й висоту — у описі змінилися лише два числа.',on:1,w:400,h:240,sh:'овал',st:'var(--accent)',sw:4,stn:'синій',fl:'solid',fln:'жовта, суцільна'},
+ {t:'Форма',c:'Та сама фігура тепер прямокутник із заокругленими кутами.',on:0,w:400,h:240,sh:'прямокутник',st:'var(--accent)',sw:4,stn:'синій',fl:'solid',fln:'жовта, суцільна'},
+ {t:'Контур',c:'Колір і товщина лінії контуру.',on:2,w:400,h:240,sh:'прямокутник',st:'var(--coral)',sw:14,stn:'червоний',fl:'solid',fln:'жовта, суцільна'},
+ {t:'Заливка',c:'Колір і **спосіб заливки** внутрішньої області: суцільна чи градієнт.',on:3,w:400,h:240,sh:'прямокутник',st:'var(--coral)',sw:14,stn:'червоний',fl:'grad',fln:'зелена, градієнт'},
+ {t:'Висновок',c:'Будь-яку властивість можна змінити будь-коли — фігура не «розсипається» на пікселі.',on:-1,w:400,h:240,sh:'прямокутник',st:'var(--coral)',sw:14,stn:'червоний',fl:'grad',fln:'зелена, градієнт'}];
+W.prim6={html:()=>'<div class="g6"><svg class="pr6svg" id="pr6S" viewBox="0 0 560 380"></svg><div class="g6s"><span class="g6tag" id="pr6T"></span><p class="g6cap" id="pr6C"></p><ul class="pr6l" id="pr6L"></ul></div></div>',
+  mount(r){
+    function draw(i){const s=FS[i],x=280-s.w/2,y=190-s.h/2;
+      const fill=s.fl==='grad'?'url(#pr6g)':'var(--sun)';
+      const shape=s.sh==='овал'?'<ellipse cx="280" cy="190" rx="'+s.w/2+'" ry="'+s.h/2+'"':'<rect x="'+x+'" y="'+y+'" width="'+s.w+'" height="'+s.h+'" rx="34"';
+      r.querySelector('#pr6S').innerHTML='<defs><linearGradient id="pr6g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" style="stop-color:var(--paper)"/><stop offset="1" style="stop-color:var(--mint)"/></linearGradient></defs>'+
+        shape+' style="fill:'+fill+';stroke:'+s.st+';stroke-width:'+s.sw+'"/>';
+      const L=[['Фігура',s.sh],['Ширина × висота',s.w+' × '+s.h+' пкс'],['Контур',s.stn+', '+s.sw+' пкс'],['Заливка',s.fln]];
+      r.querySelector('#pr6L').innerHTML=L.map((l,k)=>'<li class="'+(k===s.on?'on':'')+'">'+l[0]+': <b>'+l[1]+'</b></li>').join('');
+      r.querySelector('#pr6T').textContent=s.t;r.querySelector('#pr6C').innerHTML=b2h(s.c)}
+    return{count:FS.length-1,step(i){draw(i)}}}};
+
+/* ---------- W.rastvec: збільшуємо растрове й векторне ---------- */
+const ZS=[[1,'Однаковий малюнок: ліворуч — із пікселів, праворуч — із фігур.'],
+ [3,'Збільшили в 3 рази: край кола ліворуч став нерівним.'],
+ [8,'У 8 разів: ліворуч видно «сходинки» з пікселів — це **пікселізація**.'],
+ [16,'У 16 разів: праворуч край так само гладкий — фігура перемальовується за описом.']];
+const SW=220,SH=170,FX=166,FY=50; // розмір малюнка і точка, яку збільшуємо (край кола)
+function view(z){if(z===1)return[0,0,SW,SH];const w=SW/z,h=SH/z;return[FX-w/2,FY-h/2,w,h]}
+W.rastvec={html:()=>'<div class="rv6"><div class="rv6b"><p class="rv6h">Растрове <span class="rv6z" id="rvZ1">×1</span></p><canvas id="rvC" width="440" height="340"></canvas></div>'+
+  '<div class="rv6b"><p class="rv6h">Векторне <span class="rv6z" id="rvZ2">×1</span></p><svg id="rvS" viewBox="0 0 220 170"></svg></div></div><p class="rv6cap" id="rvT"></p>',
+  mount(r){
+    const C=r.querySelector('#rvC'),x=C.getContext('2d'),src=document.createElement('canvas');src.width=SW;src.height=SH;const s=src.getContext('2d');
+    r.querySelector('#rvS').innerHTML='<rect x="-50" y="-50" width="320" height="270" style="fill:var(--paper)"/>'+
+      '<line x1="20" y1="160" x2="200" y2="20" style="stroke:var(--mint);stroke-width:8;stroke-linecap:round"/>'+
+      '<circle cx="110" cy="85" r="70" style="fill:var(--sun);stroke:var(--ink);stroke-width:5"/>'+
+      '<circle cx="110" cy="85" r="26" style="fill:var(--coral)"/>';
+    function paint(){s.fillStyle=css(r,'--paper');s.fillRect(0,0,SW,SH);
+      s.strokeStyle=css(r,'--mint');s.lineWidth=8;s.lineCap='round';s.beginPath();s.moveTo(20,160);s.lineTo(200,20);s.stroke();
+      s.fillStyle=css(r,'--sun');s.strokeStyle=css(r,'--ink');s.lineWidth=5;s.beginPath();s.arc(110,85,70,0,7);s.fill();s.stroke();
+      s.fillStyle=css(r,'--coral');s.beginPath();s.arc(110,85,26,0,7);s.fill()}
+    function step(i){const z=ZS[i][0],v=view(z);paint();
+      x.imageSmoothingEnabled=false;x.clearRect(0,0,440,340);x.drawImage(src,v[0],v[1],v[2],v[3],0,0,440,340);
+      r.querySelector('#rvS').setAttribute('viewBox',v.join(' '));
+      r.querySelector('#rvZ1').textContent=r.querySelector('#rvZ2').textContent='×'+z;
+      r.querySelector('#rvT').innerHTML=b2h(ZS[i][1])}
+    return{count:ZS.length-1,step}}};
+})();
+}
+{
+/* sections/6-r4/widgets/krita.js */
+/* ===== 6 клас, урок 6-12 «Програми для опрацювання графічних зображень. Растрові зображення в Krita»: демонстрації, якими керує вчитель (пробіл або клік — далі) =====
+   W.vyd6  — режими інструментів виділення: заміна, перетин, додавання, віднімання; приклад — місяць.
+   W.kont6 — колір переднього плану і тла, списки «Заповнення» і «Контур» для фігури, перемикач кольорів.
+   Кольори — лише токени теми. Класи з префіксами vy6 і kn6: CSS віджетів спільний для всього сайту. */
+(function(){
+document.head.insertAdjacentHTML('beforeend','<style>'+
+'.vy6{display:grid;grid-template-columns:auto 1fr;gap:36px;align-items:start}'+
+'.vy6s{display:flex;flex-direction:column;gap:16px;min-width:0}'+
+'.vy6tag{align-self:flex-start;font:700 24px var(--display);padding:4px 16px;border-radius:999px;background:var(--accent-tint);color:var(--ink)}'+
+'.vy6cap{font-size:27px;line-height:1.35;margin:0}'+
+'.vy6info{font-size:22px;line-height:1.4;margin:0;color:var(--muted)}'+
+'.vy6svg{width:600px;height:400px;border:2px solid var(--line);border-radius:12px;background:var(--paper);display:block}'+
+'.vy6m{display:grid;grid-template-columns:1fr 1fr;gap:10px}'+
+'.vy6m span{font:600 23px var(--display);text-align:center;padding:8px 10px;border-radius:10px;border:2px solid var(--line);color:var(--muted);transition:background .3s,border-color .3s,color .3s}'+
+'.vy6m span.on{background:var(--accent-tint);border-color:var(--accent);color:var(--ink)}'+
+'.vy6svg .vy6a{fill:none;stroke:var(--ink);stroke-width:3;stroke-dasharray:10 7;animation:vy6ants 1s linear infinite}'+
+'.vy6svg .vy6g{fill:none;stroke:var(--muted);stroke-width:2;stroke-dasharray:3 7}'+
+'@keyframes vy6ants{to{stroke-dashoffset:-17}}'+
+'.kn6{display:grid;grid-template-columns:auto 1fr;gap:36px;align-items:start}'+
+'.kn6svg{width:560px;height:380px;border:2px solid var(--line);border-radius:12px;background:var(--paper);display:block}'+
+'.kn6row{display:flex;align-items:center;gap:18px}'+
+'.kn6ind{width:110px;height:96px;flex:none;display:block}'+
+'.kn6l{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}'+
+'.kn6l li{font-size:24px;padding:6px 14px;border-radius:10px;border:2px solid transparent;transition:background .3s,border-color .3s}'+
+'.kn6l li.on{background:var(--accent-tint);border-color:var(--accent)}'+
+'.kn6l b{font-weight:700}'+
+'.feed .stage .vy6,.feed .stage .kn6{grid-template-columns:minmax(0,1fr);gap:16px}'+
+'.feed .stage .vy6svg{width:100%;height:auto;aspect-ratio:60/40}'+
+'.feed .stage .kn6svg{width:100%;height:auto;aspect-ratio:56/38}'+
+'</style>');
+const b2h=t=>t.replace(/\*\*(.+?)\*\*/g,'<b>$1</b>');
+
+/* ---------- W.vyd6: режими виділення ---------- */
+const R='x="70" y="80" width="270" height="230"', E='cx="370" cy="195" rx="160" ry="120"';
+const C1='cx="290" cy="205" r="140"', C2='cx="375" cy="150" r="125"';
+const DEFS='<defs>'+
+ '<clipPath id="vy6cR"><rect '+R+'/></clipPath><clipPath id="vy6cE"><ellipse '+E+'/></clipPath>'+
+ '<mask id="vy6mR"><rect x="0" y="0" width="600" height="400" fill="white"/><rect '+R+' fill="black"/></mask>'+
+ '<mask id="vy6mE"><rect x="0" y="0" width="600" height="400" fill="white"/><ellipse '+E+' fill="black"/></mask>'+
+ '<mask id="vy6mC"><rect x="0" y="0" width="600" height="400" fill="white"/><circle '+C2+' fill="black"/></mask>'+
+ '<clipPath id="vy6cC"><circle '+C1+'/></clipPath></defs>';
+const F='style="fill:var(--accent);opacity:.32"';
+const PIC=[
+ // 0 — перше виділення
+ '<rect '+R+' '+F+'/><rect '+R+' class="vy6a"/>',
+ // 1 — заміна
+ '<rect '+R+' class="vy6g"/><ellipse '+E+' '+F+'/><ellipse '+E+' class="vy6a"/>',
+ // 2 — перетин
+ '<rect '+R+' class="vy6g" mask="url(#vy6mE)"/><ellipse '+E+' class="vy6g" mask="url(#vy6mR)"/>'+
+ '<rect '+R+' '+F+' clip-path="url(#vy6cE)"/><rect '+R+' class="vy6a" clip-path="url(#vy6cE)"/><ellipse '+E+' class="vy6a" clip-path="url(#vy6cR)"/>',
+ // 3 — додавання
+ '<g style="opacity:.32"><rect '+R+' style="fill:var(--accent)"/><ellipse '+E+' style="fill:var(--accent)"/></g>'+
+ '<rect '+R+' class="vy6a" mask="url(#vy6mE)"/><ellipse '+E+' class="vy6a" mask="url(#vy6mR)"/>',
+ // 4 — віднімання
+ '<ellipse '+E+' class="vy6g" mask="url(#vy6mR)"/><rect '+R+' '+F+' mask="url(#vy6mE)"/>'+
+ '<rect '+R+' class="vy6a" mask="url(#vy6mE)"/><ellipse '+E+' class="vy6a" clip-path="url(#vy6cR)"/>',
+ // 5 — місяць: круг мінус круг, далі заливка
+ '<circle '+C2+' class="vy6g" mask="url(#vy6mC)" style="opacity:.6"/><circle '+C1+' mask="url(#vy6mC)" style="fill:var(--sun);stroke:var(--ink);stroke-width:4"/>'+
+ '<circle '+C2+' clip-path="url(#vy6cC)" style="fill:none;stroke:var(--ink);stroke-width:4"/>'];
+const MODES=['Заміна','Перетин','Додавання','Віднімання'];
+const VS=[
+ ['Перше виділення','Інструментом **Прямокутний вибір** виділили прямокутник. Тепер виділяємо **еліпс**. Що станеться з прямокутником?',-1],
+ ['Заміна','Нове виділення **знімає** попереднє: виділено лише еліпс.',0],
+ ['Перетин','Виділено лише **спільну частину** прямокутника й еліпса.',1],
+ ['Додавання','Виділено **обидві** області разом — як одну.',2],
+ ['Віднімання','Від прямокутника **відрізано** частину, яку накрив еліпс.',3],
+ ['Приклад: місяць','Виділили круг, у режимі **віднімання** — другий круг, залили. Вийшов **місяць**.',3]];
+W.vyd6={html:()=>'<div class="vy6"><svg class="vy6svg" id="vy6S" viewBox="0 0 600 400"></svg><div class="vy6s"><span class="vy6tag" id="vy6T"></span><p class="vy6cap" id="vy6C"></p>'+
+  '<div class="vy6m" id="vy6M">'+MODES.map(m=>'<span>'+m+'</span>').join('')+'</div>'+
+  '<p class="vy6info">Режим вибирають кнопками <b>Дія</b> на бічній панелі <b>Параметри інструмента</b>.</p></div></div>',
+  mount(r){
+    function draw(i){const s=VS[i];
+      r.querySelector('#vy6S').innerHTML=DEFS+PIC[i];
+      r.querySelector('#vy6T').textContent=s[0];r.querySelector('#vy6C').innerHTML=b2h(s[1]);
+      r.querySelectorAll('#vy6M span').forEach((e,k)=>e.classList.toggle('on',k===s[2]))}
+    return{count:VS.length-1,step(i){draw(i)}}}};
+
+/* ---------- W.kont6: кольори, Заповнення і Контур ---------- */
+// fg/bg — токени кольорів; fill: none|fg|bg|pat; line: fg|bg; on: що підсвітити (0 — кольори, 1 — Заповнення, 2 — Контур)
+const BLUE='var(--sky)',YEL='var(--sun)';
+const KS=[
+ {t:'Два кольори',c:'Колір **переднього плану** — синій, колір **тла** — жовтий. Інструмент — **Еліпс**.',fg:BLUE,bg:YEL,fill:null,line:null,on:0},
+ {t:'Без заповнення',c:'Контур малює **пензель** кольором переднього плану, всередині порожньо.',fg:BLUE,bg:YEL,fill:'none',line:'fg',on:1},
+ {t:'Колір переднього плану',c:'Заповнення тим самим синім: фігура **суцільна**.',fg:BLUE,bg:YEL,fill:'fg',line:'fg',on:1},
+ {t:'Колір тла',c:'Контур синій, а всередині — **колір тла**.',fg:BLUE,bg:YEL,fill:'bg',line:'fg',on:1},
+ {t:'Візерунок',c:'Внутрішню область заповнює **візерунок**.',fg:BLUE,bg:YEL,fill:'pat',line:'fg',on:1},
+ {t:'Пензель (колір тла)',c:'Тепер і **контур** малюється кольором тла.',fg:BLUE,bg:YEL,fill:'fg',line:'bg',on:2},
+ {t:'Поміняли кольори',c:'**Перемикач** міняє кольори місцями: передній план — жовтий, тло — синє.',fg:YEL,bg:BLUE,fill:'fg',line:'bg',on:0}];
+const FILLN={none:'Без заповнення',fg:'Колір переднього плану',bg:'Колір тла',pat:'Візерунок'},LINEN={fg:'Пензель',bg:'Пензель (колір тла)'};
+W.kont6={html:()=>'<div class="kn6"><svg class="kn6svg" id="kn6S" viewBox="0 0 560 380"></svg><div class="vy6s"><span class="vy6tag" id="kn6T"></span><p class="vy6cap" id="kn6C"></p>'+
+  '<div class="kn6row"><svg class="kn6ind" id="kn6I" viewBox="0 0 110 96"></svg><ul class="kn6l" id="kn6L"></ul></div></div></div>',
+  mount(r){
+    function draw(i){const s=KS[i];
+      const col=k=>k==='fg'?s.fg:k==='bg'?s.bg:'none';
+      let fill=s.fill==='pat'?'url(#kn6p)':col(s.fill);
+      const shape=s.fill===null?'<ellipse cx="280" cy="190" rx="200" ry="130" style="fill:none;stroke:var(--muted);stroke-width:3;stroke-dasharray:6 8"/>':
+        '<ellipse cx="280" cy="190" rx="200" ry="130" style="fill:'+fill+';stroke:'+col(s.line)+';stroke-width:16"/>';
+      r.querySelector('#kn6S').innerHTML='<defs><pattern id="kn6p" width="36" height="36" patternUnits="userSpaceOnUse"><rect width="36" height="36" style="fill:'+s.bg+'"/>'+
+        '<circle cx="9" cy="9" r="7" style="fill:'+s.fg+'"/><circle cx="27" cy="27" r="7" style="fill:'+s.fg+'"/></pattern></defs>'+shape;
+      r.querySelector('#kn6I').innerHTML='<rect x="44" y="36" width="56" height="52" rx="4" style="fill:'+s.bg+';stroke:var(--ink);stroke-width:3"/>'+
+        '<rect x="8" y="6" width="56" height="52" rx="4" style="fill:'+s.fg+';stroke:var(--ink);stroke-width:3"/>'+
+        '<path d="M78 8 h18 v16 M90 18 l6 6 l6 -6" style="fill:none;stroke:var(--ink);stroke-width:3"/>';
+      const L=[['Кольори','передній план — '+(s.fg===BLUE?'синій':'жовтий')+', тло — '+(s.bg===BLUE?'синій':'жовтий')],
+        ['Заповнення',s.fill?FILLN[s.fill]:'—'],['Контур',s.line?LINEN[s.line]:'—']];
+      r.querySelector('#kn6L').innerHTML=L.map((l,k)=>'<li class="'+(k===s.on?'on':'')+'">'+l[0]+': <b>'+l[1]+'</b></li>').join('');
+      r.querySelector('#kn6T').textContent=s.t;r.querySelector('#kn6C').innerHTML=b2h(s.c)}
+    return{count:KS.length-1,step(i){draw(i)}}}};
+})();
+}
+{
 /* sections/7-r1/widgets/cloud.js */
 /* ===== 7 клас, урок 7-5 «Хмарні сервіси. Онлайн-перекладачі. Синхронізація даних»: демонстрації, якими керує вчитель (пробіл або клік — далі) =====
    W.mt     — як працює онлайн-перекладач: електронний словник ⇒ дослівний переклад ⇒ узгодження за правилами мови;
@@ -1609,6 +1842,364 @@ W.gsync={html:()=>'<div class="c75" style="grid-template-columns:minmax(0,1fr) 3
    ST.className='gs-st '+s.st[0];ST.textContent=s.st[1];
    AR.forEach(a=>{a.classList.toggle('on',s.ar===a.dataset.a);a.classList.toggle('cut',!!s.cut)});
    r.querySelector('.act .k').textContent=s.k;r.querySelector('.act p').innerHTML=s.a;mark(i)}
+  return{count:S.length-1,step}}};
+})();
+}
+{
+/* sections/7-r2/widgets/idle.js */
+/* ===== 7 клас, урок 7-9 «Середовища створення проєктів»: демонстрація, якою керує вчитель (пробіл або клік — далі) =====
+   W.idle79 — середовище IDLE від початку до кінця: вікно IDLE Shell, інтерактивний режим (команда ⇒ Enter ⇒ результат),
+              синтаксична помилка, File ⇒ New File, текст проєкту у вікні untitled, File ⇒ Save, вікно збереження (.py),
+              нове ім'я вікна, запуск F5 (Run ⇒ Run Module) і результат у вікні IDLE Shell.
+   Підпис кроку й кнопки — класи .x78-cap / .x78-tb з prog.js (той самий розділ). Кольори — лише змінними теми. */
+(function(){
+document.head.insertAdjacentHTML('beforeend','<style>'+
+'.i79{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px;flex:1;min-height:0;align-content:start}'+
+'.i79-w{border:3px solid var(--ink);background:var(--paper);display:flex;flex-direction:column;height:315px;position:relative;overflow:hidden;transition:box-shadow .3s,opacity .3s}'+
+'.i79-w.hi{box-shadow:0 0 0 5px var(--sun)}.i79-w.off{opacity:.35}'+
+'.i79-t{display:flex;align-items:center;gap:10px;padding:6px 12px;border-bottom:2px solid var(--ink);font:700 20px var(--body);white-space:nowrap;overflow:hidden}'+
+'.i79-t span{overflow:hidden;text-overflow:ellipsis}.i79-t span.new{background:var(--sun);color:var(--on-bright);padding:0 4px}'+
+'.i79-mb{display:flex;gap:16px;padding:3px 12px;border-bottom:1px solid var(--rule-soft);font:500 18px var(--body);color:var(--muted)}'+
+'.i79-mb b{font-weight:500;padding:0 4px}.i79-mb b.y{background:var(--accent);color:var(--on-accent)}'+
+'.i79-c{font:500 21px/1.3 var(--mono);padding:8px 12px;flex:1;white-space:pre-wrap;overflow:hidden;color:var(--ink)}'+
+'.i79-c .i79-p{color:var(--muted)}.i79-c .i79-o{color:var(--accent);font-weight:700}.i79-c .i79-s{color:var(--positive)}'+
+'.i79-c .i79-f{color:var(--coral)}.i79-c .i79-er{color:var(--negative);font-weight:700}.i79-c .i79-rs{color:var(--muted)}'+
+'.i79-c .i79-nw{background:var(--accent-tint)}'+
+'.i79-c .cur{display:inline-block;width:3px;height:1.1em;background:var(--ink);vertical-align:-3px;animation:i79b 1s steps(1) infinite}'+
+'@keyframes i79b{50%{opacity:0}}'+
+'.i79-st{border-top:1px solid var(--rule-soft);text-align:right;padding:2px 12px;font:500 16px var(--body);color:var(--muted)}'+
+'.i79-mn{position:absolute;left:12px;top:66px;display:none;z-index:2;margin:0;padding:5px 0;background:var(--paper);border:2px solid var(--muted);box-shadow:0 6px 18px rgba(0,0,0,.3);font:500 19px var(--body);min-width:250px}'+
+'.i79-mn.on{display:block}.i79-mn>div{padding:3px 14px;display:flex;justify-content:space-between;gap:16px}'+
+'.i79-mn>div.y{background:var(--accent);color:var(--on-accent)}.i79-mn>div.ln{border-top:1px solid var(--rule-soft);padding:0;margin:4px 0}'+
+'.i79-mn>div small{font:inherit;opacity:.75}'+
+'.i79-dl{position:absolute;left:18px;right:18px;top:58px;display:none;z-index:3;background:var(--paper);border:3px solid var(--ink);box-shadow:0 8px 22px rgba(0,0,0,.35)}'+
+'.i79-dl.on{display:block}.i79-dl .h{font:700 19px var(--body);padding:5px 12px;border-bottom:2px solid var(--ink)}'+
+'.i79-dl .r{display:grid;grid-template-columns:120px minmax(0,1fr);gap:10px;align-items:center;padding:6px 12px;font:500 19px var(--body)}'+
+'.i79-dl .r i{font-style:normal;color:var(--muted)}.i79-dl .r b{border:2px solid var(--line);padding:2px 8px;font-weight:600;white-space:nowrap;overflow:hidden}'+
+'.i79-dl .r b.y{border-color:var(--accent);background:var(--accent-tint)}'+
+'.i79-dl .bt{display:flex;justify-content:flex-end;gap:10px;padding:6px 12px 10px}'+
+'.i79-dl .bt span{border:2px solid var(--ink);padding:2px 14px;font:600 18px var(--body)}.i79-dl .bt span.y{background:var(--accent);color:var(--on-accent)}'+
+/* учнівська стрічка (телефон вертикально): вікна одне під одним */
+'.feed .stage .i79{grid-template-columns:minmax(0,1fr)}.feed .stage .i79-w{height:300px}'+
+/* учнівська сторінка горизонтально: під слайдом кнопки «Назад / Далі» — вікна нижчі */
+'html.student:not(.feed) .i79-w{height:250px}html.student:not(.feed) .i79-c{font-size:18px;line-height:1.2}'+
+'</style>');
+
+const CUR='<span class="cur"></span>';
+const P='<span class="i79-p">&gt;&gt;&gt; </span>';
+const HEAD='Python 3.12.3 (64-bit) on win32\nType "help", "copyright", "credits" or "license()" for more information.\n';
+/* рядки Shell і редактора, що накопичуються по кроках */
+const SH=[
+ P+'2 + 3\n<span class="i79-o">5</span>\n',
+ P+'12 * 4 - 8\n<span class="i79-o">40</span>\n',
+ P+'<span class="i79-f">print</span>(<span class="i79-s">\'Привіт, 7 клас!\'</span>)\n<span class="i79-o">Привіт, 7 клас!</span>\n',
+ P+'<span class="i79-f">print</span>(<span class="i79-s">\'Привіт)</span>\n<span class="i79-er">SyntaxError: unterminated string literal</span>\n'];
+const RUN='<span class="i79-rs">= RESTART: C:\\Мої проєкти\\перша_програма.py</span>\n<span class="i79-o">Моя перша програма\n2 + 3 = 5\nПрощавай, IDLE!</span>\n';
+const CODE='<span class="i79-f">print</span>(<span class="i79-s">\'Моя перша програма\'</span>)\n<span class="i79-f">print</span>(<span class="i79-s">\'2 + 3 =\'</span>, 2 + 3)\n<span class="i79-f">print</span>(<span class="i79-s">\'Прощавай, IDLE!\'</span>)';
+const MS=['File','Edit','Shell','Debug','Options','Window','Help'],ME=['File','Edit','Format','Run','Options','Window','Help'];
+const FILE=[['New File','Ctrl+N'],['Open...','Ctrl+O'],['Recent Files',''],0,['Save','Ctrl+S'],['Save As...','Ctrl+Shift+S'],0,['Close Window','Alt+F4']];
+const RUNM=[['Run Module','F5'],['Run... Customized','Shift+F5'],['Check Module','Alt+X']];
+
+W.idle79={html:()=>'<div class="i79">'+
+  '<div class="i79-w" data-w="s"><div class="i79-t"><span>IDLE Shell 3.12.3</span></div><div class="i79-mb"></div><div class="i79-c"></div><div class="i79-st"></div><div class="i79-mn"></div></div>'+
+  '<div class="i79-w" data-w="e"><div class="i79-t"><span></span></div><div class="i79-mb"></div><div class="i79-c"></div><div class="i79-st"></div><div class="i79-mn"></div>'+
+  '<div class="i79-dl"><div class="h">Зберегти як</div>'+
+  '<div class="r"><i>Папка:</i><b>Мої проєкти</b></div><div class="r"><i>Ім’я файлу:</i><b class="y">перша_програма</b></div>'+
+  '<div class="r"><i>Тип файлу:</i><b>Python files (*.py)</b></div><div class="bt"><span class="y">Зберегти</span><span>Скасувати</span></div></div></div>'+
+  '<div class="x78-cap"><div><b class="k"></b><p></p></div><div class="x78-tb"></div></div></div>',
+ mount(r,d,api){
+  /* sh — скільки рядків SH у Shell; ed — 0 вікна немає, 1 порожнє, 2 з текстом; ttl — заголовок редактора;
+     mn — меню: [вікно, пункт меню, вибраний рядок]; dl — вікно збереження; run — результат запуску; hi — підсвічене вікно */
+  const S=[
+   {k:'Вікно IDLE Shell',a:'Відкрили IDLE: <b>Пуск</b> ⇒ <b>IDLE</b>. Символи <b>&gt;&gt;&gt;</b> позначають рядок, у який вводимо команду мовою Python.',sh:0,ed:0,hi:'s'},
+   {k:'Інтерактивний режим',a:'Вводимо команду й натискаємо <b>Enter</b>. Результат — одразу в наступному рядку.',sh:1,ed:0,hi:'s'},
+   {k:'Ще команди',a:'Множення — зірочка <b>*</b>. Команда <b>print</b> виводить текст, узятий у лапки.',sh:3,ed:0,hi:'s'},
+   {k:'Помилка',a:'Забули другу лапку — інтерпретатор одразу повідомляє про <b>синтаксичну помилку</b>. Команду не виконано.',sh:4,ed:0,hi:'s'},
+   {k:'Новий файл',a:'Команди Shell не зберігаються. Для проєкту відкриваємо редактор: <b>File</b> ⇒ <b>New File</b>.',sh:4,ed:0,mn:['s',0,0],hi:'s'},
+   {k:'Вікно untitled',a:'Відкрилося вікно текстового редактора <b>untitled</b> (без назви). Команди тут не виконуються одразу.',sh:4,ed:1,ttl:'untitled',hi:'e'},
+   {k:'Текст проєкту',a:'Вводимо три команди. Зірочки в заголовку <b>*untitled*</b> — зміни ще не збережено.',sh:4,ed:2,ttl:'*untitled*',hi:'e'},
+   {k:'Зберегти',a:'У вікні редактора: <b>File</b> ⇒ <b>Save</b> (або <b>Ctrl+S</b>).',sh:4,ed:2,ttl:'*untitled*',mn:['e',0,4],hi:'e'},
+   {k:'Вікно збереження',a:'Вибираємо папку й вводимо ім’я файлу. Розширення <b>.py</b> IDLE додасть сам.',sh:4,ed:2,ttl:'*untitled*',dl:1,hi:'e'},
+   {k:'Нове ім’я вікна',a:'Тепер у заголовку — <b>ім’я файлу</b> і папка. Наступного разу <b>Ctrl+S</b> збереже без запитань.',sh:4,ed:2,ttl:'<span class="new">перша_програма.py</span> - C:\\Мої проєкти\\перша_програма.py',hi:'e'},
+   {k:'Запуск проєкту',a:'<b>Run</b> ⇒ <b>Run Module</b> або клавіша <b>F5</b>.',sh:4,ed:2,ttl:'перша_програма.py - C:\\Мої проєкти\\перша_програма.py',mn:['e',3,0],hi:'e'},
+   {k:'Результат у Shell',a:'Усі команди проєкту виконано по черзі. Файл можна запускати знову й знову — без повторного введення.',sh:4,ed:2,ttl:'перша_програма.py - C:\\Мої проєкти\\перша_програма.py',run:1,hi:'se'}];
+  const WS=r.querySelector('[data-w="s"]'),WE=r.querySelector('[data-w="e"]');
+  const part=w=>({mb:w.querySelector('.i79-mb'),c:w.querySelector('.i79-c'),st:w.querySelector('.i79-st'),mn:w.querySelector('.i79-mn'),t:w.querySelector('.i79-t span')});
+  const A=part(WS),B=part(WE),DL=WE.querySelector('.i79-dl');
+  const T=r.querySelector('.x78-tb');
+  const TB=[['Shell',0],['Новий файл',4],['Зберегти',7],['Запуск',10]];
+  TB.forEach(([t,i])=>{const b=document.createElement('button');b.textContent=t;b.onclick=e=>{e.stopPropagation();api.setStep(i)};T.append(b)});
+  const menuBar=(names,y)=>names.map((n,j)=>'<b'+(j===y?' class="y"':'')+'>'+n+'</b>').join('');
+  const menu=(items,y)=>items.map((it,j)=>it?'<div'+(j===y?' class="y"':'')+'><span>'+it[0]+'</span><small>'+it[1]+'</small></div>':'<div class="ln"></div>').join('');
+  function step(i){const s=S[i],mn=s.mn||[];
+   /* Shell */
+   let sh=HEAD+SH.slice(0,s.sh).join('');
+   if(s.run)sh+=RUN;
+   A.c.innerHTML=sh+P+(s.hi.indexOf('s')>=0&&!s.mn?CUR:'');
+   A.c.scrollTop=A.c.scrollHeight;
+   A.mb.innerHTML=menuBar(MS,mn[0]==='s'?mn[1]:-1);
+   A.mn.innerHTML=mn[0]==='s'?menu(FILE,mn[2]):'';A.mn.classList.toggle('on',mn[0]==='s');
+   A.st.textContent='Ln '+(4+s.sh*2+(s.run?5:0))+'  Col 4';
+   /* редактор */
+   WE.classList.toggle('off',!s.ed);
+   B.t.innerHTML=s.ed?s.ttl:'(вікно редактора ще не відкрито)';
+   B.mb.innerHTML=s.ed?menuBar(ME,mn[0]==='e'?mn[1]:-1):'';
+   B.c.innerHTML=s.ed===2?'<span'+(i===6?' class="i79-nw"':'')+'>'+CODE+'</span>'+(i===6?CUR:''):(s.ed===1?CUR:'');
+   B.st.textContent=s.ed?(s.ed===2?'Ln 3  Col 27':'Ln 1  Col 0'):'';
+   B.mn.innerHTML=mn[0]==='e'?menu(mn[1]===3?RUNM:FILE,mn[2]):'';B.mn.classList.toggle('on',mn[0]==='e');
+   B.mn.style.left=mn[1]===3?'150px':'12px';
+   DL.classList.toggle('on',!!s.dl);
+   WS.classList.toggle('hi',s.hi.indexOf('s')>=0);WE.classList.toggle('hi',s.hi.indexOf('e')>=0);
+   r.querySelector('.x78-cap .k').textContent=s.k;r.querySelector('.x78-cap p').innerHTML=s.a;
+   let on=-1;TB.forEach(([,k],j)=>{if(i>=k)on=j});T.querySelectorAll('button').forEach((b,j)=>b.classList.toggle('on',j===on))}
+  return{count:S.length-1,step}}};
+})();
+}
+{
+/* sections/7-r2/widgets/krok.js */
+/* ===== Покрокове виконання програми Python (7–9 класи): код + «коробки» змінних + екран =====
+   W.krok — універсальна демонстрація, код і кроки задає YAML слайда:
+     code:  [рядки програми]
+     names: {змінна: підпис}            — необов'язково, підпис під коробкою («ціна булочки»)
+     steps: [{line, k, say, vars, out, inp, ask}]
+       line — номер рядка, що виконується (1…; 0 — жоден);  k — короткий заголовок кроку;  say — пояснення (**жирний** можна);
+       vars — {змінна: 'значення як показати'} — стан пам'яті ПІСЛЯ кроку (накопичувати не треба: пишіть усі змінні, що вже є);
+       out  — увесь текст екрана після кроку (рядки через \n);  inp — що «набирає» користувач (показується в рядку екрана);
+       ask  — true: крок-питання «Передбачте!» (значення нової змінної ще приховано знаком ?).
+   Учитель: пробіл або клік — далі. Кольори — лише змінними теми. */
+(function(){
+document.head.insertAdjacentHTML('beforeend','<style>'+
+'.kr{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);gap:16px;flex:1;min-height:0;align-content:start}'+
+'.kr-p{border:3px solid var(--ink);background:var(--paper);display:flex;flex-direction:column;min-height:0}'+
+'.kr-h{padding:6px 12px;border-bottom:3px solid var(--ink);font:700 20px var(--body);display:flex;justify-content:space-between;gap:8px}'+
+'.kr-h small{font:600 17px var(--body);color:var(--muted)}'+
+'.kr-code{padding:8px 0;display:flex;flex-direction:column}'+
+'.kr-l{display:grid;grid-template-columns:34px 26px minmax(0,1fr);align-items:center;font:600 22px/1.45 var(--mono);padding:1px 6px;transition:background .3s;white-space:pre}'+
+'.kr-l i{font-style:normal;color:var(--muted);font-size:19px;text-align:right;padding-right:8px}'+
+'.kr-l b{color:var(--accent);font:800 24px var(--body);visibility:hidden}'+
+'.kr-l.cur{background:var(--accent-tint)}.kr-l.cur b{visibility:visible}'+
+'.kr-l.done{opacity:.55}'+
+'.kr-l span{overflow:hidden;text-overflow:ellipsis}'+
+'.kr-r{display:flex;flex-direction:column;gap:14px;min-height:0}'+
+'.kr-mem{display:flex;flex-wrap:wrap;gap:10px;padding:10px 12px;min-height:118px;align-content:flex-start}'+
+'.kr-mem .em{color:var(--muted);font:500 19px var(--body)}'+
+'.kr-box{border:3px solid var(--ink);min-width:104px;text-align:center;background:var(--paper)}'+
+'.kr-box .n{font:700 19px var(--mono);border-bottom:2px solid var(--ink);padding:2px 8px;background:var(--paper-alt)}'+
+'.kr-box .v{font:800 28px var(--mono);padding:4px 10px;min-height:1.4em}'+
+'.kr-box .d{font:500 15px var(--body);color:var(--muted);padding:0 6px 4px}'+
+'.kr-box.new{animation:krf 1.4s}.kr-box.q .v{color:var(--coral)}'+
+'@keyframes krf{0%{background:var(--sun)}100%{background:var(--paper)}}'+
+'.kr-scr{background:var(--ink);color:var(--paper);font:600 23px/1.35 var(--mono);padding:10px 14px;min-height:118px;white-space:pre-wrap}'+
+'.kr-scr .in{color:var(--sun)}.kr-scr .cur{display:inline-block;width:12px;height:1.05em;background:var(--paper);vertical-align:-3px;animation:krb 1s steps(1) infinite}'+
+'@keyframes krb{50%{opacity:0}}'+
+'.kr-cap{grid-column:1/-1;border:3px solid var(--ink);background:var(--paper-alt);padding:10px 16px}'+
+'.kr-cap b.k{display:block;font:700 19px var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:3px}'+
+'.kr-cap.ask b.k{color:var(--coral)}'+
+'.kr-cap p{font-size:24px;line-height:1.3;margin:0}'+
+/* учнівська стрічка (телефон вертикально): одне під одним */
+'.feed .stage .kr{grid-template-columns:minmax(0,1fr)}.feed .stage .kr-l{font-size:20px}'+
+/* учнівська сторінка горизонтально: нижче, бо під слайдом кнопки */
+'html.student:not(.feed) .kr-l{font-size:20px;line-height:1.3}html.student:not(.feed) .kr-mem{min-height:0;padding:6px 10px}'+
+'html.student:not(.feed) .kr-box .v{font-size:22px}html.student:not(.feed) .kr-scr{min-height:0;font-size:19px;padding:6px 12px}'+
+'html.student:not(.feed) .kr-cap{padding:6px 12px}html.student:not(.feed) .kr-cap p{font-size:20px}'+
+'</style>');
+
+/* збірка вже екранує рядки YAML (&gt;) — спершу повертаємо символи, потім екрануємо один раз */
+const U=s=>{const t=document.createElement('textarea');t.innerHTML=String(s);return t.value};
+const H=s=>U(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+/* say приходить зі збірки вже з <b> замість **…**; якщо ні — перетворюємо самі */
+const B=s=>/<b>/.test(s)?s:H(s).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>');
+
+W.krok={html:()=>'<div class="kr">'+
+  '<div class="kr-p"><div class="kr-h">Програма<small>виконується згори вниз</small></div><div class="kr-code"></div></div>'+
+  '<div class="kr-r"><div class="kr-p"><div class="kr-h">Пам’ять<small>змінні — «коробки» з іменами</small></div><div class="kr-mem"></div></div>'+
+  '<div class="kr-p"><div class="kr-h">Екран<small>що бачить користувач</small></div><div class="kr-scr"></div></div></div>'+
+  '<div class="kr-cap"><b class="k"></b><p></p></div></div>',
+ mount(r,d,api){
+  const code=d.code||[],steps=d.steps||[{line:0,k:'',say:''}],names=d.names||{};
+  const CO=r.querySelector('.kr-code'),ME=r.querySelector('.kr-mem'),SC=r.querySelector('.kr-scr'),CAP=r.querySelector('.kr-cap');
+  CO.innerHTML=code.map((t,j)=>'<div class="kr-l"><i>'+(j+1)+'</i><b>➜</b><span>'+H(t)+'</span></div>').join('');
+  const LS=[...CO.children];
+  function step(i){const s=steps[i]||{},prev=steps[i-1]||{},pv=prev.vars||{},v=s.vars||{};
+   LS.forEach((l,j)=>{l.classList.toggle('cur',s.line===j+1);l.classList.toggle('done',!!s.line&&j+1<s.line)});
+   const ks=Object.keys(v);
+   ME.innerHTML=ks.length?ks.map(n=>{const val=String(v[n]),q=s.ask&&!(n in pv);
+     return '<div class="kr-box'+(q?' q':'')+(!q&&pv[n]!==v[n]?' new':'')+'"><div class="n">'+H(n)+'</div><div class="v">'+(q?'?':H(val))+'</div>'+
+      (names[n]?'<div class="d">'+H(names[n])+'</div>':'')+'</div>'}).join(''):'<span class="em">поки що порожньо</span>';
+   let o=H(s.out||'');
+   if(s.inp!=null)o+='<span class="in">'+H(s.inp)+'</span>';
+   if(s.wait)o+='<span class="cur"></span>';
+   SC.innerHTML=o;
+   CAP.classList.toggle('ask',!!s.ask);
+   CAP.querySelector('.k').textContent=s.k||'';CAP.querySelector('p').innerHTML=B(s.say||'')}
+  return{count:steps.length-1,step}}};
+})();
+}
+{
+/* sections/7-r2/widgets/prog.js */
+/* ===== 7 клас, урок 7-8 «Програма. Мови програмування. Професії…»: демонстрації, якими керує вчитель (пробіл або клік — далі) =====
+   W.ui78 — одне завдання (створити папку one) у двох інтерфейсах: Провідник (графічний) і Командний рядок (текстовий, команда md one з підручника);
+   W.tr78 — як працюють транслятори: інтерпретатор (команда за командою, зупинка на першій помилці, переклад при кожному запуску)
+            і компілятор (перевіряє весь текст, показує всі помилки, створює exe-файл).
+   Усе в IIFE: імена не перетинаються з іншими віджетами. Кольори — лише змінними теми. */
+(function(){
+document.head.insertAdjacentHTML('beforeend','<style>'+
+/* спільне: підпис кроку й кнопки */
+'.x78-cap{grid-column:1/-1;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:18px;align-items:center;border:3px solid var(--ink);background:var(--paper-alt);padding:12px 18px}'+
+'.x78-cap b.k{display:block;font:700 20px var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}'+
+'.x78-cap p{font-size:24px;line-height:1.3;margin:0}'+
+'.x78-tb{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;max-width:330px}'+
+'.x78-tb button{border:3px solid var(--ink);background:var(--paper);color:var(--ink);font:700 18px var(--body);padding:5px 10px;cursor:pointer}'+
+'.x78-tb button.on{background:var(--accent);color:var(--on-accent)}'+
+'.x78-fl{animation:x78f 1.2s}@keyframes x78f{0%{background:var(--sun)}100%{background:transparent}}'+
+/* два інтерфейси */
+'.u78{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px;flex:1;min-height:0;align-content:start}'+
+'.u78-w{border:3px solid var(--ink);background:var(--paper);display:flex;flex-direction:column;height:330px;position:relative;overflow:hidden;transition:box-shadow .3s}'+
+'.u78-w.hi{box-shadow:0 0 0 5px var(--sun)}'+
+'.u78-t{display:flex;align-items:center;gap:10px;padding:7px 12px;border-bottom:3px solid var(--ink);font:700 21px var(--body)}'+
+'.u78-t small{margin-left:auto;font:600 18px var(--body);color:var(--muted)}'+
+'.u78-g{display:flex;flex-wrap:wrap;gap:14px 10px;padding:16px 14px;align-content:flex-start;flex:1}'+
+'.u78-i{width:118px;display:flex;flex-direction:column;align-items:center;gap:6px;font:500 21px var(--body);text-align:center;padding:4px;border:2px solid transparent}'+
+'.u78-i .ic{width:62px;height:50px;background:var(--sun);clip-path:polygon(0 12%,38% 12%,48% 0,100% 0,100% 100%,0 100%)}'+
+'.u78-i .ic.f{width:44px;height:56px;background:var(--accent);clip-path:polygon(0 0,70% 0,100% 26%,100% 100%,0 100%)}'+
+'.u78-i .ic.x{background:var(--mint)}'+
+'.u78-i.sel{border-color:var(--accent);background:var(--accent-tint)}'+
+'.u78-i .ed{border:2px solid var(--accent);background:var(--paper);padding:0 6px;min-width:90px}'+
+'.u78-m{position:absolute;left:24px;top:60px;display:none;gap:0;z-index:2}.u78-m.on{display:flex}'+
+'.u78-m .mn{margin:0;padding:6px 0;background:var(--paper);border:2px solid var(--muted);box-shadow:0 6px 18px rgba(0,0,0,.3);font:500 21px var(--body);min-width:190px}'+
+'.u78-m .mn>div{padding:4px 16px;line-height:1.3;display:flex;justify-content:space-between;gap:16px}.u78-m .mn>div.y{background:var(--accent);color:var(--on-accent)}'+
+'.u78-m .mn>div.ln{border-top:1px solid var(--rule-soft);padding:0;margin:4px 0}'+
+'.u78-m .mn+.mn{margin-top:104px;margin-left:-4px;min-width:170px}'+
+'.u78-c{background:var(--ink);color:var(--paper);font:500 21px/1.3 var(--mono);padding:10px 14px;flex:1;white-space:pre-wrap;overflow:hidden}'+
+'.u78-c .cur{display:inline-block;width:12px;height:1.1em;background:var(--paper);vertical-align:-3px;animation:u78b 1s steps(1) infinite}'+
+'@keyframes u78b{50%{opacity:0}}'+
+'.u78-c .er{color:var(--sun)}.u78-c .ok{color:var(--on-accent);background:var(--accent)}'+
+/* транслятори */
+'.t78{display:grid;grid-template-columns:minmax(0,1fr) 300px 290px;gap:16px;flex:1;min-height:0;align-content:start}'+
+'.t78-b{border:3px solid var(--ink);background:var(--paper);display:flex;flex-direction:column;min-height:300px}'+
+'.t78-h{padding:7px 12px;border-bottom:3px solid var(--ink);font:700 21px var(--body);display:flex;justify-content:space-between;gap:8px}'+
+'.t78-h small{font:600 18px var(--body);color:var(--muted)}'+
+'.t78-code{padding:10px 0;display:flex;flex-direction:column}'+
+'.t78-l{display:grid;grid-template-columns:44px minmax(0,1fr) 44px;align-items:center;font:600 30px/1.5 var(--mono);padding:2px 10px;transition:background .3s}'+
+'.t78-l i{font-style:normal;color:var(--muted);font-size:22px}'+
+'.t78-l.cur{background:var(--accent-tint)}'+
+'.t78-l .st{font:800 28px var(--body);text-align:center}.t78-l .st.ok{color:var(--positive)}.t78-l .st.no{color:var(--negative)}'+
+'.t78-l .bad{text-decoration:underline wavy var(--negative);text-decoration-thickness:3px;text-underline-offset:6px}'+
+'.t78-l .fix{background:var(--sun);color:var(--on-bright);padding:0 3px}'+
+'.t78-tr .msg{padding:8px 12px;font:500 21px/1.25 var(--body);min-height:112px}'+
+'.t78-tr .msg.no{color:var(--negative);font-weight:700}'+
+'.t78-mc{border-top:2px dashed var(--rule-soft);padding:6px 12px;font:600 21px/1.25 var(--mono);color:var(--muted);flex:1}'+
+'.t78-mc span{display:block;color:var(--ink)}'+
+'.t78-mem{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:10px 12px}'+
+'.t78-mem div{border:2px solid var(--ink);text-align:center;font:600 20px var(--body);color:var(--muted);padding:2px 0}'+
+'.t78-mem div b{display:block;font:700 30px var(--mono);color:var(--ink);min-height:1.3em}'+
+'.t78-scr{margin:4px 12px 10px;background:var(--ink);color:var(--paper);font:700 30px var(--mono);padding:6px 12px;min-height:56px}'+
+'.t78-scr small{display:block;font:600 16px var(--body);color:var(--paper);opacity:.7;letter-spacing:.05em;text-transform:uppercase}'+
+'.t78-exe{margin:0 12px 10px;border:3px solid var(--ink);background:var(--sun);color:var(--on-bright);font:700 22px var(--mono);padding:6px 10px;text-align:center;visibility:hidden}.t78-exe.on{visibility:visible}'+
+/* учнівська стрічка (телефон вертикально, ширина 600): усе одне під одним */
+'.feed .stage .x78-cap{grid-template-columns:minmax(0,1fr)}.feed .stage .x78-tb{justify-content:flex-start;max-width:none}'+
+'.feed .stage .u78{grid-template-columns:minmax(0,1fr)}.feed .stage .u78-w{height:290px}'+
+'.feed .stage .t78{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.feed .stage .t78>.t78-b:first-child{grid-column:1/-1}'+
+'.feed .stage .t78-b{min-height:0}.feed .stage .t78-tr .msg{min-height:96px}'+
+/* учнівська сторінка горизонтально: під слайдом кнопки «Назад / Далі» — демонстрації нижчі */
+'html.student:not(.feed) .u78-w{height:240px}html.student:not(.feed) .x78-cap{padding:8px 14px}'+
+'html.student:not(.feed) .t78-b{min-height:0}html.student:not(.feed) .t78-l{line-height:1.25}'+
+'html.student:not(.feed) .t78-tr .msg{min-height:0;padding:6px 12px}html.student:not(.feed) .t78-mc{line-height:1.15;font-size:19px}'+
+'html.student:not(.feed) .t78-scr{min-height:0;margin-bottom:6px;font-size:24px;padding:3px 10px}'+
+'html.student:not(.feed) .t78-mem{padding:6px 12px}html.student:not(.feed) .t78-mem div b{font-size:24px}'+
+'html.student:not(.feed) .t78-exe{font-size:18px;padding:3px 8px}'+
+'</style>');
+
+const H=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+/* кнопки переходу між частинами демонстрації: [[підпис, крок], …] */
+function tabs(r,list,set){const T=r.querySelector('.x78-tb');
+ list.forEach(([t,i])=>{const b=document.createElement('button');b.textContent=t;b.onclick=e=>{e.stopPropagation();set(i)};T.append(b)});
+ return i=>{let on=-1;list.forEach(([,k],j)=>{if(i>=k)on=j});T.querySelectorAll('button').forEach((b,j)=>b.classList.toggle('on',j===on))}}
+const CAP='<div class="x78-cap"><div><b class="k"></b><p></p></div><div class="x78-tb"></div></div>';
+
+/* ===== Одне завдання — два інтерфейси ===== */
+W.ui78={html:()=>'<div class="u78">'+
+  '<div class="u78-w" data-w="g"><div class="u78-t">Провідник<small>графічний інтерфейс</small></div><div class="u78-g"></div>'+
+  '<div class="u78-m"><div class="mn"><div>Вигляд <span>›</span></div><div>Сортувати <span>›</span></div><div>Оновити</div><div class="ln"></div><div class="y">Створити <span>›</span></div><div>Властивості</div></div>'+
+  '<div class="mn"><div class="y">Папку</div><div>Ярлик</div><div>Документ Word</div></div></div></div>'+
+  '<div class="u78-w" data-w="c"><div class="u78-t">Командний рядок<small>текстовий інтерфейс</small></div><div class="u78-c"></div></div>'+
+  CAP+'</div>',
+ mount(r,d,api){
+  const P='C:\\Навчання>';
+  const base=[['Фото','d'],['Реферат.docx','f'],['план.xlsx','x']];
+  const CUR='<span class="cur"></span>';
+  const DIR=P+'md one\n'+P+'dir\n<span class="ok">23.10.2026  10:20  &lt;DIR&gt;  one</span>\n23.10.2026  09:40  &lt;DIR&gt;  Фото\n23.10.2026  10:15  24 576  Реферат.docx\n23.10.2026  08:30  9 812  план.xlsx\n';
+  const S=[
+   {k:'Завдання',a:'Створимо в папці <b>Навчання</b> нову папку <b>one</b> — двома способами, у двох різних інтерфейсах.',g:0,c:P+CUR},
+   {k:'Мишею: контекстне меню',a:'Права кнопка миші на порожньому місці ⇒ <b>Створити</b> ⇒ <b>Папку</b>.',g:0,menu:1,c:P+CUR,hi:'g'},
+   {k:'Мишею: ім’я папки',a:'З’явилася <b>Нова папка</b> з полем для імені. Вводимо <b>one</b> і натискаємо <b>Enter</b>.',g:1,c:P+CUR,hi:'g'},
+   {k:'Графічний інтерфейс',a:'Папка <b>one</b> на місці. Значки, меню, кнопки, поля — це <b>графічний інтерфейс</b>.',g:2,fl:1,c:P+CUR,hi:'g'},
+   {k:'Клавіатурою: команда',a:'Тут немає ні значків, ні кнопок. Вводимо команду <b>md one</b> (англ. make directory — створити папку).',g:2,c:P+'md one'+CUR,hi:'c'},
+   {k:'Відповідь — теж текст',a:'<b>Enter</b> — і команда виконана. Команда <b>dir</b> виводить вміст папки: <b>one</b> на місці.',g:2,c:DIR+'\n'+P+CUR,hi:'c'},
+   {k:'Одна літера — і помилка',a:'Переплутали літери: <b>dri</b>. Такого слова в командах немає — команда не виконується. Це <b>синтаксична помилка</b>.',g:2,
+    c:P+'dri\n<span class="er">\'dri\' не є внутрішньою або зовнішньою командою, виконуваною програмою або пакетним файлом.</span>\n\n'+P+CUR,hi:'c'},
+   {k:'Висновок',a:'Результат однаковий. Різний <b>інтерфейс</b> — спосіб спілкування людини з комп’ютером: мишею й значками чи текстом команд.',g:2,c:DIR+'\n'+P+CUR,hi:'gc'}];
+  const G=r.querySelector('.u78-g'),C=r.querySelector('.u78-c'),M=r.querySelector('.u78-m'),WN=[...r.querySelectorAll('.u78-w')];
+  const mark=tabs(r,[['Мишею',1],['Командою',4],['Помилка',6],['Висновок',7]],api.setStep);
+  const icon=(n,t,x)=>'<div class="u78-i'+(x||'')+'"><span class="ic'+(t==='f'?' f':t==='x'?' f x':'')+'"></span><span>'+n+'</span></div>';
+  function step(i){const s=S[i];
+   let g=base.map(([n,t])=>icon(n,t)).join('');
+   if(s.g===1)g+='<div class="u78-i sel"><span class="ic"></span><span class="ed">one'+CUR+'</span></div>';
+   if(s.g===2)g+=icon('one','d',s.fl?' sel x78-fl':'');
+   G.innerHTML=g;M.classList.toggle('on',!!s.menu);C.innerHTML=s.c;
+   WN.forEach(w=>w.classList.toggle('hi',!!s.hi&&s.hi.indexOf(w.dataset.w)>=0));
+   r.querySelector('.x78-cap .k').textContent=s.k;r.querySelector('.x78-cap p').innerHTML=s.a;mark(i)}
+  return{count:S.length-1,step}}};
+
+/* ===== Інтерпретатор і компілятор ===== */
+W.tr78={html:()=>'<div class="t78">'+
+  '<div class="t78-b"><div class="t78-h">Програма<small>мова високого рівня</small></div><div class="t78-code"></div></div>'+
+  '<div class="t78-b t78-tr"><div class="t78-h"><span class="nm">Транслятор</span></div><div class="msg"></div><div class="t78-mc"></div></div>'+
+  '<div class="t78-b"><div class="t78-h">Процесор<small>пам’ять</small></div><div class="t78-mem"><div>a<b></b></div><div>b<b></b></div><div>x<b></b></div></div>'+
+  '<div class="t78-scr"><small>Екран</small><span></span></div><div class="t78-exe">program.exe</div></div>'+
+  CAP+'</div>',
+ mount(r,d,api){
+  /* рядки програми: [текст, позначка помилки, виправлення] */
+  const L0=[['a = 2'],['b = 3№','№'],['x = a + b'],['writ x','writ']];
+  const MC=['0001 0000 0010','0001 0001 0011','0010 0000 0001 0010','0011 0010'];
+  /* fix: 1 — виправлено рядок 2, 2 — виправлено обидва; st: позначки рядків (o — ок, n — помилка); cur — поточний рядок */
+  const S=[
+   {k:'Перекладач потрібен',a:'Програму записано мовою <b>високого рівня</b>. Процесор розуміє лише <b>машинні коди</b> з 0 і 1. Перекладає програма-<b>транслятор</b>. У програмі дві помилки — знайдете?',
+    nm:'Транслятор',fix:0,st:'',msg:'Чекаю на програму…',mc:0,mem:''},
+   {k:'Інтерпретатор: рядок 1',a:'<b>Інтерпретатор</b> бере <b>одну</b> команду: перевіряє, перекладає на мову процесора й одразу передає на виконання.',
+    nm:'Інтерпретатор',fix:0,st:'o',cur:0,msg:'Рядок 1: помилок немає ⇒ перекладаю ⇒ процесор виконує.',mc:1,mem:'a'},
+   {k:'Інтерпретатор: рядок 2',a:'У рядку 2 — символ <b>№</b>, якого немає в алфавіті мови. Інтерпретатор <b>зупиняється</b>. Рядки 3–4 він ще навіть не бачив.',
+    nm:'Інтерпретатор',fix:0,st:'on',cur:1,msg:'Рядок 2: символ № не входить до алфавіту мови. Зупинка!',no:1,mc:1,mem:'a'},
+   {k:'Виправили — і знову спочатку',a:'Помилку виправлено. Інтерпретатор починає <b>з першого рядка</b> й знову перекладає вже знайомі команди.',
+    nm:'Інтерпретатор',fix:1,st:'ooo',cur:2,msg:'Рядки 1, 2, 3: помилок немає ⇒ перекладено й виконано.',mc:3,mem:'abx'},
+   {k:'Інтерпретатор: рядок 4',a:'Друга помилка знайшлася лише тепер: слово <b>writ</b> записано неправильно. Програма працювала, а <b>результату на екрані немає</b>.',
+    nm:'Інтерпретатор',fix:1,st:'ooon',cur:3,msg:'Рядок 4: невідоме слово writ. Зупинка!',no:1,mc:3,mem:'abx'},
+   {k:'Програма працює',a:'Після другого виправлення на екрані — <b>5</b>. Але під час кожного наступного запуску переклад іде знову, команда за командою.',
+    nm:'Інтерпретатор',fix:2,st:'oooo',msg:'Рядки 1–4: перекладено й виконано.',mc:4,mem:'abx',scr:1},
+   {k:'Компілятор: увесь текст',a:'<b>Компілятор</b> спершу перевіряє <b>весь текст</b> і виводить <b>усі помилки</b> разом. Жодна команда не виконана.',
+    nm:'Компілятор',fix:0,st:'onon',msg:'Перевірено весь текст. Помилки: рядок 2 (символ №), рядок 4 (слово writ).',no:1,mc:0,mem:''},
+   {k:'Компілятор: exe-файл',a:'Обидві помилки виправлено. Компілятор перекладає <b>всю</b> програму й записує на диск <b>exe-файл</b>.',
+    nm:'Компілятор',fix:2,st:'oooo',msg:'Помилок немає ⇒ перекладаю всю програму ⇒ записую program.exe.',mc:4,mem:'',exe:1},
+   {k:'Запуск exe-файлу',a:'Процесор виконує <b>program.exe</b>: на екрані <b>5</b>. Наступні запуски — одразу exe, без перекладу, тому <b>швидше</b>.',
+    nm:'Компілятор',fix:2,st:'',msg:'Роботу завершено. Для запуску компілятор більше не потрібен.',mc:4,mem:'abx',scr:1,exe:1}];
+  const CO=r.querySelector('.t78-code'),NM=r.querySelector('.t78-tr .nm'),MS=r.querySelector('.t78-tr .msg'),MCB=r.querySelector('.t78-mc'),
+   MEM=[...r.querySelectorAll('.t78-mem b')],SCR=r.querySelector('.t78-scr span'),EXE=r.querySelector('.t78-exe');
+  const mark=tabs(r,[['Інтерпретатор',1],['Компілятор',6]],api.setStep);
+  const VAL={a:'2',b:'3',x:'5'};
+  function line(j,s){let [t,bad]=L0[j];let h=H(t);
+   const fixed=(j===1&&s.fix>=1)||(j===3&&s.fix>=2);
+   if(j===1&&fixed)h='b = 3';
+   if(j===3&&fixed)h='<span class="fix">write</span> x';
+   else if(bad&&!fixed)h=H(t).replace(H(bad),'<span class="bad">'+H(bad)+'</span>');
+   const m=s.st[j];const st=m==='o'?'<span class="st ok">✓</span>':m==='n'?'<span class="st no">✗</span>':'<span class="st"></span>';
+   return '<div class="t78-l'+(s.cur===j?' cur':'')+'"><i>'+(j+1)+'</i><span>'+h+'</span>'+st+'</div>'}
+  function step(i){const s=S[i];
+   CO.innerHTML=L0.map((_,j)=>line(j,s)).join('');
+   NM.textContent=s.nm;MS.textContent=s.msg;MS.classList.toggle('no',!!s.no);
+   MCB.innerHTML=s.mc?'машинний код:'+MC.slice(0,s.mc).map(c=>'<span>'+c+'</span>').join(''):'машинний код — ще порожньо';
+   MEM.forEach((b,j)=>{b.textContent=s.mem.indexOf('abx'[j])>=0?VAL['abx'[j]]:''});
+   SCR.textContent=s.scr?'5':'';EXE.classList.toggle('on',!!s.exe);
+   r.querySelector('.x78-cap .k').textContent=s.k;r.querySelector('.x78-cap p').innerHTML=s.a;mark(i)}
   return{count:S.length-1,step}}};
 })();
 }
@@ -1871,6 +2462,117 @@ W.rle={html:()=>'<div style="display:grid;grid-template-columns:auto 1fr;gap:28p
   return{count:P.length+1,step}}};
 }
 {
+/* sections/8-r2/widgets/devices.js */
+/* 8 клас: пристрої введення даних */
+
+/* Роздільність відео: SD, HD, Full HD, Ultra HD у масштабі. Пробіл/клік додає наступний стандарт, останній крок — висновок */
+W.vidres={html:()=>'<div style="display:grid;grid-template-columns:1.15fr .85fr;gap:28px;flex:1;min-height:0;align-items:center">'+
+  '<div class="vr-s" style="position:relative;width:100%;aspect-ratio:16/9;background:var(--paper);border:2px dashed var(--line);border-radius:12px"></div>'+
+  '<div style="display:flex;flex-direction:column;gap:14px"><div class="vr-l" style="display:flex;flex-direction:column;gap:10px;font-size:24px"></div>'+
+  '<div class="vr-c box sun" style="visibility:hidden"><p style="margin:0">Ultra HD має у <b>20 разів</b> більше точок, ніж SD: картинка чіткіша, але файл більший.</p></div></div></div>',
+ mount(r,d,api){
+  const S=[['SD','Standard Definition','720 × 576',720,576,'var(--muted)'],['HD','High Definition','1280 × 720',1280,720,'var(--mint)'],
+   ['Full HD','','1920 × 1080',1920,1080,'var(--coral)'],['Ultra HD','Ultra High Definition','3840 × 2160',3840,2160,'var(--accent)']];
+  const box=r.querySelector('.vr-s'),L=r.querySelector('.vr-l');
+  S.forEach((s,i)=>{const f=document.createElement('div');f.className='vr-f';
+   f.style.cssText='position:absolute;left:0;bottom:0;width:'+(s[3]/38.4)+'%;height:'+(s[4]/21.6)+'%;border:4px solid '+s[5]+';border-radius:6px;'+
+    'display:flex;align-items:flex-start;justify-content:flex-end;padding:4px 8px;font:800 22px var(--display,sans-serif);color:'+s[5]+';transition:opacity .4s;z-index:'+(10-i);
+   f.textContent=s[0];box.append(f);
+   const row=document.createElement('div');row.className='vr-r';row.style.cssText='display:flex;gap:10px;align-items:baseline;transition:opacity .4s;cursor:pointer';
+   row.innerHTML='<b style="color:'+s[5]+';min-width:110px">'+s[0]+'</b><span class="mono" style="white-space:nowrap">'+s[2]+'</span><span class="small" style="margin-left:auto">≈ '+(s[3]*s[4]/1e6).toFixed(1).replace('.',',')+' Мп</span>';
+   row.onclick=()=>api.setStep(i);L.append(row)});
+  const F=[...box.querySelectorAll('.vr-f')],R=[...L.querySelectorAll('.vr-r')];
+  function step(i){F.forEach((f,k)=>f.style.opacity=k<=i?1:0);R.forEach((x,k)=>{x.style.opacity=k<=i?1:.2;x.style.fontWeight=k===Math.min(i,3)?'800':'400'});
+   r.querySelector('.vr-c').style.visibility=i>3?'visible':'hidden'}
+  return{count:4,step}}};
+
+/* 8 клас: пристрої виведення даних (урок 8-12) */
+
+/* Співвідношення сторін екрана: рамки однакової висоти 5:4, 16:10, 16:9, 21:9. Пробіл/клік додає наступну, останній крок — висновок */
+W.aspect8={html:()=>'<style>.feed .w812{grid-template-columns:1fr!important}</style><div class="w812" style="display:grid;grid-template-columns:1.1fr .9fr;gap:28px;flex:1;min-height:0;align-items:center">'+
+  '<div class="as8-s" style="position:relative;width:100%;aspect-ratio:21/9;background:var(--paper);border-radius:12px"></div>'+
+  '<div style="display:flex;flex-direction:column;gap:14px"><div class="as8-l" style="display:flex;flex-direction:column;gap:6px;font-size:24px"></div>'+
+  '<div class="as8-c box sun" style="visibility:hidden"><p style="margin:0">Висота однакова, а ширина різна: на широкому екрані більше видно <b>по горизонталі</b>.</p></div></div></div>',
+ mount(r,d,api){
+  const S=[['5 : 4',5/4,'1280 × 1024','старі офісні','var(--muted)'],['16 : 10',16/10,'1920 × 1200','ноутбуки, робота з документами','var(--mint)'],
+   ['16 : 9',16/9,'1920 × 1080','більшість моніторів і телевізорів','var(--coral)'],['21 : 9',21/9,'2560 × 1080','ігри, монтаж відео','var(--accent)']];
+  const box=r.querySelector('.as8-s'),L=r.querySelector('.as8-l');
+  S.forEach((s,i)=>{const f=document.createElement('div');f.className='as8-f';const w=s[1]/(21/9)*100;
+   f.style.cssText='position:absolute;top:0;bottom:0;left:'+((100-w)/2)+'%;width:'+w+'%;border:4px solid '+s[4]+';border-radius:8px;'+
+    'display:flex;align-items:flex-end;justify-content:center;padding:6px;font:800 24px var(--display,sans-serif);transition:opacity .4s;z-index:'+(10-i);
+   f.textContent=s[0];box.append(f);
+   const row=document.createElement('div');row.className='as8-r';row.style.cssText='display:flex;flex-direction:column;transition:opacity .4s;cursor:pointer';
+   row.innerHTML='<div style="display:flex;gap:12px;align-items:baseline"><b style="color:'+s[4]+';min-width:96px">'+s[0]+'</b><span class="mono" style="white-space:nowrap">'+s[2]+'</span></div>'+
+    '<span class="small" style="margin-left:108px">'+s[3]+'</span>';
+   row.onclick=()=>api.setStep(i);L.append(row)});
+  const F=[...box.querySelectorAll('.as8-f')],R=[...L.querySelectorAll('.as8-r')];
+  function step(i){F.forEach((f,k)=>{f.style.opacity=k<=i?1:0;f.style.color=k===Math.min(i,3)?S[k][4]:'transparent'});
+   R.forEach((x,k)=>{x.style.opacity=k<=i?1:.2;x.style.fontWeight=k===Math.min(i,3)?'800':'400'});
+   r.querySelector('.as8-c').style.visibility=i>3?'visible':'hidden'}
+  return{count:4,step}}};
+
+/* Лазерний принтер: барабан, лазер, тонер, папір, фюзер. Кожен крок — наступна дія, текст праворуч */
+W.laser8={html:()=>{
+  const arc=(rad,fn)=>[0,1,2,3,4].map(k=>{const a=(-150+k*22)*Math.PI/180;return fn(285+rad*Math.cos(a),200+rad*Math.sin(a))}).join('');
+  return '<style>.feed .w812{grid-template-columns:1fr!important}</style><div class="w812" style="display:grid;grid-template-columns:1.15fr .85fr;gap:28px;flex:1;min-height:0;align-items:center">'+
+  '<svg viewBox="0 0 640 400" style="width:100%;max-height:100%">'+
+   '<rect x="0" y="0" width="640" height="400" rx="16" fill="var(--paper)"/>'+
+   '<g class="lz8-laser"><rect x="250" y="16" width="70" height="40" rx="8" fill="var(--ink)"/><text x="285" y="42" text-anchor="middle" font-size="18" font-weight="800" fill="var(--paper)">лазер</text>'+
+   '<line x1="285" y1="56" x2="285" y2="126" stroke="var(--coral)" stroke-width="5" stroke-dasharray="10 6"/></g>'+
+   '<circle cx="285" cy="200" r="70" fill="var(--paper)" stroke="var(--accent)" stroke-width="6"/>'+
+   '<text x="285" y="207" text-anchor="middle" font-size="20" font-weight="800" fill="var(--accent)">барабан</text>'+
+   '<g class="lz8-q">'+arc(88,(x,y)=>'<text x="'+x+'" y="'+(y+8)+'" text-anchor="middle" font-size="24" font-weight="800" fill="var(--coral)">+</text>')+'</g>'+
+   '<g class="lz8-dots">'+arc(70,(x,y)=>'<circle cx="'+x+'" cy="'+y+'" r="9" fill="var(--ink)"/>')+'</g>'+
+   '<g class="lz8-toner"><path d="M420 90 L520 90 L500 150 L440 150 Z" fill="var(--ink)" opacity=".85"/><text x="470" y="78" text-anchor="middle" font-size="18" font-weight="800" fill="var(--ink)">тонер</text>'+
+   '<line x1="450" y1="152" x2="352" y2="182" stroke="var(--ink)" stroke-width="4" stroke-dasharray="4 6"/></g>'+
+   '<g class="lz8-paper"><rect x="40" y="272" width="250" height="16" fill="var(--line)" stroke="var(--ink)" stroke-width="2"/>'+
+   '<text x="50" y="320" font-size="18" font-weight="700" fill="var(--muted)">папір рухається →</text></g>'+
+   '<g class="lz8-print">'+[0,1,2,3,4].map(k=>'<rect x="'+(70+k*30)+'" y="266" width="18" height="6" fill="var(--ink)"/>').join('')+'</g>'+
+   '<g class="lz8-fuser"><circle cx="500" cy="254" r="26" fill="var(--sun)" stroke="var(--coral)" stroke-width="5"/><circle cx="500" cy="306" r="26" fill="var(--sun)" stroke="var(--coral)" stroke-width="5"/>'+
+   '<text x="500" y="365" text-anchor="middle" font-size="18" font-weight="800" fill="var(--coral)">фюзер ≈ 180 °C</text></g>'+
+  '</svg>'+
+  '<div style="display:flex;flex-direction:column;gap:14px"><div class="lz8-n" style="font:800 22px var(--display,sans-serif);color:var(--accent)"></div><div class="lz8-t" style="font-size:26px;line-height:1.35"></div></div></div>'},
+ mount(r){
+  const T=[['Крок 1 з 5','Основа принтера — <b>барабан</b> зі світлочутливим шаром. Він обертається.'],
+   ['Крок 2 з 5','<b>Лазер</b> «малює» на барабані: там, куди падає промінь, змінюється <b>електричний заряд</b>.'],
+   ['Крок 3 з 5','На барабан наносять <b>тонер</b> — порошкову фарбу. Він прилипає там, де змінився заряд.'],
+   ['Крок 4 з 5','Барабан притискається до <b>паперу</b>, і тонер переходить на аркуш.'],
+   ['Крок 5 з 5','Гарячі ролики (<b>фюзер</b>) «запікають» тонер. Відбиток не боїться ні вологи, ні сонця.']];
+  const q=s=>r.querySelector(s),op=(s,v)=>q(s).style.opacity=v;
+  ['.lz8-laser','.lz8-q','.lz8-dots','.lz8-toner','.lz8-paper','.lz8-print','.lz8-fuser'].forEach(s=>q(s).style.transition='opacity .4s');
+  function step(i){op('.lz8-laser',i>=1?1:.15);op('.lz8-q',i===1?1:0);op('.lz8-dots',i===2||i===3?1:0);op('.lz8-toner',i>=2?1:.15);
+   op('.lz8-paper',i>=3?1:.25);op('.lz8-print',i>=3?1:0);op('.lz8-fuser',i>=4?1:.15);
+   q('.lz8-n').textContent=T[i][0];q('.lz8-t').innerHTML=T[i][1]}
+  return{count:4,step}}};
+
+/* 3D-друк FDM: виріб росте шар за шаром. Пробіл/клік — наступні шари, останній крок — висновок */
+W.fdm8={html:()=>'<style>.feed .w812{grid-template-columns:1fr!important}</style><div class="w812" style="display:grid;grid-template-columns:1fr 1fr;gap:28px;flex:1;min-height:0;align-items:center">'+
+  '<svg viewBox="0 0 520 400" style="width:100%;max-height:100%">'+
+   '<rect x="0" y="0" width="520" height="400" rx="16" fill="var(--paper)"/>'+
+   '<rect x="90" y="340" width="340" height="18" rx="4" fill="var(--ink)"/><text x="260" y="388" text-anchor="middle" font-size="18" font-weight="700" fill="var(--muted)">стіл</text>'+
+   '<g class="fd8-layers"></g>'+
+   '<g class="fd8-head" style="transition:transform .5s"><line x1="0" y1="-80" x2="0" y2="0" stroke="var(--accent)" stroke-width="5"/>'+
+   '<rect x="-30" y="0" width="60" height="44" rx="6" fill="var(--coral)"/><path d="M-10 44 L10 44 L0 62 Z" fill="var(--coral)"/>'+
+   '<text x="40" y="28" font-size="18" font-weight="800" fill="var(--coral)">головка</text></g>'+
+  '</svg>'+
+  '<div style="display:flex;flex-direction:column;gap:14px"><div class="fd8-n" style="font:800 22px var(--display,sans-serif);color:var(--accent)"></div><div class="fd8-t" style="font-size:26px;line-height:1.35"></div>'+
+  '<div class="fd8-c box sun" style="visibility:hidden"><p style="margin:0"><b>FDM</b> — найдешевша технологія, тому її використовують удома і в школах.</p></div></div></div>',
+ mount(r){
+  const WD=[300,280,250,220,190,170,170,190,220,250],L=r.querySelector('.fd8-layers'),H=26;
+  WD.forEach((w,k)=>{const e=document.createElementNS('http://www.w3.org/2000/svg','rect');e.setAttribute('x',260-w/2);e.setAttribute('y',340-H*(k+1));
+   e.setAttribute('width',w);e.setAttribute('height',H-3);e.setAttribute('rx',6);e.setAttribute('fill',k%2?'var(--accent)':'var(--mint)');e.style.transition='opacity .4s';L.append(e)});
+  const R=[...L.children],shown=[0,1,4,10,10];
+  const T=[['Підготовка','Пластикову нитку подають у <b>гарячу головку</b>, де вона плавиться.'],
+   ['Перший шар','Головка видавлює тонкий струмінь <b>розплавленої пластмаси</b> і малює перший шар.'],
+   ['Шар за шаром','Пластмаса відразу <b>твердіє</b>. Кожен новий шар лягає на попередній.'],
+   ['Готово','Із сотень тонких шарів виходить <b>об’ємний виріб</b>.'],['Готово','Із сотень тонких шарів виходить <b>об’ємний виріб</b>.']];
+  function step(i){const n=shown[i];R.forEach((e,k)=>e.style.opacity=k<n?1:0);
+   r.querySelector('.fd8-head').setAttribute('transform','translate(260,'+(340-H*n-64)+')');
+   r.querySelector('.fd8-n').textContent=T[i][0];r.querySelector('.fd8-t').innerHTML=T[i][1];
+   r.querySelector('.fd8-c').style.visibility=i>3?'visible':'hidden'}
+  return{count:4,step}}};
+}
+{
 /* sections/9-r2/widgets/layout.js */
 /* Віджети уроку 9-9: розриви розділів, стовпці, колонтитули.
    Кожен віджет крокує пробілом або кліком: mount повертає {count, step}. Кольори — лише змінними теми. */
@@ -2032,6 +2734,7 @@ W.hdft={html:()=>W99CSS+'<div class="w99" style="grid-template-columns:1fr 360px
    Кожен віджет крокує →: mount повертає {count, step}. Кольори — лише змінними теми. */
 const W98CSS='<style>'+
  '.w98{display:grid;gap:26px;flex:1;min-height:0;align-items:start}'+
+ '.feed .w98{grid-template-columns:minmax(0,1fr)!important}'+   /* телефон: колонки одна під одною */
  '.w98 .pg{border:3px solid var(--ink);padding:22px 30px;font:500 23px/1.45 var(--serif);min-height:0;overflow:hidden}'+
  '.w98 .act{border:3px solid var(--ink);background:var(--paper-alt);padding:16px 20px}'+
  '.w98 .act b.k{display:block;font:600 16px var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}'+

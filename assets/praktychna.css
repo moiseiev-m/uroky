@@ -64,6 +64,17 @@ symbol{overflow:visible}
 .b-ball,.b-pad{fill:var(--tp);stroke:var(--ink)} .b-frame{fill:none;stroke:var(--ink)} .b-tassel{fill:none;stroke:var(--tp);stroke-linecap:round}
 .b-hatch{fill:none;stroke:var(--rule-soft);stroke-linecap:round}
 
+/* перемикач варіантів «За комп’ютером / З телефона» (блок telefon у YAML) */
+.var-sw{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 0 6px}
+.var-sw button{display:flex;align-items:center;justify-content:center;gap:10px;min-height:52px;padding:8px 14px;
+  font:400 20px/1.15 var(--display);color:var(--ink);background:var(--paper-alt);border:2px solid var(--ink);
+  border-radius:12px 17px 13px 16px / 16px 12px 17px 13px;cursor:pointer;box-shadow:3px 3px 0 rgba(34,48,74,.1)}
+.var-sw button[aria-pressed="true"]{background:var(--tp);box-shadow:4px 4px 0 rgba(34,48,74,.2)}
+.var-sw button:focus-visible{outline:3px solid var(--tp-deep);outline-offset:2px}
+.var-sw svg{flex:none;width:26px;height:26px;fill:none;stroke:var(--ink);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.var-hint{margin:0 0 16px;font-size:14px;color:var(--ink-muted)}
+.var[hidden]{display:none}
+
 /* назви кнопок, клавіші й імена файлів — жирні на сірому */
 main b{background:var(--doc-key);padding:0 3px;border-radius:3px;-webkit-box-decoration-break:clone;box-decoration-break:clone}
 
@@ -117,6 +128,7 @@ main b{background:var(--doc-key);padding:0 3px;border-radius:3px;-webkit-box-dec
   .ttl{grid-template-columns:64px 1fr}
   .num b{font-size:44px}
   .plate h1{font-size:24px}
+  .var-sw{gap:8px}.var-sw button{flex-direction:column;gap:4px;font-size:17px;padding:8px 6px}
   .tip{grid-template-columns:60px 1fr}.tip .av{width:44px;height:44px}
   .zr .l1{margin-left:14px}
   .zr .l2{margin-left:28px}}
@@ -124,7 +136,13 @@ main b{background:var(--doc-key);padding:0 3px;border-radius:3px;-webkit-box-dec
 @media print{
   body{background:#fff}
   .sheet{max-width:none;padding:0;box-shadow:none}
-  .files{display:none}
+  .files,.var-sw,.var-hint{display:none}
   .num,.plate,.uvaga b,.uvaga p,.tip,.zav mark,.zr,.chk,main b{-webkit-print-color-adjust:exact;print-color-adjust:exact}
   .rez{-webkit-print-color-adjust:exact;print-color-adjust:exact}
   .zav,.kr li,.zr,.chk,.rez{break-inside:avoid}}
+/* заготовка Python (поле kod): кнопка в ЄPython + код під спойлером */
+.kod{margin:6px 0 12px}
+.kod-b{display:inline-block;padding:8px 16px;background:var(--tp);color:var(--ink);font-weight:700;text-decoration:none;border-radius:6px;border:2px solid var(--tp-deep)}
+.kod-b:hover{background:var(--tp-deep);color:#fff}
+.kod details{margin-top:6px;font-size:14px}.kod summary{cursor:pointer;color:var(--tp-deep)}
+.kod pre{margin:6px 0 0;padding:10px 14px;background:var(--doc-sample);border:1px solid var(--doc-sample-line);font:14px/1.45 Consolas,'Courier New',monospace;white-space:pre-wrap;overflow-x:auto}

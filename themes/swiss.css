@@ -247,6 +247,7 @@ ul.list li{border-top:3px solid var(--rule-soft)}
 /* ===== Питання → відповідь ===== */
 .rv .item{border:0;border-top:3px solid var(--rule-soft);padding:14px 0;background:none}
 .rv .item:last-child{border-bottom:3px solid var(--rule-soft)}
+.rv.two .item:nth-last-child(2):nth-child(odd){border-bottom:3px solid var(--rule-soft)}   /* у дві колонки — риска знизу й під лівою колонкою */
 .rv .q{font-weight:600}
 .rv .a{color:var(--accent);font-weight:600}
 .rv.compact .item{padding:10px 0}

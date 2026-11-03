@@ -301,6 +301,7 @@ ul.list li:nth-child(even)::before{border-radius:var(--blob-b)}
 .rv .a{color:var(--accent);font-weight:700}
 .rv.compact .item{padding:8px 0}
 .rv.two{gap:0 32px}
+.rv.two .item:nth-child(2){border-top:2px solid var(--rule-soft)}   /* у дві колонки — риска зверху й над правою колонкою */
 
 /* ===== Кроки, таблиця ===== */
 .steps li::before{border:2px solid var(--on-bright);border-radius:var(--blob-a);background:var(--sec);color:var(--on-sec);font:700 20px var(--display)}

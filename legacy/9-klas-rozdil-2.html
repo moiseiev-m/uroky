@@ -1130,6 +1130,7 @@ W.hdft={html:()=>W99CSS+'<div class="w99" style="grid-template-columns:1fr 360px
    Кожен віджет крокує →: mount повертає {count, step}. Кольори — лише змінними теми. */
 const W98CSS='<style>'+
  '.w98{display:grid;gap:26px;flex:1;min-height:0;align-items:start}'+
+ '.feed .w98{grid-template-columns:minmax(0,1fr)!important}'+   /* телефон: колонки одна під одною */
  '.w98 .pg{border:3px solid var(--ink);padding:22px 30px;font:500 23px/1.45 var(--serif);min-height:0;overflow:hidden}'+
  '.w98 .act{border:3px solid var(--ink);background:var(--paper-alt);padding:16px 20px}'+
  '.w98 .act b.k{display:block;font:600 16px var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}'+
