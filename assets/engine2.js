@@ -1983,7 +1983,9 @@ document.head.insertAdjacentHTML('beforeend','<style>'+
 '.kr-r{display:flex;flex-direction:column;gap:14px;min-height:0}'+
 '.kr-mem{display:flex;flex-wrap:wrap;gap:10px;padding:10px 12px;min-height:118px;align-content:flex-start}'+
 '.kr-mem .em{color:var(--muted);font:500 19px var(--body)}'+
-'.kr-box{border:3px solid var(--ink);min-width:104px;text-align:center;background:var(--paper)}'+
+/* коробки гнучкі: до 5 змінних в один рядок, без переносу за рамку панелі */
+'.kr-box{border:3px solid var(--ink);flex:1 1 0;min-width:72px;max-width:140px;text-align:center;background:var(--paper)}'+
+'.kr-box .v,.kr-box .d{overflow-wrap:anywhere}'+
 '.kr-box .n{font:700 19px var(--mono);border-bottom:2px solid var(--ink);padding:2px 8px;background:var(--paper-alt)}'+
 '.kr-box .v{font:800 28px var(--mono);padding:4px 10px;min-height:1.4em}'+
 '.kr-box .d{font:500 15px var(--body);color:var(--muted);padding:0 6px 4px}'+
@@ -1999,7 +2001,9 @@ document.head.insertAdjacentHTML('beforeend','<style>'+
 /* учнівська стрічка (телефон вертикально): одне під одним */
 '.feed .stage .kr{grid-template-columns:minmax(0,1fr)}.feed .stage .kr-l{font-size:20px}'+
 /* учнівська сторінка горизонтально: нижче, бо під слайдом кнопки */
-'html.student:not(.feed) .kr-l{font-size:20px;line-height:1.3}html.student:not(.feed) .kr-mem{min-height:0;padding:6px 10px}'+
+'html.student:not(.feed) .kr,html.student:not(.feed) .kr-p{min-height:auto}'+
+'html.student:not(.feed) .kr{gap:10px}html.student:not(.feed) .kr-h{padding:3px 12px}html.student:not(.feed) .kr-code{padding:3px 0}'+
+'html.student:not(.feed) .kr-l{font-size:19px;line-height:1.08}html.student:not(.feed) .kr-mem{min-height:0;padding:6px 10px}'+
 'html.student:not(.feed) .kr-box .v{font-size:22px}html.student:not(.feed) .kr-scr{min-height:0;font-size:19px;padding:6px 12px}'+
 'html.student:not(.feed) .kr-cap{padding:6px 12px}html.student:not(.feed) .kr-cap p{font-size:20px}'+
 '</style>');
@@ -2201,6 +2205,106 @@ W.tr78={html:()=>'<div class="t78">'+
    SCR.textContent=s.scr?'5':'';EXE.classList.toggle('on',!!s.exe);
    r.querySelector('.x78-cap .k').textContent=s.k;r.querySelector('.x78-cap p').innerHTML=s.a;mark(i)}
   return{count:S.length-1,step}}};
+})();
+}
+{
+/* sections/7-r2/widgets/vikno.js */
+/* ===== Як Python будує вікно (7 клас, урок 13, tkinter): код + «екран» з вікном =====
+   W.vikno — код і кроки задає YAML слайда:
+     code:  [рядки програми]
+     scr:   [ширина, висота] екрана в пікселях (типово [1000, 600])
+     steps: [{line, k, say, ask, dims, win}]
+       line — номер рядка, що виконується (1…; 0 — жоден);  k — короткий заголовок;  say — пояснення (**жирний** можна);
+       win  — вікно ПІСЛЯ кроку: {t: заголовок, w, h, x, y, bg: назва кольору з програми}; немає — вікна ще немає;
+       dims — true: показати розміри й відстані від країв екрана;  ask — крок-питання (вікно ще старе).
+   Колір фону вікна — той, що в програмі (yellow…), як у справжньому вікні; решта — змінні теми.
+   Учитель: пробіл або клік — далі. Класи з префіксом vk-. */
+(function(){
+document.head.insertAdjacentHTML('beforeend','<style>'+
+'.vk{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.25fr);gap:16px;flex:1;min-height:0;align-content:start}'+
+'.vk-p{border:3px solid var(--ink);background:var(--paper);display:flex;flex-direction:column;min-height:0}'+
+'.vk-h{padding:6px 12px;border-bottom:3px solid var(--ink);font:700 20px var(--body);display:flex;justify-content:space-between;gap:8px}'+
+'.vk-h small{font:600 17px var(--body);color:var(--muted)}'+
+'.vk-code{padding:8px 0;display:flex;flex-direction:column}'+
+'.vk-l{display:grid;grid-template-columns:30px 26px minmax(0,1fr);align-items:center;font:600 21px/1.5 var(--mono);padding:1px 6px;transition:background .3s;white-space:pre}'+
+'.vk-l i{font-style:normal;color:var(--muted);font-size:18px;text-align:right;padding-right:8px}'+
+'.vk-l b{color:var(--accent);font:800 24px var(--body);visibility:hidden}'+
+'.vk-l.cur{background:var(--accent-tint)}.vk-l.cur b{visibility:visible}'+
+'.vk-l.done{opacity:.55}'+
+'.vk-l span{overflow:hidden;text-overflow:ellipsis}'+
+'.vk-scrw{padding:10px}'+
+'.vk-scr{position:relative;background:var(--ink);border:3px solid var(--ink);overflow:hidden}'+
+'.vk-scr .vk-lb{position:absolute;right:8px;bottom:4px;font:600 15px var(--body);color:var(--paper);opacity:.6}'+
+'.vk-w{position:absolute;background:var(--paper);border:2px solid var(--accent);display:flex;flex-direction:column;transition:left .7s,top .7s,width .7s,height .7s,opacity .4s;box-shadow:0 4px 14px rgba(0,0,0,.35)}'+
+'.vk-w.off{opacity:0}'+
+'.vk-t{height:24px;flex:none;background:var(--paper);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:6px;padding:0 6px;font:600 14px var(--body);color:var(--ink);white-space:nowrap;overflow:hidden}'+
+'.vk-t span{flex:1;overflow:hidden;text-overflow:ellipsis}.vk-t em{font-style:normal;letter-spacing:6px;color:var(--muted)}'+
+'.vk-c{flex:1;position:relative;background:gainsboro;transition:background .7s}'+
+'.vk-t.new{animation:vkf 1.4s}@keyframes vkf{0%{background:var(--sun)}100%{background:var(--paper)}}'+
+'.vk-d{position:absolute;font:800 18px var(--mono);color:var(--ink);background:var(--paper);border:2px solid var(--ink);padding:0 5px;line-height:1.3;transform:translate(-50%,-50%);transition:opacity .4s;white-space:nowrap}'+
+'.vk-g{position:absolute;border-color:var(--sun);border-style:dashed;border-width:0;transition:all .7s,opacity .4s}'+
+'.vk-g.hz{border-top-width:3px;height:0}.vk-g.vt{border-left-width:3px;width:0}'+
+'.vk-g .vk-d{color:var(--ink);background:var(--sun);border-color:var(--sun)}'+
+'.vk-g.hz .vk-d{left:50%;top:0}.vk-g.vt .vk-d{left:0;top:50%}'+
+'.vk-nod .vk-d,.vk-nod .vk-g{opacity:0}'+
+'.vk-cap{grid-column:1/-1;border:3px solid var(--ink);background:var(--paper-alt);padding:10px 16px}'+
+'.vk-cap b.k{display:block;font:700 19px var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:3px}'+
+'.vk-cap.ask b.k{color:var(--coral)}'+
+'.vk-cap p{font-size:24px;line-height:1.3;margin:0}'+
+/* учнівська стрічка (телефон вертикально): одне під одним */
+'.feed .stage .vk{grid-template-columns:minmax(0,1fr)}.feed .stage .vk-l{font-size:18px}'+
+/* учнівська сторінка горизонтально: щільніше, бо під слайдом кнопки */
+'html.student:not(.feed) .vk{gap:10px}html.student:not(.feed) .vk-h{padding:3px 12px}html.student:not(.feed) .vk-code{padding:3px 0}'+
+'html.student:not(.feed) .vk-l{font-size:17px;line-height:1.15}html.student:not(.feed) .vk-scrw{padding:6px}'+
+'html.student:not(.feed) .vk-cap{padding:6px 12px}html.student:not(.feed) .vk-cap p{font-size:19px}'+
+'</style>');
+
+const U=s=>{const t=document.createElement('textarea');t.innerHTML=String(s);return t.value};
+const H=s=>U(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const B=s=>/<b>/.test(s)?s:H(s).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>');
+/* назва кольору з програми — лише латинські літери (інакше — сірий, як за замовчуванням) */
+const C=c=>/^[a-z]+$/i.test(String(c||''))?String(c):'gainsboro';
+
+W.vikno={html:()=>'<div class="vk">'+
+  '<div class="vk-p"><div class="vk-h">Програма<small>виконується згори вниз</small></div><div class="vk-code"></div></div>'+
+  '<div class="vk-p"><div class="vk-h">Екран<small class="vk-sz"></small></div><div class="vk-scrw"><div class="vk-scr">'+
+   '<div class="vk-g hz"><span class="vk-d"></span></div><div class="vk-g vt"><span class="vk-d"></span></div>'+
+   '<div class="vk-w off"><div class="vk-t"><span></span><em>–□×</em></div><div class="vk-c"><span class="vk-d vk-dw"></span><span class="vk-d vk-dh"></span></div></div>'+
+   '<span class="vk-lb">ліва верхня точка екрана — (0, 0)</span></div></div></div>'+
+  '<div class="vk-cap"><b class="k"></b><p></p></div></div>',
+ mount(r,d,api){
+  const code=d.code||[],steps=d.steps||[{line:0,k:'',say:''}],S=d.scr||[1000,600],SW=+S[0],SH=+S[1];
+  const CO=r.querySelector('.vk-code'),SCR=r.querySelector('.vk-scr'),WIN=r.querySelector('.vk-w'),T=WIN.querySelector('.vk-t'),
+    TS=T.querySelector('span'),CL=WIN.querySelector('.vk-c'),DW=r.querySelector('.vk-dw'),DH=r.querySelector('.vk-dh'),
+    GH=r.querySelector('.vk-g.hz'),GV=r.querySelector('.vk-g.vt'),CAP=r.querySelector('.vk-cap');
+  SCR.style.aspectRatio=SW+' / '+SH;
+  r.querySelector('.vk-sz').textContent=SW+' × '+SH+' пікселів';
+  CO.innerHTML=code.map((t,j)=>'<div class="vk-l"><i>'+(j+1)+'</i><b>➜</b><span>'+H(t)+'</span></div>').join('');
+  const LS=[...CO.children],P=(v,m)=>(v/m*100)+'%';
+  let lastT=null;
+  /* екран не вищий за вільне місце (учнівська сторінка горизонтально — низька): лише зменшуємо */
+  const VK=r.querySelector('.vk'),CP=r.querySelector('.vk-cap'),HD=SCR.closest('.vk-p').querySelector('.vk-h');
+  function fit(){SCR.style.width='';SCR.style.margin='';
+   const box=VK.parentElement.clientHeight,maxH=box-CP.offsetHeight-HD.offsetHeight-40;
+   if(box>0&&maxH>80&&SCR.offsetHeight>maxH){SCR.style.width=Math.floor(maxH*SW/SH)+'px';SCR.style.margin='0 auto'}}
+  function step(i){const s=steps[i]||{},w=s.win;fit();
+   LS.forEach((l,j)=>{l.classList.toggle('cur',s.line===j+1);l.classList.toggle('done',!!s.line&&j+1<s.line)});
+   WIN.classList.toggle('off',!w);
+   SCR.classList.toggle('vk-nod',!(w&&s.dims));
+   if(w){const x=+w.x||0,y=+w.y||0,ww=+w.w||200,hh=+w.h||200,t=w.t==null?'tk':String(w.t);
+    Object.assign(WIN.style,{left:P(x,SW),top:P(y,SH),width:P(ww,SW),height:P(hh,SH)});
+    TS.textContent=U(t);
+    if(lastT!==null&&lastT!==t){T.classList.remove('new');void T.offsetWidth;T.classList.add('new')}
+    lastT=t;
+    CL.style.background=C(w.bg);
+    DW.textContent=ww;DW.style.left='50%';DW.style.top='22%';
+    DH.textContent=hh;DH.style.left='12%';DH.style.top='55%';
+    Object.assign(GH.style,{left:'0',top:P(y+hh/2,SH),width:P(x,SW)});GH.firstChild.textContent='+'+x;GH.style.display=x?'':'none';
+    Object.assign(GV.style,{left:P(x+ww/2,SW),top:'0',height:P(y,SH)});GV.firstChild.textContent='+'+y;GV.style.display=y?'':'none'}
+   else lastT=null;
+   CAP.classList.toggle('ask',!!s.ask);
+   CAP.querySelector('.k').textContent=s.k||'';CAP.querySelector('p').innerHTML=B(s.say||'')}
+  return{count:steps.length-1,step}}};
 })();
 }
 {
@@ -2462,6 +2566,66 @@ W.rle={html:()=>'<div style="display:grid;grid-template-columns:auto 1fr;gap:28p
   return{count:P.length+1,step}}};
 }
 {
+/* sections/8-r2/widgets/config14.js */
+/* 8 клас: добір складових комп’ютера і діагностика (урок 8-14) */
+
+/* Добираємо комп’ютер під задачу: задача → смуги п’яти властивостей і вид комп’ютера (значення з табл. 3.8 підручника) */
+W.cfg14={html:()=>{
+  const P=['Процесор','Оперативна пам’ять','Накопичувач','Відеоадаптер','Монітор'];
+  return '<style>.c14-g{display:grid;grid-template-columns:1.6fr .6fr;gap:24px;flex:1;min-height:0;align-items:start}'+
+   '.c14-r{display:grid;grid-template-columns:240px 200px 1fr;gap:14px;align-items:center;margin-bottom:16px}'+
+   '.c14-l{font-size:23px;font-weight:700}.c14-v{font-size:21px;line-height:1.2}'+
+   '.c14-b{display:flex;gap:6px}.c14-s{flex:1;height:20px;border-radius:6px;background:var(--line-soft,var(--line));transition:background .4s}'+
+   '.c14-k{border:3px solid var(--line);border-radius:16px;padding:16px 20px;text-align:center;transition:border-color .4s}'+
+   '.c14-kn{font:700 34px var(--display,sans-serif);color:var(--accent);min-height:44px}.c14-kp{font-size:24px;margin-top:6px;min-height:32px}'+
+   '.feed .c14-g{grid-template-columns:1fr}.feed .c14-r{grid-template-columns:1fr 1fr;gap:6px 12px}.feed .c14-l{grid-column:1/-1}</style>'+
+   '<div class="c14-q box sun" style="margin:0 0 16px;padding:12px 22px;text-align:center"><p class="c14-qt" style="margin:0"></p></div>'+
+   '<div class="c14-g"><div>'+P.map(p=>'<div class="c14-r"><span class="c14-l">'+p+'</span>'+
+    '<div class="c14-b"><i class="c14-s"></i><i class="c14-s"></i><i class="c14-s"></i></div><span class="c14-v"></span></div>').join('')+
+   '</div><div class="c14-k"><div class="small">Вид комп’ютера</div><div class="c14-kn"></div><div class="c14-kp"></div></div></div>'},
+ mount(r){
+  // [задача, вид, ціна, [[рівень 0–3, значення] × 5], колір]
+  const S=[['Тексти, таблиці й презентації в офісі','Офісний','≈ 15 тис. грн',
+     [[1,'AMD Ryzen 3, 3 ГГц'],[1,'8 ГБ'],[1,'SSD 480 ГБ'],[0,'вбудований у процесор'],[1,'23,8 дюйма, 100 Гц']],'var(--mint)'],
+   ['Фільми, музика, фото, відеодзвінки й навчання вдома','Домашній','≈ 25 тис. грн',
+     [[2,'Intel Core i5, 2,5 ГГц'],[2,'16 ГБ'],[2,'SSD 1000 ГБ'],[2,'окремий, 8 ГБ відеопам’яті'],[2,'27 дюймів, 180 Гц']],'var(--sun)'],
+   ['Нові ігри на максимальних налаштуваннях','Ігровий','≈ 40 тис. грн',
+     [[3,'Intel Core i7, 3,4 ГГц'],[3,'32 ГБ'],[3,'SSD 2000 ГБ'],[3,'окремий, 16 ГБ відеопам’яті'],[3,'26,7 дюйма, 360 Гц']],'var(--coral)']];
+  const R=[...r.querySelectorAll('.c14-r')],Q=r.querySelector('.c14-qt'),K=r.querySelector('.c14-k'),
+   KN=r.querySelector('.c14-kn'),KP=r.querySelector('.c14-kp');
+  function step(i){const s=S[Math.floor(i/2)],full=i%2===1;
+   Q.innerHTML='<b>Задача:</b> '+s[0]+(full?'':' — що для неї найважливіше?');
+   R.forEach((row,k)=>{const [lv,val]=s[3][k];
+    row.querySelectorAll('.c14-s').forEach((e,j)=>e.style.background=full&&j<lv?s[4]:'');
+    row.querySelector('.c14-v').textContent=full?val:''});
+   KN.textContent=full?s[1]:'?';KP.textContent=full?s[2]:'';K.style.borderColor=full?s[4]:'var(--line)'}
+  return{count:5,step}}};
+
+/* POST: самоперевірка під час увімкнення — усе гаразд, некритична помилка, критична помилка */
+W.post14={html:()=>'<style>.p14-g{display:grid;grid-template-columns:1.2fr .8fr;gap:28px;flex:1;min-height:0;align-items:center}'+
+  '.p14-s{background:var(--ink);color:var(--paper);border-radius:16px;padding:22px 26px;font:22px/1.5 var(--mono,monospace);min-height:330px}'+
+  '.p14-s div{display:flex;justify-content:space-between;gap:12px;transition:opacity .4s}.p14-s b{font-weight:700}'+
+  '.p14-t{font-size:26px;line-height:1.35}.p14-n{font:700 24px var(--display,sans-serif);margin-bottom:10px}'+
+  '.feed .p14-g{grid-template-columns:1fr}.feed .p14-s{font-size:19px;min-height:0}</style>'+
+  '<div class="p14-g"><div class="p14-s"></div><div><div class="p14-n"></div><div class="p14-t"></div></div></div>',
+ mount(r){
+  const ok='<b style="color:var(--mint)">ОК</b>',L=(a,b)=>'<div><span>'+a+'</span>'+(b||'')+'</div>';
+  const head=L('Самоперевірка POST…'),
+   base=[L('Процесор',ok),L('Оперативна пам’ять 16 ГБ',ok)],more=[L('Відеоадаптер',ok),L('Накопичувач SSD',ok),L('Клавіатура',ok)];
+  const T=[['Увімкнення',[L('Живлення увімкнено'),head],'Натиснули кнопку живлення. Першою працює не Windows, а програма <b>POST</b> з мікросхеми на материнській платі.','var(--accent)'],
+   ['Перевірка пристроїв',[head,...base],'POST перевіряє, чи <b>правильно працюють</b> основні пристрої.','var(--accent)'],
+   ['Перевірка пристроїв',[head,...base,...more],'Перевіряє й пристрої введення-виведення та накопичувачі.','var(--accent)'],
+   ['Усе гаразд',[head,...base,...more,'<div style="color:var(--mint);margin-top:12px"><b>Помилок немає. Завантаження Windows…</b></div>'],
+    'Помилок немає — комп’ютер <b>завантажує операційну систему</b>.','var(--mint)'],
+   ['Некритична помилка',[head,...base,'<div style="color:var(--sun);margin-top:12px"><b>Увага! Збилися дата й час.</b></div>',L('F1 — продовжити'),L('F2 — налаштування')],
+    'Можна <b>перевірити й усунути</b> неполадку (F2) або <b>ігнорувати</b> її й завантажити ОС (F1).','var(--sun)'],
+   ['Критична помилка',[head,...base,'<div style="color:var(--coral);margin-top:12px"><b>Клавіатуру не знайдено!</b></div>',L('Завантаження зупинено.')],
+    'Треба <b>усунути</b>: підключити клавіатуру. Не вдалося — звернутися до <b>фахівця</b>.','var(--coral)']];
+  const S=r.querySelector('.p14-s'),N=r.querySelector('.p14-n'),X=r.querySelector('.p14-t');
+  function step(i){const t=T[i];S.innerHTML=t[1].join('');N.textContent=t[0];N.style.color=t[3];X.innerHTML=t[2]}
+  return{count:5,step}}};
+}
+{
 /* sections/8-r2/widgets/devices.js */
 /* 8 клас: пристрої введення даних */
 
@@ -2571,6 +2735,110 @@ W.fdm8={html:()=>'<style>.feed .w812{grid-template-columns:1fr!important}</style
    r.querySelector('.fd8-n').textContent=T[i][0];r.querySelector('.fd8-t').innerHTML=T[i][1];
    r.querySelector('.fd8-c').style.visibility=i>3?'visible':'hidden'}
   return{count:4,step}}};
+}
+{
+/* sections/8-r2/widgets/kinds.js */
+/* 8 клас: види сучасних комп’ютерів та їх застосування (урок 8-13) */
+
+/* Класифікація комп’ютерів: дерево росте кроками — чотири види, потім персональні: стаціонарні й мобільні */
+W.kinds13={html:()=>{
+  const box=(x,y,w,t,c,fs)=>'<rect x="'+(x-w/2)+'" y="'+(y-22)+'" width="'+w+'" height="44" rx="10" fill="var(--paper)" stroke="'+c+'" stroke-width="3"/>'+
+   '<text x="'+x+'" y="'+(y+8)+'" text-anchor="middle" font-size="'+(fs||23)+'" font-weight="800" fill="var(--ink)">'+t+'</text>';
+  const ln=(x1,y1,x2,y2,c)=>'<line x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+'" stroke="'+(c||'var(--line)')+'" stroke-width="3"/>';
+  const sub=(x,y,t)=>'<text x="'+x+'" y="'+y+'" text-anchor="middle" font-size="21" fill="var(--muted)">'+t+'</text>';
+  const L2=[[150,'Суперкомп’ютери','var(--coral)','прогноз погоди, наука'],[420,'Сервери','var(--sun)','пошта, сайти, банки'],
+   [700,'Персональні','var(--accent)',''],[970,'Вбудовані','var(--mint)','пральні машини, авто']];
+  let g='<g class="k13-g">'+box(550,34,230,'Комп’ютери','var(--ink)',25)+'</g>';
+  L2.forEach((n,i)=>{g+='<g class="k13-g">'+ln(550,56,n[0],108)+box(n[0],130,240,n[1],n[2])+(n[3]?sub(n[0],184,n[3]):'')+'</g>'});
+  g+='<g class="k13-g">'+ln(700,152,590,218)+ln(700,152,830,218)+box(590,240,210,'Стаціонарні','var(--accent)',22)+box(830,240,210,'Мобільні','var(--accent)',22)+'</g>';
+  const leaf=(x,arr)=>ln(x,262,x,300+42*(arr.length-1))+arr.map((t,k)=>'<rect x="'+(x-90)+'" y="'+(283+42*k)+'" width="180" height="36" rx="18" fill="var(--accent-soft,var(--paper))" stroke="var(--accent)" stroke-width="2"/>'+
+   '<text x="'+x+'" y="'+(308+42*k)+'" text-anchor="middle" font-size="21" font-weight="700" fill="var(--ink)">'+t+'</text>').join('');
+  g+='<g class="k13-g">'+leaf(590,['офісні','домашні','ігрові'])+'</g>';
+  g+='<g class="k13-g">'+leaf(830,['ноутбуки','нетбуки','планшети','смартфони'])+'</g>';
+  // для учнівської «стрічки» на телефоні — та сама схема списком з відступами (SVG там надто дрібний)
+  const li=(k,lv,t,x)=>'<div class="k13-h" data-g="'+k+'" style="margin-left:'+(lv*18)+'px;padding:4px 0 4px 10px;border-left:3px solid var(--accent);margin-bottom:4px;font-size:22px">'+
+   '<b>'+t+'</b>'+(x?'<br><span class="small">'+x+'</span>':'')+'</div>';
+  const ls='<div class="k13-ls">'+li(0,0,'Комп’ютери')+li(1,1,'Суперкомп’ютери','прогноз погоди, наука')+li(2,1,'Сервери','пошта, сайти, банки')+
+   li(3,1,'Персональні')+li(5,2,'Стаціонарні')+li(6,3,'офісні, домашні, ігрові')+li(5,2,'Мобільні')+li(7,3,'ноутбуки, нетбуки, планшети, смартфони')+
+   li(4,1,'Вбудовані','пральні машини, авто')+'<p class="k13-p" style="color:var(--accent);font-weight:700;margin-top:10px"></p></div>';
+  return '<style>.k13-ls{display:none}.feed .k13-ls{display:block}.feed .k13-sv{display:none}</style>'+ls+
+   '<svg class="k13-sv" viewBox="0 0 1100 470" style="width:100%;max-height:100%;flex:1;min-height:0">'+g+
+   '<text class="k13-c" x="20" y="300" font-size="24" font-weight="700" fill="var(--accent)"><tspan x="20" dy="0"></tspan><tspan x="20" dy="34"></tspan></text></svg>'},
+ mount(r){
+  const G=[...r.querySelectorAll('.k13-g')],C=r.querySelectorAll('.k13-c tspan'),H=[...r.querySelectorAll('.k13-h')],P=r.querySelector('.k13-p');
+  const T=[['Усі комп’ютери поділяють','за потужністю й призначенням.'],['Найпотужніші —','суперкомп’ютери.'],['Сервери надають послуги','багатьом користувачам.'],
+   ['Персональні — для однієї','людини: удома, на роботі.'],['Вбудовані працюють','всередині інших пристроїв.'],['Персональні бувають','стаціонарні й мобільні.'],
+   ['Стаціонарні поділяють','за призначенням.'],['Мобільні — за особливостями','конструкції.']];
+  G.forEach(e=>e.style.transition='opacity .4s');
+  function step(i){G.forEach((e,k)=>e.style.opacity=k<=i?1:0);C[0].textContent=T[i][0];C[1].textContent=T[i][1];
+   H.forEach(e=>e.style.display=+e.dataset.g<=i?'block':'none');P.textContent=T[i][0]+' '+T[i][1]}
+  return{count:7,step}}};
+
+/* Що таке 1 ЕФлопс: скільки рахували б ту саму роботу ПК і людина. Смуги в логарифмічному масштабі */
+W.flops13={html:()=>'<div style="display:flex;flex-direction:column;gap:12px;flex:1;min-height:0">'+
+  '<div class="box sun" style="margin:0;padding:12px 22px"><p style="margin:0">За <b>1 секунду</b> Frontier виконує понад <b class="mono">1 000 000 000 000 000 000</b> операцій — мільярд мільярдів.</p></div>'+
+  '<div class="f13-l" style="display:flex;flex-direction:column;gap:10px"></div>'+
+  '<p class="f13-c" style="margin:0;font-size:23px;font-weight:700;color:var(--mint);visibility:hidden">Це більше, ніж існує Всесвіт (≈ 13,8 млрд років)!</p></div>',
+ mount(r,d,api){
+  const S=[['Frontier','1 секунда',5,'var(--coral)'],['Звичайний ПК (≈ трильйон операцій за секунду)','≈ 11,5 доби',37,'var(--accent)'],
+   ['Людина (1 операція за секунду)','≈ 32 мільярди років',100,'var(--mint)']];
+  const L=r.querySelector('.f13-l');
+  S.forEach((s,i)=>{const e=document.createElement('div');e.className='f13-r';e.style.cssText='font-size:23px;transition:opacity .4s;cursor:pointer';
+   e.innerHTML='<div style="display:flex;justify-content:space-between;gap:16px;align-items:baseline"><span>'+s[0]+'</span><b style="color:'+s[3]+';white-space:nowrap">'+s[1]+'</b></div>'+
+    '<div style="height:14px;border-radius:7px;background:var(--line-soft,var(--line));margin-top:4px"><div class="f13-b" style="height:100%;width:0;border-radius:7px;background:'+s[3]+';transition:width .8s"></div></div>';
+   e.onclick=()=>api.setStep(i);L.append(e)});
+  const R=[...L.querySelectorAll('.f13-r')],B=[...L.querySelectorAll('.f13-b')];
+  function step(i){R.forEach((e,k)=>e.style.opacity=k<=i?1:.15);B.forEach((b,k)=>b.style.width=k<=i?S[k][2]+'%':'0');
+   r.querySelector('.f13-c').style.visibility=i>2?'visible':'hidden'}
+  return{count:3,step}}};
+
+/* Послуги сервера: пошта, сайти, зберігання, захист, обчислення — кожен крок підсвічує зв’язки */
+W.srv13={html:()=>{
+  const cl=(x,y,t)=>'<rect x="'+(x-62)+'" y="'+(y-30)+'" width="124" height="60" rx="10" fill="var(--paper)" stroke="var(--accent)" stroke-width="3"/>'+
+   '<text x="'+x+'" y="'+(y+8)+'" text-anchor="middle" font-size="21" font-weight="800" fill="var(--ink)">'+t+'</text>';
+  const ln=(c,x1,y1,x2,y2)=>'<line class="s13-l '+c+'" x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+'" stroke="var(--line)" stroke-width="4" stroke-dasharray="10 8"/>';
+  return '<style>.feed .w813{grid-template-columns:1fr!important}</style><div class="w813" style="display:grid;grid-template-columns:1.15fr .85fr;gap:28px;flex:1;min-height:0;align-items:center">'+
+  '<svg viewBox="0 0 640 420" style="width:100%;max-height:100%">'+
+   '<rect x="0" y="0" width="640" height="420" rx="16" fill="var(--paper)"/>'+
+   ln('s13-a',100,70,270,160)+ln('s13-b',540,70,370,160)+ln('s13-c',100,330,270,250)+ln('s13-d',540,330,370,250)+
+   '<line class="s13-x" x1="320" y1="400" x2="320" y2="282" stroke="var(--coral)" stroke-width="5" stroke-dasharray="10 8"/>'+
+   cl(100,70,'Учень')+cl(540,70,'Учитель')+cl(100,330,'Батьки')+cl(540,330,'Бібліотека')+
+   '<g class="s13-s"><rect x="262" y="130" width="116" height="150" rx="12" fill="var(--ink)"/>'+[0,1,2].map(k=>'<rect x="278" y="'+(148+k*40)+'" width="84" height="26" rx="5" fill="var(--paper)" opacity=".85"/><circle cx="350" cy="'+(161+k*40)+'" r="5" fill="var(--mint)"/>').join('')+
+   '<text x="320" y="118" text-anchor="middle" font-size="22" font-weight="800" fill="var(--ink)">сервер</text></g>'+
+   '<g class="s13-v"><circle cx="320" cy="302" r="18" fill="var(--coral)"/><text x="320" y="310" text-anchor="middle" font-size="24" font-weight="800" fill="var(--paper)">✕</text>'+
+   '<text x="360" y="395" font-size="21" font-weight="800" fill="var(--coral)">чужий</text></g>'+
+  '</svg>'+
+  '<div style="display:flex;flex-direction:column;gap:14px"><div class="s13-n" style="font:800 22px var(--display,sans-serif);color:var(--accent)"></div><div class="s13-t" style="font-size:26px;line-height:1.35"></div></div></div>'},
+ mount(r){
+  const T=[['Сервер','<b>Сервер</b> працює не для однієї людини, а для <b>багатьох</b> користувачів мережі.',[]],
+   ['Пошта','Сервер <b>приймає лист</b> від учня й передає його вчителеві.',['a','b']],
+   ['Сайти','Сервер <b>надсилає сторінку</b> сайту кожному, хто її відкрив.',['c']],
+   ['Зберігання','Файли бібліотеки <b>лежать на сервері</b> — їх можна відкрити з будь-якого комп’ютера.',['d']],
+   ['Захист','Сервер <b>не пускає</b> чужих до шкільної мережі.',['x']],
+   ['Обчислення','Сервер виконує <b>складні обчислення</b>, які на звичайному ПК тривали б тижні.',['a','b','c','d']]];
+  const q=s=>r.querySelector(s);
+  function step(i){const on=T[i][2];
+   ['a','b','c','d'].forEach(k=>{const l=q('.s13-'+k);l.setAttribute('stroke',on.includes(k)?'var(--accent)':'var(--line)');l.setAttribute('stroke-width',on.includes(k)?7:4)});
+   q('.s13-x').style.opacity=on.includes('x')?1:0;q('.s13-v').style.opacity=on.includes('x')?1:0;
+   q('.s13-n').textContent=T[i][0];q('.s13-t').innerHTML=T[i][1]}
+  return{count:5,step}}};
+
+/* Який комп’ютер упорається: задача з’являється вгорі, наступний крок — кладемо її в стовпець потрібного виду */
+W.task13={html:()=>'<style>.feed .t13-g{grid-template-columns:1fr 1fr!important}</style>'+
+  '<div class="t13-q box sun" style="text-align:center;margin-bottom:14px;min-height:64px"><p style="margin:0" class="t13-qt"></p></div>'+
+  '<div class="t13-g" style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;flex:1;min-height:0">'+
+  ['Суперкомп’ютер','Сервер','Персональний','Вбудований'].map((h,i)=>'<div style="display:flex;flex-direction:column;gap:8px;border:2px solid var(--line);border-radius:14px;padding:10px">'+
+   '<b style="text-align:center;font-size:23px">'+h+'</b><div class="t13-c" data-c="'+i+'" style="display:flex;flex-direction:column;gap:8px"></div></div>').join('')+'</div>',
+ mount(r){
+  const T=[['Прогноз погоди на тиждень',0],['Електронна пошта для всієї школи',1],['Реферат з історії',2],['Програма прання в пральній машині',3],
+   ['Сайт банку для мільйонів клієнтів',1],['Модель термоядерного синтезу',0],['Онлайн-урок з дому',2],['Керування двигуном автомобіля',3]];
+  const C=[...r.querySelectorAll('.t13-c')],Q=r.querySelector('.t13-qt');
+  const cards=T.map(t=>{const e=document.createElement('div');e.textContent=t[0];
+   e.style.cssText='font-size:21px;line-height:1.25;padding:8px 10px;border-radius:10px;background:var(--paper);border:2px solid var(--line);transition:opacity .4s';C[t[1]].append(e);return e});
+  function step(s){const placed=Math.floor(s/2),ask=s%2===1?placed:-1;
+   cards.forEach((e,k)=>{e.style.display=k<placed?'block':'none';e.style.borderColor=k===placed-1?'var(--mint)':'var(--line)'});
+   Q.innerHTML=ask>=0?'<b>'+T[ask][0]+'</b> — який комп’ютер упорається?':(placed>=T.length?'Кожній задачі — свій вид комп’ютера.':(placed?'Пробіл або клік — наступна задача.':'Пробіл або клік — перша задача.'))}
+  return{count:16,step}}};
 }
 {
 /* sections/9-r2/widgets/layout.js */
