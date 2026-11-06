@@ -12,6 +12,8 @@
 <div class="sheet">
 <header class="hdr"><span class="hdr-l">Урок №12 · Практична робота № 3</span><span class="logo">Інформатика · 7 клас</span></header>
 <div class="ttl"><div class="num"><b>12</b><i>урок</i></div><div class="plate"><p class="kick">Практична робота № 3</p><h1>Проєкти з підпрограмами та розгалуженнями</h1><p class="tp">Тема: Програмування</p></div></div>
+<nav class="var-sw" aria-label="Як виконувати"><button type="button" data-var="pc" aria-pressed="true"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="4" width="19" height="12" rx="1.5"/><path d="M8 20h8M12 16v4"/></svg><span>За комп’ютером</span></button><button type="button" data-var="tel" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6.5" y="2.5" width="11" height="19" rx="2.2"/><path d="M10.5 18.5h3"/></svg><span>З телефона</span></button></nav><p class="var-hint">Немає комп’ютера — виберіть «З телефона»: завдання на ту саму тему, їх можна виконати на телефоні.</p>
+<div class="var" data-var="pc">
 <div class="uvaga"><b aria-hidden="true">!</b><p><strong>Увага!</strong> Під час роботи з комп’ютером дотримуйтеся вимог безпеки життєдіяльності та санітарно-гігієнічних норм.</p></div>
 <main>
 <p>Працюємо в <b>ЄPython</b>. У кожному завданні є кнопка <b>▶ Відкрити заготовку в ЄPython</b> — код одразу з’явиться в редакторі.</p>
@@ -84,6 +86,101 @@ print('Площа арени:', round(s1, 2))</pre></details></div>
 <p class="end">Перевірте, що в папці <b>Завантаження</b> є <b>практична3.py</b> (і <b>практична3_вибір.py</b>, <b>арени.py</b>, якщо робили). Закрийте вкладку браузера й повідомте вчителя про завершення роботи.</p>
 </main>
 </div>
+<div class="var" data-var="tel" hidden>
+<div class="uvaga"><b aria-hidden="true">!</b><p><strong>Увага!</strong> Працюйте з телефоном сидячи, тримайте екран на відстані 30–40 см від очей і кожні 15–20 хвилин робіть перерву: подивіться вдалину.</p></div>
+<main>
+<p>Працюємо в <b>ЄPython</b> у браузері телефона (Chrome або Safari) — нічого встановлювати не треба. Кнопка <b>▶ Відкрити заготовку в ЄPython</b> відкриває код завдання.</p>
+<p>Запуск — зелена кнопка <b>▶</b> унизу праворуч. Коли програма просить число, наберіть його в чорному вікні й натисніть <b>OK</b>. Червоний хрестик <b>×</b> угорі повертає до коду.</p>
+<p>Обов’язкове — завдання <b>⭐</b>. Зробили й перевірили себе — переходьте до <b>⭐⭐</b>, далі <b>⭐⭐⭐</b>.</p>
+<div class="tip"><span class="av" aria-hidden="true"><svg viewBox="14 8 212 212"><use href="#b-hd-hi" width="240" height="280"/><use href="#b-hd-g7" width="240" height="280"/></svg></span><p>Код пишеться англійськими літерами — перемкніть мову клавіатури. Дужки, лапки, двокрапку й знак <b>=</b> шукайте на клавіатурі символів (кнопка <b>?123</b> або <b>123</b>). Після двокрапки натисніть <b>Enter</b> — відступ з’явиться сам. <b>round(x, 2)</b> округлює число до сотих.</p></div>
+<section class="zav">
+<h2><mark>Завдання 1 · рівень 1 ⭐ «Площі кругів і квадратів» (обов’язкове)</mark></h2>
+<p class="zt">Програма вже вміє рахувати суму площ двох кругів — для цього в ній є функція <b>S(r)</b>. Допишіть функцію площі квадрата й порахуйте суму площ двох квадратів.</p>
+<div class="kod"><a class="kod-b" href="https://yepython.pp.ua/?code=IyDQn9GA0LDQutGC0LjRh9C90LAg0YDQvtCx0L7RgtCwIDMuINCf0LvQvtGJ0ZYg0LrRgNGD0LPRltCyINGWINC60LLQsNC00YDQsNGC0ZbQsgpmcm9tIG1hdGggaW1wb3J0IHBpCgpkZWYgUyhyKTogICMg0L%2FQu9C%2B0YnQsCDQutGA0YPQs9CwINC3INGA0LDQtNGW0YPRgdC%2B0LwgcgogICAgcmV0dXJuIHBpICogciAqIHIKCiMg0YLRg9GCINC00L7QtNCw0LnRgtC1INGE0YPQvdC60YbRltGOIFMyKGEpIOKAlCDQv9C70L7RidCwINC60LLQsNC00YDQsNGC0LAKCnIxID0gZmxvYXQoaW5wdXQoJ3IxID0gJykpCnIyID0gZmxvYXQoaW5wdXQoJ3IyID0gJykpCnByaW50KCfQodGD0LzQsCDQv9C70L7RiSDQutGA0YPQs9GW0LI6Jywgcm91bmQoUyhyMSkgKyBTKHIyKSwgMikpCiNhMSA9IGZsb2F0KGlucHV0KCdhMSA9ICcpKQojYTIgPSBmbG9hdChpbnB1dCgnYTIgPSAnKSkKI3ByaW50KCfQodGD0LzQsCDQv9C70L7RiSDQutCy0LDQtNGA0LDRgtGW0LI6JywgUzIoYTEpICsgUzIoYTIpKQo%3D" target="_blank" rel="noopener">▶ Відкрити заготовку в ЄPython</a><details><summary>Показати код заготовки</summary><pre># Практична робота 3. Площі кругів і квадратів
+from math import pi
+
+def S(r):  # площа круга з радіусом r
+    return pi * r * r
+
+# тут додайте функцію S2(a) — площа квадрата
+
+r1 = float(input('r1 = '))
+r2 = float(input('r2 = '))
+print('Сума площ кругів:', round(S(r1) + S(r2), 2))
+#a1 = float(input('a1 = '))
+#a2 = float(input('a2 = '))
+#print('Сума площ квадратів:', S2(a1) + S2(a2))</pre></details></div>
+<ol class="kr"><li>Відкрийте заготовку й запустіть. Введіть радіуси <b>1</b> і <b>2</b> (після кожного — <b>OK</b>) — має бути <b>15.71</b>.</li><li>Торкніться кінця рядка з коментарем про <b>S2</b>, натисніть <b>Enter</b> і наберіть заголовок функції <b>def S2(a):</b>. Натисніть <b>Enter</b> — відступ з’явиться сам — і наберіть <b>return a * a</b>.</li><li>В останніх трьох рядках видаліть знак <b>#</b> на початку — програма введе сторони квадратів і виведе суму їхніх площ.</li><li>Запустіть: радіуси <b>1</b> і <b>2</b>, сторони <b>3</b> і <b>4</b>.</li></ol>
+<figure class="rez"><figcaption>Як має вийти</figcaption><button type="button" class="rez-b" aria-label="Збільшити зразок"><img src="img/7-12-t1.webp" alt="Зразок: як має виглядати результат" draggable="false" loading="lazy"></button></figure>
+<div class="chk"><p class="chk-h">Перевірте себе</p><p class="chk-t">Радіуси <b>1</b> і <b>2</b> → <b>Сума площ кругів: 15.71</b>; сторони <b>3</b> і <b>4</b> → <b>Сума площ квадратів: 25.0</b>.</p></div>
+</section>
+<section class="zav">
+<h2><mark>Завдання 2 · рівень 2 ⭐⭐ «Що вибрали: круги чи квадрати?»</mark></h2>
+<p class="zt">Тепер програма спершу питає, що рахувати: <b>1</b> — круги, <b>2</b> — квадрати, а потім порівнює площі: якщо вони різні — каже, на скільки. Допишіть випадок, коли площі однакові, і виправте різницю для квадратів.</p>
+<div class="kod"><a class="kod-b" href="https://yepython.pp.ua/?code=IyDQn9GA0LDQutGC0LjRh9C90LAg0YDQvtCx0L7RgtCwIDMuINCa0YDRg9Cz0Lgg0YfQuCDQutCy0LDQtNGA0LDRgtC4Pwpmcm9tIG1hdGggaW1wb3J0IHBpCgpkZWYgUyhyKTogICMg0L%2FQu9C%2B0YnQsCDQutGA0YPQs9CwCiAgICByZXR1cm4gcGkgKiByICogcgoKZGVmIFMyKGEpOiAgIyDQv9C70L7RidCwINC60LLQsNC00YDQsNGC0LAKICAgIHJldHVybiBhICogYQoKdiA9IGludChpbnB1dCgnMSDigJQg0LrRgNGD0LPQuCwgMiDigJQg0LrQstCw0LTRgNCw0YLQuDogJykpCmlmIHYgPT0gMToKICAgIHIxID0gZmxvYXQoaW5wdXQoJ3IxID0gJykpCiAgICByMiA9IGZsb2F0KGlucHV0KCdyMiA9ICcpKQogICAgcHJpbnQoJ9Ch0YPQvNCwINC%2F0LvQvtGJINC60YDRg9Cz0ZbQsjonLCByb3VuZChTKHIxKSArIFMocjIpLCAyKSkKICAgIGlmIFMocjEpID4gUyhyMik6CiAgICAgICAgcHJpbnQoJ9Cf0LvQvtGJ0ZYg0LLRltC00YDRltC30L3Rj9GO0YLRjNGB0Y8g0L3QsCcsIHJvdW5kKFMocjEpIC0gUyhyMiksIDIpKQogICAgZWxpZiBTKHIyKSA%2BIFMocjEpOgogICAgICAgIHByaW50KCfQn9C70L7RidGWINCy0ZbQtNGA0ZbQt9C90Y%2FRjtGC0YzRgdGPINC90LAnLCByb3VuZChTKHIyKSAtIFMocjEpLCAyKSkKICAgICNlbHNlOgogICAgIyAgICBwcmludCgn0J%2FQu9C%2B0YnRliDQvtC00L3QsNC60L7QstGWJykKZWxpZiB2ID09IDI6CiAgICBhMSA9IGZsb2F0KGlucHV0KCdhMSA9ICcpKQogICAgYTIgPSBmbG9hdChpbnB1dCgnYTIgPSAnKSkKICAgIHByaW50KCfQodGD0LzQsCDQv9C70L7RiSDQutCy0LDQtNGA0LDRgtGW0LI6JywgUzIoYTEpICsgUzIoYTIpKQogICAgaWYgUzIoYTEpID4gUzIoYTIpOgogICAgICAgIHByaW50KCfQn9C70L7RidGWINCy0ZbQtNGA0ZbQt9C90Y%2FRjtGC0YzRgdGPINC90LAnLCBTMihhMSkgLSBTMihhMikpCiAgICBlbGlmIFMyKGEyKSA%2BIFMyKGExKToKICAgICAgICBwcmludCgn0J%2FQu9C%2B0YnRliDQstGW0LTRgNGW0LfQvdGP0Y7RgtGM0YHRjyDQvdCwJywgMCkgICMg4oaQINC30LDQvNGW0YHRgtGMIDAg4oCUINGA0ZbQt9C90LjRhtGPCiAgICAjZWxzZToKICAgICMgICAgcHJpbnQoJ9Cf0LvQvtGJ0ZYg0L7QtNC90LDQutC%2B0LLRlicpCg%3D%3D" target="_blank" rel="noopener">▶ Відкрити заготовку в ЄPython</a><details><summary>Показати код заготовки</summary><pre># Практична робота 3. Круги чи квадрати?
+from math import pi
+
+def S(r):  # площа круга
+    return pi * r * r
+
+def S2(a):  # площа квадрата
+    return a * a
+
+v = int(input('1 — круги, 2 — квадрати: '))
+if v == 1:
+    r1 = float(input('r1 = '))
+    r2 = float(input('r2 = '))
+    print('Сума площ кругів:', round(S(r1) + S(r2), 2))
+    if S(r1) &gt; S(r2):
+        print('Площі відрізняються на', round(S(r1) - S(r2), 2))
+    elif S(r2) &gt; S(r1):
+        print('Площі відрізняються на', round(S(r2) - S(r1), 2))
+    #else:
+    #    print('Площі однакові')
+elif v == 2:
+    a1 = float(input('a1 = '))
+    a2 = float(input('a2 = '))
+    print('Сума площ квадратів:', S2(a1) + S2(a2))
+    if S2(a1) &gt; S2(a2):
+        print('Площі відрізняються на', S2(a1) - S2(a2))
+    elif S2(a2) &gt; S2(a1):
+        print('Площі відрізняються на', 0)  # ← замість 0 — різниця
+    #else:
+    #    print('Площі однакові')</pre></details></div>
+<ol class="kr"><li>Відкрийте заготовку й запустіть. Введіть <b>1</b>, потім радіуси <b>1</b> і <b>2</b> — сума <b>15.71</b>, площі відрізняються на <b>9.42</b>.</li><li>Запустіть ще раз: <b>1</b>, радіуси <b>2</b> і <b>2</b>. Рядка про різницю немає — площі однакові. Увімкніть гілку <b>else</b> для кругів: у рядку 19 <b>#else:</b> і в рядку 20 під ним видаліть знак <b>#</b>, пробіли лишіть.</li><li>Запустіть: <b>2</b>, сторони <b>3</b> і <b>4</b>. Програма каже, що площі відрізняються на <b>0</b>, — це неправильно. У рядку 28 замість <b>0</b> наберіть різницю <b>S2(a2) - S2(a1)</b>.</li><li>Увімкніть <b>else</b> і для квадратів — видаліть <b>#</b> в останніх двох рядках. Перевірте: <b>2</b>, сторони <b>3</b> і <b>4</b>; потім <b>2</b>, сторони <b>5</b> і <b>5</b>.</li></ol>
+<figure class="rez"><figcaption>Як має вийти</figcaption><button type="button" class="rez-b" aria-label="Збільшити зразок"><img src="img/7-12-t2.webp" alt="Зразок: як має виглядати результат" draggable="false" loading="lazy"></button></figure>
+<div class="chk"><p class="chk-h">Перевірте себе</p><p class="chk-t"><b>1</b>, радіуси <b>1</b> і <b>2</b> → <b>15.71</b> і різниця <b>9.42</b>; <b>1</b>, радіуси <b>2</b> і <b>2</b> → <b>25.13</b> і «Площі однакові»; <b>2</b>, сторони <b>3</b> і <b>4</b> → <b>25.0</b> і різниця <b>7.0</b>; <b>2</b>, сторони <b>5</b> і <b>5</b> → <b>50.0</b> і «Площі однакові».</p></div>
+</section>
+<section class="zav">
+<h2><mark>Завдання 3 · рівень 3 ⭐⭐⭐ «Циркові арени» (додаткове)</mark></h2>
+<p class="zt">Для трьох циркових арен відомо радіуси. Знайдіть суму довжин кіл і суму площ арен. Функція <b>krug(r)</b> повертає одразу <b>два</b> результати — довжину кола й площу круга, а процедура <b>line()</b> виводить лінію з рисок.</p>
+<div class="kod"><a class="kod-b" href="https://yepython.pp.ua/?code=IyDQptC40YDQutC%2B0LLRliDQsNGA0LXQvdC4OiDQtNC%2B0LLQttC40L3QuCDQutGW0Lsg0ZYg0L%2FQu9C%2B0YnRlgpmcm9tIG1hdGggaW1wb3J0IHBpCgpkZWYga3J1ZyhyKTogICMg0L%2FQvtCy0LXRgNGC0LDRlCDQlNCS0JAg0YDQtdC30YPQu9GM0YLQsNGC0Lg6INC00L7QstC20LjQvdGDINC60L7Qu9CwINGWINC%2F0LvQvtGJ0YMKICAgIGMgPSAyICogcGkgKiByCiAgICBzID0gcGkgKiByICogcgogICAgcmV0dXJuIGMsIHMKCmRlZiBsaW5lKCk6ICAjINC%2F0YDQvtGG0LXQtNGD0YDQsDog0LvRltC90ZbRjyDQtyDRgNC40YHQvtC6CiAgICBwcmludCgnLScgKiAyMCkKCnIxID0gZmxvYXQoaW5wdXQoJ3IxID0gJykpCiNyMiA9IGZsb2F0KGlucHV0KCdyMiA9ICcpKQojcjMgPSBmbG9hdChpbnB1dCgncjMgPSAnKSkKYzEsIHMxID0ga3J1ZyhyMSkKI2MyLCBzMiA9IGtydWcocjIpCiNjMywgczMgPSBrcnVnKHIzKQpwcmludCgn0KHRg9C80LAg0LTQvtCy0LbQuNC9INC60ZbQuzonLCByb3VuZChjMSwgMikpCnByaW50KCfQodGD0LzQsCDQv9C70L7RiSDQsNGA0LXQvTonLCByb3VuZChzMSwgMikpCg%3D%3D" target="_blank" rel="noopener">▶ Відкрити заготовку в ЄPython</a><details><summary>Показати код заготовки</summary><pre># Циркові арени: довжини кіл і площі
+from math import pi
+
+def krug(r):  # повертає ДВА результати: довжину кола і площу
+    c = 2 * pi * r
+    s = pi * r * r
+    return c, s
+
+def line():  # процедура: лінія з рисок
+    print('-' * 20)
+
+r1 = float(input('r1 = '))
+#r2 = float(input('r2 = '))
+#r3 = float(input('r3 = '))
+c1, s1 = krug(r1)
+#c2, s2 = krug(r2)
+#c3, s3 = krug(r3)
+print('Сума довжин кіл:', round(c1, 2))
+print('Сума площ арен:', round(s1, 2))</pre></details></div>
+<ol class="kr"><li>Відкрийте заготовку й запустіть з радіусом <b>1</b> — має бути <b>6.28</b> і <b>3.14</b>.</li><li>Видаліть знак <b>#</b> у чотирьох рядках з <b>r2</b>, <b>r3</b>, <b>c2</b>, <b>c3</b> — програма введе ще два радіуси й обчислить для них <b>krug</b>.</li><li>В останніх двох рядках замініть <b>c1</b> на <b>c1 + c2 + c3</b>, а <b>s1</b> — на <b>s1 + s2 + s3</b>.</li><li>Викличте процедуру: перед першим <b>print</b> і після останнього додайте рядок <b>line()</b> без відступу. Запустіть з радіусами <b>1</b>, <b>2</b>, <b>3</b>.</li></ol>
+<div class="chk"><p class="chk-h">Перевірте себе</p><p class="chk-t">Радіуси <b>1</b>, <b>2</b>, <b>3</b> → сума довжин кіл <b>37.7</b>, сума площ <b>43.98</b>; результати між двома лініями з рисок.</p></div>
+</section>
+<p class="end">Для кожного зробленого завдання зробіть два знімки екрана — код і результат (на більшості телефонів — одночасно кнопка живлення й гучність униз). У Google Classroom відкрийте це завдання, у блоці <b>Ваша робота</b> натисніть <b>Додати</b> → <b>Файл</b>, виберіть знімки й натисніть <b>Здати</b>.</p>
+</main>
+</div>
+</div>
 <script>document.addEventListener("click",function(e){var f=e.target.closest(".rez.big");if(f){f.classList.remove("big");return;}var b=e.target.closest(".rez-b");if(b){b.parentNode.classList.add("big");}});document.addEventListener("keydown",function(e){if(e.key==="Escape"){document.querySelectorAll(".rez.big").forEach(function(f){f.classList.remove("big");});}});document.addEventListener("contextmenu",function(e){if(e.target.closest(".rez"))e.preventDefault();});</script>
+<script>(function(){var bs=document.querySelectorAll(".var-sw button"),vs=document.querySelectorAll(".var");function show(k,save){var i;for(i=0;i<vs.length;i++)vs[i].hidden=vs[i].getAttribute("data-var")!==k;for(i=0;i<bs.length;i++)bs[i].setAttribute("aria-pressed",bs[i].getAttribute("data-var")===k?"true":"false");if(save){try{localStorage.setItem("praktychna-var",k);}catch(e){}try{history.replaceState(null,"",k==="tel"?"#telefon":"#komp");}catch(e){}}}function fromHash(){return location.hash==="#telefon"?"tel":location.hash==="#komp"?"pc":null;}var k=fromHash();if(!k){try{k=localStorage.getItem("praktychna-var");}catch(e){}}show(k==="tel"?"tel":"pc",false);for(var i=0;i<bs.length;i++)bs[i].addEventListener("click",function(){show(this.getAttribute("data-var"),true);});window.addEventListener("hashchange",function(){var h=fromHash();if(h)show(h,false);});})();</script>
 </body>
 </html>

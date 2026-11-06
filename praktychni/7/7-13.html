@@ -12,6 +12,8 @@
 <div class="sheet">
 <header class="hdr"><span class="hdr-l">Урок №13 · Практичне завдання</span><span class="logo">Інформатика · 7 клас</span></header>
 <div class="ttl"><div class="num"><b>13</b><i>урок</i></div><div class="plate"><p class="kick">Практичне завдання</p><h1>Віконні проєкти. Вікно, його властивості</h1><p class="tp">Тема: Програмування</p></div></div>
+<nav class="var-sw" aria-label="Як виконувати"><button type="button" data-var="pc" aria-pressed="true"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="4" width="19" height="12" rx="1.5"/><path d="M8 20h8M12 16v4"/></svg><span>За комп’ютером</span></button><button type="button" data-var="tel" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6.5" y="2.5" width="11" height="19" rx="2.2"/><path d="M10.5 18.5h3"/></svg><span>З телефона</span></button></nav><p class="var-hint">Немає комп’ютера — виберіть «З телефона»: завдання на ту саму тему, їх можна виконати на телефоні.</p>
+<div class="var" data-var="pc">
 <div class="uvaga"><b aria-hidden="true">!</b><p><strong>Увага!</strong> Під час роботи з комп’ютером дотримуйтеся вимог безпеки життєдіяльності та санітарно-гігієнічних норм.</p></div>
 <main>
 <p>Працюємо в <b>ЄPython</b>. У кожному завданні є кнопка <b>▶ Відкрити заготовку в ЄPython</b> — код одразу з’явиться в редакторі.</p>
@@ -83,6 +85,65 @@ root.mainloop()</pre></details></div>
 <p class="end">Перевірте, що в папці <b>Завантаження</b> є <b>вправа2_5_2.py</b> (і <b>буфет.py</b>, <b>замовлення.py</b>, якщо робили). Закрийте вкладку браузера й повідомте вчителя про завершення роботи.</p>
 </main>
 </div>
+<div class="var" data-var="tel" hidden>
+<div class="uvaga"><b aria-hidden="true">!</b><p><strong>Увага!</strong> Працюйте з телефоном сидячи, тримайте екран на відстані 30–40 см від очей і кожні 15–20 хвилин робіть перерву: подивіться вдалину.</p></div>
+<main>
+<p>Працюємо в <b>ЄPython</b> у браузері телефона (Chrome або Safari) — нічого встановлювати не треба. Кнопка <b>▶ Відкрити заготовку в ЄPython</b> відкриває код завдання.</p>
+<p>Запуск — зелена кнопка <b>▶</b> унизу праворуч. Коли програма просить число, наберіть його в чорному вікні й натисніть <b>OK</b>. Вікно програми закриває хрестик у його заголовку, а червоний хрестик <b>×</b> повертає до коду.</p>
+<p>Якщо тримати телефон вертикально, ЄPython показує вікно програми на весь екран. Справжній розмір вікна видно, коли телефон повернути горизонтально, — увімкніть автоповорот екрана.</p>
+<p>Обов’язкове — завдання <b>⭐</b>. Зробили й перевірили себе — переходьте до <b>⭐⭐</b>, далі <b>⭐⭐⭐</b>.</p>
+<div class="tip"><span class="av" aria-hidden="true"><svg viewBox="14 8 212 212"><use href="#b-hd-hi" width="240" height="280"/><use href="#b-hd-g7" width="240" height="280"/></svg></span><p>Код пишеться англійськими літерами — перемкніть мову клавіатури. Дужки, лапки й знак <b>=</b> шукайте на клавіатурі символів (кнопка <b>?123</b> або <b>123</b>). У розмірах — латинська <b>x</b> і жодних пропусків: <b>'600x400+200+100'</b>. Колір — англійською: <b>red</b>, <b>green</b>, <b>blue</b>, <b>yellow</b>…</p></div>
+<section class="zav">
+<h2><mark>Завдання 1 · рівень 1 ⭐ «Перше вікно» (обов’язкове)</mark></h2>
+<p class="zt">Створіть вікно й по черзі змінюйте його властивості: напис у заголовку, колір і розміри.</p>
+<div class="kod"><a class="kod-b" href="https://yepython.pp.ua/?code=IyDQn9C10YDRiNC1INCy0ZbQutC90L4KZnJvbSB0a2ludGVyIGltcG9ydCAqCnJvb3QgPSBUaygpCiNyb290LnRpdGxlKCfQnNC4INGB0YLQstC%2B0YDRjtGU0LzQviDQv9GA0L7RlNC60YLQuCcpCiNyb290WydiZyddID0gJ2dyZWVuJwojcm9vdC5nZW9tZXRyeSgnMTAweDUwMCsxMDArNDUwJykKcm9vdC5tYWlubG9vcCgpCg%3D%3D" target="_blank" rel="noopener">▶ Відкрити заготовку в ЄPython</a><details><summary>Показати код заготовки</summary><pre># Перше вікно
+from tkinter import *
+root = Tk()
+#root.title('Ми створюємо проєкти')
+#root['bg'] = 'green'
+#root.geometry('100x500+100+450')
+root.mainloop()</pre></details></div>
+<ol class="kr"><li>Відкрийте заготовку й запустіть. З’явиться сіре вікно з написом <b>tk</b> у заголовку — таким воно буває за замовчуванням. Закрийте його хрестиком і поверніться до коду червоним хрестиком <b>×</b>.</li><li>У рядку з <b>title</b> видаліть знак <b>#</b> на початку й запустіть — у заголовку з’явиться <b>Ми створюємо проєкти</b>.</li><li>Так само видаліть <b>#</b> у рядку з <b>bg</b> і запустіть — вікно стане <b>зеленим</b>.</li><li>Поверніть телефон горизонтально, видаліть <b>#</b> у рядку з <b>geometry</b> і запустіть ще раз. Тепер вікно справжнього розміру: вузьке (100) і високе (500).</li></ol>
+<p>Вікно дуже вузьке, тому напис у заголовку не вміщається. ЄPython підсуває вікно вгору, якщо воно не вміщається на екрані. На маленьких телефонах вікно й горизонтально буває на весь екран — тоді розміри видно лише в коді.</p>
+<figure class="rez"><figcaption>Як має вийти</figcaption><button type="button" class="rez-b" aria-label="Збільшити зразок"><img src="img/7-13-t1.webp" alt="Зразок: як має виглядати результат" draggable="false" loading="lazy"></button></figure>
+<div class="chk"><p class="chk-h">Перевірте себе</p><p class="chk-t">Спершу — сіре вікно з написом <b>tk</b>, потім напис <b>Ми створюємо проєкти</b> і <b>зелений</b> фон. Горизонтально вікно вузьке й високе, напис у заголовку не вміщається — так і має бути.</p></div>
+</section>
+<section class="zav">
+<h2><mark>Завдання 2 · рівень 2 ⭐⭐ «Вікно шкільного буфету»</mark></h2>
+<p class="zt">Програма мала відкрити вікно буфету, але в ній <b>3 помилки</b>. Знайдіть і виправте їх, а потім налаштуйте вікно за умовою.</p>
+<div class="kod"><a class="kod-b" href="https://yepython.pp.ua/?code=IyDQktGW0LrQvdC%2BINGI0LrRltC70YzQvdC%2B0LPQviDQsdGD0YTQtdGC0YMg4oCUINGDINC%2F0YDQvtCz0YDQsNC80ZYgMyDQv9C%2B0LzQuNC70LrQuApmcm9tIHRraW50ZXIgaW1wb3J0ICoKcm9vdCA9IHRrKCkKcm9vdC50aXRsZSgn0KjQutGW0LvRjNC90LjQuSDQsdGD0YTQtdGCJykKcm9vdC5nZW9tZXRyeSgnNTAwIHggMzAwJykKcm9vdFsnYmcnXSA9ICfQttC%2B0LLRgtC40LknCnJvb3QubWFpbmxvb3AoKQo%3D" target="_blank" rel="noopener">▶ Відкрити заготовку в ЄPython</a><details><summary>Показати код заготовки</summary><pre># Вікно шкільного буфету — у програмі 3 помилки
+from tkinter import *
+root = tk()
+root.title('Шкільний буфет')
+root.geometry('500 x 300')
+root['bg'] = 'жовтий'
+root.mainloop()</pre></details></div>
+<ol class="kr"><li>Відкрийте заготовку й запустіть. Прочитайте <b>останній рядок</b> червоного тексту і номер рядка (<b>line …</b>) — там помилка. Поверніться до коду червоним хрестиком <b>×</b>, виправте помилку й запустіть знову.</li><li>Так само знайдіть і виправте ще дві помилки, доки не з’явиться <b>жовте</b> вікно з написом <b>Шкільний буфет</b>.</li><li>Тепер змініть вікно: розміри <b>450</b> на <b>350</b> пікселів, <b>150</b> пікселів від лівого краю і <b>50</b> від верхнього, колір фону — <b>orange</b>, напис у заголовку — <b>Буфет 7 класу</b>.</li><li>Поверніть телефон горизонтально й запустіть: вікно має бути помаранчевим, ширшим, ніж високим, і відступати від лівого краю.</li></ol>
+<p>Підказка: Python розуміє лише <b>Tk</b> з великої літери, розміри — без пропусків, колір — англійською.</p>
+<figure class="rez"><figcaption>Як має вийти</figcaption><button type="button" class="rez-b" aria-label="Збільшити зразок"><img src="img/7-13-t2.webp" alt="Зразок: як має виглядати результат" draggable="false" loading="lazy"></button></figure>
+<div class="chk"><p class="chk-h">Перевірте себе</p><p class="chk-t">Помилки: <b>tk()</b> → <b>Tk()</b>; <b>'500 x 300'</b> → <b>'500x300'</b>; <b>'жовтий'</b> → <b>'yellow'</b>. Готова команда розмірів: <b>root.geometry('450x350+150+50')</b> — помаранчеве вікно з написом <b>Буфет 7 класу</b>.</p></div>
+</section>
+<section class="zav">
+<h2><mark>Завдання 3 · рівень 3 ⭐⭐⭐ «Вікно на замовлення» (додаткове)</mark></h2>
+<p class="zt">Нехай розміри й колір вікна вибирає користувач. Програма питає ширину, висоту й колір, а потім будує таке вікно. У заголовку — розміри вікна.</p>
+<div class="kod"><a class="kod-b" href="https://yepython.pp.ua/?code=IyDQktGW0LrQvdC%2BINC90LAg0LfQsNC80L7QstC70LXQvdC90Y8KZnJvbSB0a2ludGVyIGltcG9ydCAqCncgPSBpbnQoaW5wdXQoJ9Co0LjRgNC40L3QsDogJykpCmggPSBpbnQoaW5wdXQoJ9CS0LjRgdC%2B0YLQsDogJykpCiNjID0gaW5wdXQoJ9Ca0L7Qu9GW0YAgKNCw0L3Qs9C70ZbQudGB0YzQutC%2B0Y4pOiAnKQpyb290ID0gVGsoKQpyb290LnRpdGxlKCfQnNC%2B0ZQg0LLRltC60L3QvicpCnJvb3QuZ2VvbWV0cnkoc3RyKHcpICsgJ3gnICsgc3RyKGgpKQojcm9vdFsnYmcnXSA9IGMKcm9vdC5tYWlubG9vcCgpCg%3D%3D" target="_blank" rel="noopener">▶ Відкрити заготовку в ЄPython</a><details><summary>Показати код заготовки</summary><pre># Вікно на замовлення
+from tkinter import *
+w = int(input('Ширина: '))
+h = int(input('Висота: '))
+#c = input('Колір (англійською): ')
+root = Tk()
+root.title('Моє вікно')
+root.geometry(str(w) + 'x' + str(h))
+#root['bg'] = c
+root.mainloop()</pre></details></div>
+<ol class="kr"><li>Поверніть телефон горизонтально. Відкрийте заготовку й запустіть, введіть <b>400</b> і <b>250</b> — з’явиться сіре вікно 400 на 250.</li><li>Пояснення: <b>str(w) + 'x' + str(h)</b> склеює рядок <b>'400x250'</b> — такий самий, як ми пишемо в <b>geometry</b> вручну.</li><li>Видаліть знак <b>#</b> у рядку з <b>c = input</b> і в рядку з <b>root['bg']</b> — програма питатиме ще й колір.</li><li>Зробіть так, щоб у заголовку були розміри: у рядку з <b>title</b> поставте пробіл після слова <b>вікно</b> (перед лапкою), а перед останньою дужкою допишіть <b>+ str(w) + 'x' + str(h)</b> — цю частину можна скопіювати з рядка <b>geometry</b>. Вийде <b>root.title('Моє вікно ' + str(w) + 'x' + str(h))</b>.</li><li>Допишіть до рядка <b>geometry</b> положення: перед останньою дужкою — <b>+ '+100+50'</b>. Перевірте з числами <b>400</b>, <b>250</b> і кольором <b>orange</b>.</li></ol>
+<div class="chk"><p class="chk-h">Перевірте себе</p><p class="chk-t">Ввели <b>400</b>, <b>250</b>, <b>orange</b> → помаранчеве вікно 400 на 250 з написом <b>Моє вікно 400x250</b>, трохи відступлене від лівого верхнього кута.</p></div>
+</section>
+<p class="end">Для кожного зробленого завдання зробіть два знімки екрана — код і вікно програми (на більшості телефонів — одночасно кнопка живлення й гучність униз). У Google Classroom відкрийте це завдання, у блоці <b>Ваша робота</b> натисніть <b>Додати</b> → <b>Файл</b>, виберіть знімки й натисніть <b>Здати</b>.</p>
+</main>
+</div>
+</div>
 <script>document.addEventListener("click",function(e){var f=e.target.closest(".rez.big");if(f){f.classList.remove("big");return;}var b=e.target.closest(".rez-b");if(b){b.parentNode.classList.add("big");}});document.addEventListener("keydown",function(e){if(e.key==="Escape"){document.querySelectorAll(".rez.big").forEach(function(f){f.classList.remove("big");});}});document.addEventListener("contextmenu",function(e){if(e.target.closest(".rez"))e.preventDefault();});</script>
+<script>(function(){var bs=document.querySelectorAll(".var-sw button"),vs=document.querySelectorAll(".var");function show(k,save){var i;for(i=0;i<vs.length;i++)vs[i].hidden=vs[i].getAttribute("data-var")!==k;for(i=0;i<bs.length;i++)bs[i].setAttribute("aria-pressed",bs[i].getAttribute("data-var")===k?"true":"false");if(save){try{localStorage.setItem("praktychna-var",k);}catch(e){}try{history.replaceState(null,"",k==="tel"?"#telefon":"#komp");}catch(e){}}}function fromHash(){return location.hash==="#telefon"?"tel":location.hash==="#komp"?"pc":null;}var k=fromHash();if(!k){try{k=localStorage.getItem("praktychna-var");}catch(e){}}show(k==="tel"?"tel":"pc",false);for(var i=0;i<bs.length;i++)bs[i].addEventListener("click",function(){show(this.getAttribute("data-var"),true);});window.addEventListener("hashchange",function(){var h=fromHash();if(h)show(h,false);});})();</script>
 </body>
 </html>

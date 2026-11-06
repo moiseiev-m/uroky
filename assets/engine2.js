@@ -2737,6 +2737,267 @@ W.fdm8={html:()=>'<style>.feed .w812{grid-template-columns:1fr!important}</style
   return{count:4,step}}};
 }
 {
+/* sections/8-r2/widgets/etapy17.js */
+/* 8 клас: етапи розв’язування задач з використанням алгоритмів і проєктів (урок 8-17) */
+(function(){
+/* Спільне: блок-схема в SVG. Дві розкладки — h (дошка, широка) і v (стрічка телефона, вузька й висока).
+   Вузол [ключ, форма, x, y, w, h, [рядки]]: форма t — «Початок/Кінець», r — дія, p — введення/виведення, d — умова, x — виправлення.
+   Рядок, що починається з «`», — моноширинний (код). Стрілка [ключ, [[x,y]…]]; підпис [ключ, x, y, текст, вирівнювання]. */
+document.head.insertAdjacentHTML('beforeend','<style>'+
+'.f17{display:flex;flex-direction:column;gap:14px;flex:1;min-height:0;justify-content:center}'+
+'.f17 svg{width:100%;height:auto;display:block;overflow:visible}'+
+'.f17 .f17-v{display:none}.feed .f17 .f17-h{display:none}.feed .f17 .f17-v{display:block}'+
+'.f17 .f17n>.f17s{fill:var(--paper);stroke:var(--ink);stroke-width:2.5;transition:fill .35s,stroke .35s,stroke-width .35s}'+
+'.f17 .f17n.f17-t>.f17s{fill:var(--sun-soft)}.f17 .f17n.f17-d>.f17s{fill:var(--pink-soft)}.f17 .f17n.f17-x>.f17s{fill:var(--sky-soft)}'+
+'.f17 .f17n.f17done>.f17s{fill:var(--topic-soft)}'+
+'.f17 .f17n.f17on>.f17s{fill:var(--accent-tint);stroke:var(--accent);stroke-width:5}'+
+'.f17 text{font:600 21px var(--body);fill:var(--ink);text-anchor:middle;dominant-baseline:central}'+
+'.f17 text.f17m{font:700 21px var(--mono)}'+
+'.f17 .f17e path{fill:none;stroke:var(--ink);stroke-width:2.5;transition:stroke .35s}.f17 .f17e polygon{fill:var(--ink);transition:fill .35s}'+
+'.f17 .f17e.f17on path{stroke:var(--accent);stroke-width:5}.f17 .f17e.f17on polygon{fill:var(--accent)}'+
+'.f17 text.f17l{font:700 21px var(--body);fill:var(--muted)}.f17 text.f17l.f17on{fill:var(--accent)}'+
+'.f17 .f17n,.f17 .f17e,.f17 .f17l{transition:opacity .35s}.f17 .f17off{opacity:.12}'+
+'.f17-c{padding:10px 20px;min-height:92px}'+
+'.f17-c b.f17k{display:block;font:700 19px var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:2px}'+
+'.f17-c p{margin:0;font-size:24px;line-height:1.3}'+
+'.feed .f17-c p{font-size:26px}'+
+'</style>');
+
+const X=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const LH=25;
+function node([k,sh,x,y,w,h,lines]){
+  const cx=x+w/2,cy=y+h/2;let s;
+  if(sh==='t')s='<rect class="f17s" x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" rx="'+(h/2)+'"/>';
+  else if(sh==='p'){const k2=16;s='<polygon class="f17s" points="'+[[x+k2,y],[x+w,y],[x+w-k2,y+h],[x,y+h]].map(p=>p.join(',')).join(' ')+'"/>'}
+  else if(sh==='d')s='<polygon class="f17s" points="'+[[x,cy],[cx,y],[x+w,cy],[cx,y+h]].map(p=>p.join(',')).join(' ')+'"/>';
+  else s='<rect class="f17s" x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" rx="8"/>';
+  const y0=cy-(lines.length-1)*LH/2;
+  return '<g class="f17n f17-'+sh+'" data-k="'+k+'">'+s+lines.map((t,j)=>{const mo=t[0]==='`';
+    return '<text'+(mo?' class="f17m"':'')+' x="'+cx+'" y="'+(y0+j*LH)+'">'+X(mo?t.slice(1):t)+'</text>'}).join('')+'</g>'}
+function edge([k,P,na]){
+  const n=P.length,[x1,y1]=P[n-2],[x2,y2]=P[n-1],L=Math.hypot(x2-x1,y2-y1)||1,ux=(x2-x1)/L,uy=(y2-y1)/L;
+  const Q=P.map(p=>p.slice());if(!na){Q[n-1]=[x2-ux*9,y2-uy*9]}
+  const head=na?'':'<polygon points="'+[[x2,y2],[x2-ux*14-uy*7,y2-uy*14+ux*7],[x2-ux*14+uy*7,y2-uy*14-ux*7]].map(p=>p.map(v=>v.toFixed(1)).join(',')).join(' ')+'"/>';
+  return '<g class="f17e" data-k="'+k+'"><path d="M'+Q.map(p=>p.join(' ')).join(' L')+'"/>'+head+'</g>'}
+function lab([k,x,y,t,a]){return '<text class="f17l" data-k="'+k+'" x="'+x+'" y="'+y+'"'+(a?' style="text-anchor:'+a+'"':'')+'>'+X(t)+'</text>'}
+function svg(cls,vb,L){return '<svg class="'+cls+'" viewBox="'+vb+'" xmlns="http://www.w3.org/2000/svg">'+
+  L.E.map(edge).join('')+L.N.map(node).join('')+(L.L||[]).map(lab).join('')+'</svg>'}
+const cap='<div class="f17-c box" data-tone="sun"><b class="f17k"></b><p></p></div>';
+/* стан кроку: on — поточні, done — пройдені, off — ще не показані (ключі вузлів, стрілок і підписів) */
+function paint(r,st){r.querySelectorAll('[data-k]').forEach(e=>{const k=e.dataset.k;
+  e.classList.toggle('f17on',(st.on||[]).includes(k));
+  e.classList.toggle('f17done',(st.done||[]).includes(k)&&!(st.on||[]).includes(k));
+  e.classList.toggle('f17off',(st.off||[]).includes(k))})}
+function caption(r,k,t){r.querySelector('.f17-c .f17k').textContent=k;r.querySelector('.f17-c p').innerHTML=t}
+
+/* ===== Етап 2: блок-схема алгоритму задачі «Кіно і морозиво» — блоки з’являються по черзі ===== */
+const BH={N:[['st','t',5,120,120,60,['Початок']],
+  ['in','p',155,115,230,70,['Увести x, k, m']],
+  ['ca','r',415,115,250,70,['`s = 2*k + 2*m']],
+  ['de','d',695,95,180,110,['`x >= s']],
+  ['ye','p',915,30,190,64,['«Вистачить»']],
+  ['no','p',915,206,190,64,['«Не вистачить»']],
+  ['en','t',1105,120,95,60,['Кінець']]],
+ E:[['e1',[[125,150],[163,150]]],['e2',[[377,150],[415,150]]],['e3',[[665,150],[695,150]]],
+  ['e4',[[785,95],[785,62],[923,62]]],['e5',[[785,205],[785,238],[915,238]]],
+  ['e6',[[1097,62],[1152,62],[1152,120]]],['e7',[[1097,238],[1152,238],[1152,180]]]],
+ L:[['l4',797,76,'Так','start'],['l5',797,222,'Ні','start']]};
+const BV={N:[['st','t',220,5,160,56,['Початок']],
+  ['in','p',150,88,300,62,['Увести x, k, m']],
+  ['ca','r',150,177,300,62,['`s = 2*k + 2*m']],
+  ['de','d',180,266,240,110,['`x >= s']],
+  ['ye','p',20,410,230,64,['«Вистачить»']],
+  ['no','p',350,410,230,64,['«Не вистачить»']],
+  ['en','t',220,525,160,56,['Кінець']]],
+ E:[['e1',[[300,61],[300,88]]],['e2',[[300,150],[300,177]]],['e3',[[300,239],[300,266]]],
+  ['e4',[[180,321],[135,321],[135,410]]],['e5',[[420,321],[465,321],[465,410]]],
+  ['e6',[[135,474],[135,500],[300,500],[300,525]]],['e7',[[465,474],[465,500],[300,500]],1]],
+ L:[['l4',165,302,'Так','end'],['l5',435,302,'Ні','start']]};
+const BS=[
+ [[],'Етап 2 · Алгоритм','Складемо блок-схему для задачі про кіно й морозиво. Пробіл або клік — далі.'],
+ [['st'],'Початок','Кожна блок-схема починається блоком <b>«Початок»</b>.'],
+ [['e1','in'],'Введення','Паралелограм — <b>введення</b>: гроші <b>x</b>, ціна квитка <b>k</b>, ціна морозива <b>m</b>.'],
+ [['e2','ca'],'Дія','Прямокутник — <b>дія</b>: скільки треба на 2 квитки й 2 морозива.'],
+ [['e3','de'],'Умова','Ромб — <b>умова</b>: чи грошей не менше, ніж треба? Тут алгоритм <b>розгалужується</b>.'],
+ [['e4','l4','ye'],'Так','Умова виконується — повідомлення <b>«Вистачить»</b>.'],
+ [['e5','l5','no'],'Ні','Не виконується — повідомлення <b>«Не вистачить»</b>.'],
+ [['e6','e7','en'],'Кінець','Обидві гілки сходяться в блоці <b>«Кінець»</b>.'],
+ [[],'Словесно','Увести x, k, m → обчислити s → <b>якщо</b> x ≥ s, «Вистачить», <b>інакше</b> — «Не вистачить».']];
+const BK=['st','e1','in','e2','ca','e3','de','e4','l4','ye','e5','l5','no','e6','e7','en'];
+
+W.blok17={html:()=>'<div class="f17">'+svg('f17-h','0 0 1200 290',BH)+svg('f17-v','0 0 600 590',BV)+cap+'</div>',
+ mount(r){
+  function step(i){const seen=[].concat(...BS.slice(0,i+1).map(s=>s[0])),now=BS[i][0];
+   paint(r,{on:i<BS.length-1?now:[],done:i===BS.length-1?BK:seen,off:BK.filter(k=>!seen.includes(k)&&i<BS.length-1)});
+   caption(r,BS[i][1],BS[i][2])}
+  return{count:BS.length-1,step}}};
+
+/* ===== Усі етапи разом (мал. 4.1 підручника): шлях проєкту «Кіно і морозиво» — з поверненнями після помилок ===== */
+const EH={N:[['st','t',5,15,125,60,['Початок']],
+  ['s1','r',165,10,290,70,['1. Умова задачі →','математична модель']],
+  ['s2','r',495,10,220,70,['2. Алгоритм','(блок-схема)']],
+  ['s3','r',755,10,220,70,['3. Проєкт','мовою Python']],
+  ['s4','r',0,150,180,80,['4. Запуск:','будь-які дані']],
+  ['d1','d',220,135,180,110,['Синтаксичні','помилки?']],
+  ['s5','r',440,150,180,80,['5. Запуск:','тестові набори']],
+  ['d2','d',660,135,180,110,['Логічні','помилки?']],
+  ['s6','r',880,150,180,80,['6. Запуск:','дані задачі']],
+  ['en','t',1090,160,110,60,['Кінець']],
+  ['f1','x',195,285,230,64,['Виправити','синтаксичні помилки']],
+  ['f2','x',635,285,230,64,['Виправити','логічні помилки']]],
+ E:[['a0',[[130,45],[165,45]]],['a1',[[455,45],[495,45]]],['a2',[[715,45],[755,45]]],
+  ['a3',[[865,80],[865,115],[90,115],[90,150]]],['a4',[[180,190],[220,190]]],
+  ['n1',[[400,190],[440,190]]],['a5',[[620,190],[660,190]]],['n2',[[840,190],[880,190]]],['a6',[[1060,190],[1090,190]]],
+  ['y1',[[310,245],[310,285]]],['r1',[[195,317],[90,317],[90,230]]],
+  ['y2',[[750,245],[750,285]]],['r2',[[635,317],[530,317],[530,230]]]],
+ L:[['ln1',420,170,'Ні'],['ln2',860,170,'Ні'],['ly1',322,265,'Так','start'],['ly2',762,265,'Так','start']]};
+const EV={N:[['st','t',220,5,160,56,['Початок']],
+  ['s1','r',20,88,360,70,['1. Умова задачі →','математична модель']],
+  ['s2','r',20,186,360,62,['2. Алгоритм (блок-схема)']],
+  ['s3','r',20,276,360,62,['3. Проєкт мовою Python']],
+  ['s4','r',20,366,360,70,['4. Запуск:','будь-які дані']],
+  ['d1','d',60,466,280,110,['Синтаксичні','помилки?']],
+  ['s5','r',20,606,360,70,['5. Запуск:','тестові набори']],
+  ['d2','d',60,706,280,110,['Логічні','помилки?']],
+  ['s6','r',20,846,360,70,['6. Запуск:','дані задачі']],
+  ['en','t',120,946,160,56,['Кінець']],
+  ['f1','x',405,481,190,80,['Виправити','синтаксичні','помилки']],
+  ['f2','x',405,721,190,80,['Виправити','логічні','помилки']]],
+ E:[['a0',[[200,61],[200,88]]],['a1',[[200,158],[200,186]]],['a2',[[200,248],[200,276]]],['a3',[[200,338],[200,366]]],
+  ['a4',[[200,436],[200,466]]],['n1',[[200,576],[200,606]]],['a5',[[200,676],[200,706]]],['n2',[[200,816],[200,846]]],
+  ['a6',[[200,916],[200,946]]],
+  ['y1',[[340,521],[405,521]]],['r1',[[500,481],[500,401],[380,401]]],
+  ['y2',[[340,761],[405,761]]],['r2',[[500,721],[500,641],[380,641]]]],
+ L:[['ln1',212,591,'Ні','start'],['ln2',212,831,'Ні','start'],['ly1',372,503,'Так'],['ly2',372,743,'Так']]};
+/* [поточні, пройдені додатково, заголовок, текст] */
+const ES=[
+ [[],'Задача про кіно','Пройдемо всі етапи для проєкту «Кіно і морозиво». Пробіл або клік — далі.'],
+ [['st','a0','s1'],'Етап 1','Вхідні дані — <b>x, k, m</b>, результат — повідомлення, формула — <b>s = 2·k + 2·m</b>.'],
+ [['a1','s2'],'Етап 2','Складаємо <b>алгоритм</b> — блок-схему з розгалуженням.'],
+ [['a2','s3'],'Етап 3','Пишемо <b>програму</b> мовою Python за цим алгоритмом.'],
+ [['a3','s4'],'Етап 4','Запускаємо з <b>будь-якими</b> числами: 1, 2, 3…'],
+ [['a4','d1','y1','ly1'],'Так, є помилка','Виконання перервалося: <b>SyntaxError</b> — після <b>if</b> забули двокрапку.'],
+ [['f1'],'Виправляємо','Дописуємо двокрапку…'],
+ [['r1','s4'],'Знову етап 4','…і знову запускаємо з будь-якими числами.'],
+ [['d1','n1','ln1'],'Ні','Програма працює до кінця — синтаксичних помилок <b>немає</b>.'],
+ [['s5'],'Етап 5','Тестові набори: 500 грн → «Вистачить», 300 → «Не вистачить», 320 → «Вистачить».'],
+ [['a5','d2','y2','ly2'],'Так, є помилка','320 грн: очікували «Вистачить», а комп’ютер — «Не вистачить». <b>Логічна помилка!</b>'],
+ [['f2'],'Виправляємо','В умові замість <b>x &gt; s</b> пишемо <b>x &gt;= s</b>…'],
+ [['r2','s5'],'Знову етап 5','…і знову всі три тестові набори. Усе збіглося!'],
+ [['d2','n2','ln2'],'Ні','Логічних помилок тестові набори <b>не знайшли</b>.'],
+ [['s6'],'Етап 6','Запускаємо з даними задачі, перевіряємо гіпотези — <b>комп’ютерний експеримент</b>.'],
+ [['a6','en'],'Кінець','Задачу розв’язано! Помилка повертає нас <b>на крок назад</b>, а не на початок.']];
+
+/* ===== Покрокове виконання програми для 8 класу — той самий W.krok з розділу 7-r2 (збірка дозволяє віджети лише свого розділу).
+   Звертаємося до W.krok у момент показу, тож порядок файлів не важливий. Поля слайда — як у W.krok. ===== */
+W.krok8={html:d=>W.krok.html(d),mount:(r,d,api)=>W.krok.mount(r,d,api)};
+
+W.etapy17={html:()=>'<div class="f17">'+svg('f17-h','0 0 1200 352',EH)+svg('f17-v','0 0 600 1010',EV)+cap+'</div>',
+ mount(r){
+  function step(i){const prev=[].concat(...ES.slice(0,i).map(s=>s[0]));
+   paint(r,{on:ES[i][0],done:prev});caption(r,ES[i][1],ES[i][2])}
+  return{count:ES.length-1,step}}};
+})();
+}
+{
+/* sections/8-r2/widgets/history15.js */
+/* 8 клас: історія обчислювальних і комп’ютерних пристроїв (урок 8-15) */
+
+/* «Паскаліна»: коліщата сотень, десятків, одиниць; 97 + 1 + 1 + 1 — перенесення одиниці в наступний розряд */
+W.pascal15={html:()=>'<style>.pa15-g{display:flex;justify-content:center;align-items:center;gap:18px;margin:6px 0 22px}'+
+  '.pa15-w{text-align:center}.pa15-c{width:170px;height:170px;border-radius:50%;border:8px solid var(--ink);display:flex;align-items:center;justify-content:center;'+
+  'font:700 104px/1 var(--display,sans-serif);background:var(--paper);transition:border-color .4s,transform .5s}'+
+  '.pa15-c.on{border-color:var(--accent);transform:rotate(-36deg)}.pa15-c span{display:block;transition:transform .5s}.pa15-c.on span{transform:rotate(36deg)}'+
+  '.pa15-l{font-size:23px;margin-top:10px;font-weight:700}'+
+  '.pa15-k{width:96px;text-align:center;font:700 38px var(--display,sans-serif);color:var(--coral);opacity:0;transition:opacity .4s}.pa15-k.on{opacity:1}'+
+  '.pa15-t{font-size:27px;line-height:1.35;text-align:center;min-height:76px;margin:0 auto;max-width:1000px}'+
+  '.pa15-b{opacity:0;transition:opacity .4s;margin-top:14px;text-align:center}.pa15-b.on{opacity:1}'+
+  '.feed .pa15-c{width:120px;height:120px;font-size:72px;border-width:6px}.feed .pa15-k{width:52px;font-size:22px}.feed .pa15-g{gap:6px}</style>'+
+  '<div class="pa15-g">'+
+   '<div class="pa15-w"><div class="pa15-c"><span>0</span></div><div class="pa15-l">сотні</div></div>'+
+   '<div class="pa15-k">← 1</div>'+
+   '<div class="pa15-w"><div class="pa15-c"><span>9</span></div><div class="pa15-l">десятки</div></div>'+
+   '<div class="pa15-k">← 1</div>'+
+   '<div class="pa15-w"><div class="pa15-c"><span>7</span></div><div class="pa15-l">одиниці</div></div></div>'+
+  '<p class="pa15-t"></p>'+
+  '<div class="pa15-b box sun"><p style="margin:0">Перенесення одиниці в наступний розряд робить <b>сам механізм</b> — людині не треба пам’ятати «один у голові».</p></div>',
+ mount(r){
+  // [сотні, десятки, одиниці], яке коліщатко повернулось, де стрілка перенесення (0 — у сотні, 1 — у десятки), текст
+  const S=[[[0,9,7],-1,-1,'На коліщатах число <b>97</b>. Кожне коліщатко — один розряд.'],
+   [[0,9,8],2,-1,'Додаємо 1: коліщатко одиниць повернулось на одну поділку — <b>98</b>.'],
+   [[0,9,9],2,-1,'Ще 1 — <b>99</b>. Одиниці й десятки вже на 9. Що буде далі?'],
+   [[0,9,0],2,1,'Ще 1: одиниці 9 → 0, і зубець <b>сам</b> штовхає десятки на одну поділку.'],
+   [[1,0,0],1,0,'Десятки 9 → 0 — і перенесення ще раз, у сотні. Вийшло <b>100</b>.'],
+   [[1,0,0],-1,-1,'Так «Паскаліна» Блеза Паскаля (1642) додавала й віднімала числа.']];
+  const C=[...r.querySelectorAll('.pa15-c')],K=[...r.querySelectorAll('.pa15-k')],T=r.querySelector('.pa15-t'),B=r.querySelector('.pa15-b');
+  function step(i){const s=S[i];
+   C.forEach((c,k)=>{c.querySelector('span').textContent=s[0][k];c.classList.toggle('on',k===s[1])});
+   K.forEach((k,j)=>k.classList.toggle('on',j===s[2]));
+   T.innerHTML=s[3];B.classList.toggle('on',i===S.length-1)}
+  return{count:S.length-1,step}}};
+
+/* ENIAC і сучасний смартфон: значення ENIAC з підручника, смартфона — приблизні */
+W.eniac15={html:()=>{
+  const R=['Маса','Розмір','Швидкодія','Потужність','Основа'];
+  return '<style>.en15-g{display:grid;grid-template-columns:220px 1fr 1fr 1fr;gap:8px 18px;align-items:center;font-size:25px;line-height:1.25}'+
+   '.en15-h{font:700 28px var(--display,sans-serif)}.en15-h.ph{color:var(--accent)}.en15-p{font-weight:700}'+
+   '.en15-v{padding:6px 14px;border-radius:12px;border:3px solid var(--ink)}'+
+   '.en15-f,.en15-x{transition:opacity .4s}.en15-f{padding:6px 14px;border-radius:12px;border:3px solid var(--accent);font-weight:700}'+
+   '.en15-x{color:var(--coral);font-weight:700;font-size:23px}.en15-q{opacity:.45}'+
+   '.feed .en15-g{grid-template-columns:1fr 1fr;font-size:22px}.feed .en15-p{grid-column:1/-1;margin-top:8px}.feed .en15-x{grid-column:1/-1}'+
+   '.feed .en15-h.n,.feed .en15-h.x{display:none}</style>'+
+   '<div class="en15-g"><span class="en15-h n"></span><span class="en15-h">ENIAC, 1946</span><span class="en15-h ph">Смартфон, сьогодні</span><span class="en15-h x">Різниця</span>'+
+   R.map(p=>'<span class="en15-p">'+p+'</span><span class="en15-v"></span><span class="en15-f"></span><span class="en15-x"></span>').join('')+'</div>'},
+ mount(r){
+  const D=[['30 т','≈ 200 г','у 150 000 разів легший'],
+   ['цілий зал','долоня','у кишені, а не в залі'],
+   ['5 000 операцій за секунду','мільярди операцій за секунду','у мільйони разів швидший'],
+   ['150 кВт','≈ 5 Вт','у 30 000 разів менше енергії'],
+   ['18 000 електронних ламп','мікросхема з мільярдами транзисторів','лампа → крихітний транзистор']];
+  const V=[...r.querySelectorAll('.en15-v')],F=[...r.querySelectorAll('.en15-f')],X=[...r.querySelectorAll('.en15-x')];
+  V.forEach((v,k)=>v.textContent=D[k][0]);
+  function step(i){D.forEach((d,k)=>{const on=k<i;F[k].textContent=on?d[1]:'?';F[k].classList.toggle('en15-q',!on);
+   F[k].style.borderColor=on?'':'var(--line)';X[k].textContent=on?d[2]:''})}
+  return{count:D.length,step}}};
+
+/* Стрічка часу: перші ЕОМ (світ і Україна) і перші персональні комп’ютери, 1941–1981 */
+W.chrono15={html:()=>'<style>.ch15-ax{position:relative;flex:none;height:400px;margin:4px 30px 0}'+
+  '.ch15-ln{position:absolute;left:0;right:0;top:190px;height:6px;border-radius:3px;background:var(--ink)}'+
+  '.ch15-tk{position:absolute;top:204px;transform:translateX(-50%);font-size:20px;color:var(--muted)}'+
+  '.ch15-d{position:absolute;top:183px;width:20px;height:20px;margin-left:-10px;border-radius:50%;background:var(--accent);opacity:0;transition:opacity .4s}'+
+  '.ch15-e{position:absolute;transform:translateX(-50%);text-align:center;white-space:nowrap;font-size:21px;line-height:1.15;padding:6px 12px;'+
+   'border:3px solid var(--accent);border-radius:10px;background:var(--paper);opacity:0;transition:opacity .4s}'+
+  '.ch15-e b{display:block;font-size:25px}.ch15-ua{border-color:var(--sun)}.ch15-d.ch15-ua{background:var(--sun)}'+
+  '.ch15-e.on,.ch15-d.on{opacity:1}.ch15-e.cur{box-shadow:0 0 0 4px var(--accent-soft,var(--line))}'+
+  '.ch15-c{font-size:27px;line-height:1.35;text-align:center;min-height:74px;margin-top:10px;flex:none}'+
+  '.ch15-li{display:none}.feed .ch15-ax,.feed .ch15-c{display:none}.feed .ch15-li{display:block;font-size:22px;line-height:1.35;margin:0;padding-left:1.2em}</style>'+
+  '<div class="ch15-ax"><div class="ch15-ln"></div></div><ul class="ch15-li"></ul><p class="ch15-c"></p>',
+ mount(r){
+  // [рік, назва, де, що, рівень: -2/-1 — над віссю, 1/2 — під віссю, Україна?]
+  const E=[[1941,'Z3','Німеччина','К. Цузе: електромеханічні реле, двійкове кодування',-1],
+   [1941,'ABC','США','Дж. Атанасов і К. Беррі: електронні лампи, двійкове кодування',1],
+   [1944,'Colossus','Велика Британія','секретна машина для дешифрування радіограм (1943–1944)',-2],
+   [1944,'Mark-1','США','Г. Ейкен на замовлення IBM: реле, автоматичне керування',2],
+   [1946,'ENIAC','США','Дж. Моклі й П. Еккерт: 18 000 ламп, 30 т',-1],
+   [1951,'МЕОМ','Київ','С. Лебедєв: перша ЕОМ у Радянському Союзі',1,1],
+   [1959,'«Київ»','Київ','Інститут кібернетики, В. Глушков',-1,1],
+   [1961,'«Дніпро»','Київ','серія універсальних ЕОМ',1,1],
+   [1975,'Altair 8800','США','MITS: один з перших персональних комп’ютерів',-1],
+   [1976,'Apple I','США','Apple Computer Company',1],
+   [1981,'IBM PC','США','персональний комп’ютер фірми IBM',-2]];
+  const A=r.querySelector('.ch15-ax'),L=r.querySelector('.ch15-li'),C=r.querySelector('.ch15-c'),
+   x=y=>((y-1937)/(1985-1937)*100).toFixed(2)+'%',TOP={'-2':0,'-1':88,'1':238,'2':326};
+  let h='';for(let y=1940;y<=1980;y+=10)h+='<span class="ch15-tk" style="left:'+x(y)+'">'+y+'</span>';
+  E.forEach(e=>{const ua=e[5]?' ch15-ua':'';
+   h+='<i class="ch15-d'+ua+'" style="left:'+x(e[0])+'"></i><div class="ch15-e'+ua+'" style="left:'+x(e[0])+';top:'+TOP[e[4]]+'px"><b>'+e[1]+'</b>'+e[0]+'</div>'});
+  A.insertAdjacentHTML('beforeend',h);
+  const D=[...A.querySelectorAll('.ch15-d')],B=[...A.querySelectorAll('.ch15-e')];
+  function step(i){D.forEach((d,k)=>d.classList.toggle('on',k<i));B.forEach((b,k)=>{b.classList.toggle('on',k<i);b.classList.toggle('cur',k===i-1)});
+   L.innerHTML=E.slice(0,i).map(e=>'<li><b>'+e[0]+' · '+e[1]+'</b> ('+e[2]+') — '+e[3]+'</li>').join('');
+   const e=E[i-1];C.innerHTML=e?'<b>'+e[0]+' · '+e[1]+'</b> · '+e[2]+' — '+e[3]:'Від перших ЕОМ до персональних комп’ютерів: що з’явилося раніше?'}
+  return{count:E.length,step}}};
+}
+{
 /* sections/8-r2/widgets/kinds.js */
 /* 8 клас: види сучасних комп’ютерів та їх застосування (урок 8-13) */
 
@@ -2839,6 +3100,263 @@ W.task13={html:()=>'<style>.feed .t13-g{grid-template-columns:1fr 1fr!important}
    cards.forEach((e,k)=>{e.style.display=k<placed?'block':'none';e.style.borderColor=k===placed-1?'var(--mint)':'var(--line)'});
    Q.innerHTML=ask>=0?'<b>'+T[ask][0]+'</b> — який комп’ютер упорається?':(placed>=T.length?'Кожній задачі — свій вид комп’ютера.':(placed?'Пробіл або клік — наступна задача.':'Пробіл або клік — перша задача.'))}
   return{count:16,step}}};
+}
+{
+/* sections/8-r2/widgets/knopka18.js */
+/* ===== Кнопка у вікні (8 клас, урок 18, tkinter): код + вікно з кнопками =====
+   Один рушій — три імена, бо віджет можна взяти лише раз на урок:
+     W.knopka18 — як будується кнопка;  W.mistse18 — pack() і place();  W.klik18 — подія і обробник.
+   YAML слайда:
+     code:  [рядки програми]
+     win:   {t: 'tk', w: 300, h: 200} — вікно на початку (w, h — розміри робочої частини в пікселях)
+     steps: [{line, k, say, ask, win, btns, set, dims, click}]
+       line — номер рядка, що виконується (1…; 0 — жоден);  k — короткий заголовок;  say — пояснення (**жирний** можна);
+       win  — зміни вікна після кроку {t, w, h, bg} (накопичуються); false — вікна ще немає;
+       btns — увесь список кнопок після кроку; set — змінити лише деякі кнопки: {0: {bg: 'red'}} (накопичується);
+         кнопка: {t: текст, w: ширина в символах, h: висота в рядках, bg, fg — назви кольорів з програми,
+                  font: 'Arial 14' (розмір у пунктах), bold: true, state: 'disable', at: 'pack' (типово) або [x, y],
+                  pady — відступ для pack, show: false — створена, але ще не розміщена; gone: true — сховали (pack_forget)};
+       dims — показати відступи й координати;  click — номер кнопки, яку клацає користувач;  ask — крок-питання.
+   Розміри — як у ЄPython (перевірено 05.11.2026): ширина 7 px на символ + 8, висота 16 px на рядок + 10; без w — за текстом.
+   Кольори з програми (red, yellow…) — як у справжньому вікні; решта — змінні теми. Класи з префіксом kb-. */
+(function(){
+document.head.insertAdjacentHTML('beforeend','<style>'+
+'.kb{display:grid;grid-template-columns:minmax(0,1.38fr) minmax(0,1fr);gap:16px;flex:1;min-height:0;align-content:start}'+
+'.kb-p{border:3px solid var(--ink);background:var(--paper);display:flex;flex-direction:column;min-height:0}'+
+'.kb-h{padding:6px 12px;border-bottom:3px solid var(--ink);font:700 20px var(--body);display:flex;justify-content:space-between;gap:8px}'+
+'.kb-h small{font:600 17px var(--body);color:var(--muted)}'+
+'.kb-code{padding:8px 0;display:flex;flex-direction:column}'+
+'.kb-l{display:grid;grid-template-columns:30px 26px minmax(0,1fr);align-items:center;font:600 21px/1.45 var(--mono);padding:1px 6px;transition:background .3s;white-space:pre}'+
+'.kb-l i{font-style:normal;color:var(--muted);font-size:18px;text-align:right;padding-right:8px}'+
+'.kb-l b{color:var(--accent);font:800 24px/1 var(--body);visibility:hidden}.kb-l i{line-height:1}'+
+'.kb-l.cur{background:var(--accent-tint)}.kb-l.cur b{visibility:visible}'+
+'.kb-l.done{opacity:.55}'+
+/* довга програма (11+ рядків) — щільніше, щоб вмістилась */
+'.kb-dense .kb-l{font-size:19px;line-height:1.3}.kb-dense .kb-code{padding:5px 0}'+
+'.kb-l span{overflow:hidden;text-overflow:ellipsis}'+
+'.kb-ww{padding:12px;display:flex;justify-content:center;align-items:flex-start;min-height:120px}'+
+'.kb-box{position:relative;flex:none}'+
+'.kb-none{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font:600 20px var(--body);color:var(--muted);text-align:center}'+
+'.kb-w{position:absolute;left:0;top:0;transform-origin:0 0;background:var(--paper);border:1px solid var(--accent);box-shadow:0 4px 14px rgba(0,0,0,.3);transition:opacity .4s}'+
+'.kb-w.off{opacity:0}'+
+'.kb-t{height:28px;display:flex;align-items:center;gap:6px;padding:0 8px;border-bottom:1px solid var(--line);font:13px/1 Arial,sans-serif;color:black;background:white;white-space:nowrap;overflow:hidden}'+
+'.kb-t span{flex:1;overflow:hidden;text-overflow:ellipsis}.kb-t em{font-style:normal;letter-spacing:7px;color:dimgray}'+
+'.kb-t.new{animation:kbf 1.4s}@keyframes kbf{0%{background:var(--sun)}100%{background:white}}'+
+'.kb-c{position:relative;overflow:hidden;background:whitesmoke;transition:background .6s}'+
+'.kb-b{position:absolute;box-sizing:border-box;display:flex;align-items:center;justify-content:center;padding:0 8px;white-space:nowrap;'+
+ 'font:12px/16px Arial,sans-serif;color:black;background:whitesmoke;border:1px solid;border-color:white dimgray dimgray white;'+
+ 'box-shadow:1px 1px 0 gainsboro inset,-1px -1px 0 darkgray inset;transition:left .6s,top .6s,background .5s,color .5s,opacity .4s}'+
+'.kb-b.dis{color:gray}'+
+'.kb-b.hid{opacity:0;pointer-events:none}'+
+'.kb-b.down{border-color:dimgray white white dimgray;box-shadow:none}'+
+'.kb-b.new{outline:3px solid var(--sun);outline-offset:2px}'+
+'.kb-g{position:absolute;border-color:var(--coral);border-style:dashed;border-width:0;pointer-events:none}'+
+'.kb-g.hz{border-top-width:2px;height:0}.kb-g.vt{border-left-width:2px;width:0}'+
+'.kb-d{position:absolute;font:700 11px/1.25 Arial,sans-serif;color:var(--ink);background:var(--sun);padding:0 4px;white-space:nowrap;transform:translate(-50%,-50%)}'+
+'.kb-ax{position:absolute;font:700 11px/1 Arial,sans-serif;color:var(--coral);white-space:nowrap}'+
+'.kb-cur{position:absolute;width:22px;height:30px;pointer-events:none;transition:left .5s,top .5s,opacity .3s;z-index:3}'+
+'.kb-cur svg{width:100%;height:100%;display:block}'+
+'.kb-cur path{fill:var(--ink);stroke:var(--paper);stroke-width:2}'+
+'.kb-cur.off{opacity:0}'+
+'.kb-rp{position:absolute;width:40px;height:40px;margin:-20px 0 0 -20px;border:3px solid var(--coral);border-radius:50%;opacity:0;pointer-events:none;z-index:2}'+
+'.kb-rp.go{animation:kbr .8s ease-out}@keyframes kbr{0%{transform:scale(.2);opacity:1}100%{transform:scale(1.6);opacity:0}}'+
+'.kb-cap{grid-column:1/-1;border:3px solid var(--ink);background:var(--paper-alt);padding:10px 16px}'+
+'.kb-cap b.k{display:block;font:700 19px var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:3px}'+
+'.kb-cap.ask b.k{color:var(--coral)}'+
+'.kb-cap p{font-size:24px;line-height:1.3;margin:0}'+
+/* учнівська стрічка (телефон вертикально): одне під одним */
+'.feed .stage .kb{grid-template-columns:minmax(0,1fr)}.feed .stage .kb-l{font-size:18px}.feed .stage .kb-dense .kb-l{font-size:16px}'+
+/* учнівська сторінка горизонтально: щільніше, бо під слайдом кнопки */
+'html.student:not(.feed) .kb{gap:10px}html.student:not(.feed) .kb-h{padding:3px 12px}html.student:not(.feed) .kb-code{padding:3px 0}'+
+'html.student:not(.feed) .kb-l{font-size:16px;line-height:1.15}html.student:not(.feed) .kb-ww{padding:6px}'+
+'html.student:not(.feed) .kb-cap{padding:6px 12px}html.student:not(.feed) .kb-cap p{font-size:19px}'+
+'</style>');
+
+const U=s=>{const t=document.createElement('textarea');t.innerHTML=String(s);return t.value};
+const H=s=>U(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const B=s=>/<b>/.test(s)?s:H(s).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>');
+/* назва кольору з програми — лише латинські літери; інакше — колір за замовчуванням */
+const C=(c,d)=>/^[a-z]+$/i.test(String(c||''))?String(c):d;
+const TH=28; /* висота рядка заголовка вікна */
+const CUR='<svg viewBox="0 0 22 30"><path d="M2 2 L2 24 L8 18 L12 28 L16 26 L12 17 L20 17 Z"/></svg>';
+
+function make(){return{
+ html:()=>'<div class="kb">'+
+  '<div class="kb-p"><div class="kb-h">Програма<small>виконується згори вниз</small></div><div class="kb-code"></div></div>'+
+  '<div class="kb-p"><div class="kb-h">Вікно програми<small class="kb-sz"></small></div><div class="kb-ww"><div class="kb-box">'+
+   '<div class="kb-none">Вікна ще немає</div>'+
+   '<div class="kb-w off"><div class="kb-t"><span></span><em>–□×</em></div><div class="kb-c">'+
+    '<div class="kb-gs"></div><div class="kb-bs"></div><span class="kb-rp"></span><span class="kb-cur off">'+CUR+'</span></div></div>'+
+  '</div></div></div>'+
+  '<div class="kb-cap"><b class="k"></b><p></p></div></div>',
+ mount(r,d,api){
+  const code=d.code||[],steps=d.steps||[{line:0,k:'',say:''}],W0=Object.assign({t:'tk',w:300,h:200},d.win||{});
+  const CO=r.querySelector('.kb-code'),BOX=r.querySelector('.kb-box'),WIN=r.querySelector('.kb-w'),T=WIN.querySelector('.kb-t'),
+    TS=T.querySelector('span'),CL=WIN.querySelector('.kb-c'),BS=r.querySelector('.kb-bs'),GS=r.querySelector('.kb-gs'),
+    CUROR=r.querySelector('.kb-cur'),RP=r.querySelector('.kb-rp'),NONE=r.querySelector('.kb-none'),SZ=r.querySelector('.kb-sz'),
+    WW=r.querySelector('.kb-ww'),VK=r.querySelector('.kb'),CAP=r.querySelector('.kb-cap');
+  CO.innerHTML=code.map((t,j)=>'<div class="kb-l"><i>'+(j+1)+'</i><b>➜</b><span>'+H(t)+'</span></div>').join('');
+  VK.classList.toggle('kb-dense',code.length>10);
+  const LS=[...CO.children];
+  /* стан після кожного кроку: вікно й кнопки накопичуються */
+  const ST=[];{let w=d.win===false?null:Object.assign({},W0),bs=[];
+   steps.forEach(s=>{
+    if(s.win===false)w=null;else if(s.win)w=Object.assign({},w||W0,s.win);
+    if(s.btns)bs=s.btns.map(b=>Object.assign({},b));
+    if(s.set)Object.keys(s.set).forEach(k=>{if(bs[+k])bs[+k]=Object.assign({},bs[+k],s.set[k])});
+    ST.push({w:w&&Object.assign({},w),bs:bs.map(b=>Object.assign({},b))})})}
+  let lastT=null,lastBs=[];
+  /* масштаб: вікно на всю ширину панелі, але не вище за вільне місце */
+  function fit(w){const pw=WW.clientWidth-24;if(pw<=0)return;
+   const ww=+w.w+2,hh=+w.h+TH+2,feed=!!r.closest('.feed');let s=pw/ww;
+   if(!feed){const box=VK.parentElement.clientHeight,hd=WW.previousElementSibling.offsetHeight,
+     maxH=box-CAP.offsetHeight-hd-46;if(box>0&&maxH>80)s=Math.min(s,maxH/hh)}
+   s=Math.max(.4,Math.min(s,2.4));
+   WIN.style.transform='scale('+s+')';BOX.style.width=Math.round(ww*s)+'px';BOX.style.height=Math.round(hh*s)+'px'}
+  function fontOf(b){let px=12,fam='Arial,sans-serif',bold=!!b.bold;
+   if(b.font!=null){const f=String(b.font),m=f.match(/(\d+)/);if(m)px=Math.round(+m[1]*4/3);
+    const n=f.replace(/\d+/g,'').replace(/bold|italic|underline/gi,'').trim();if(n)fam="'"+n.replace(/'/g,'')+"',sans-serif";
+    if(/bold/i.test(f))bold=true}
+   return{px,fam,bold}}
+  function step(i){const s=steps[i]||{},st=ST[i]||{w:null,bs:[]},w=st.w;
+   LS.forEach((l,j)=>{l.classList.toggle('cur',s.line===j+1);l.classList.toggle('done',!!s.line&&j+1<s.line)});
+   WIN.classList.toggle('off',!w);NONE.style.display=w?'none':'';
+   const wv=w||W0;fit(wv);
+   SZ.textContent=w?(wv.w+' × '+wv.h+' пікселів'):'';
+   CL.style.width=wv.w+'px';CL.style.height=wv.h+'px';WIN.style.width=(+wv.w+2)+'px';
+   CL.style.background=C(wv.bg,'whitesmoke');
+   const t=w?String(w.t==null?'tk':w.t):'';TS.textContent=U(t);
+   if(w&&lastT!==null&&lastT!==t){T.classList.remove('new');void T.offsetWidth;T.classList.add('new')}
+   lastT=w?t:null;
+   /* кнопки */
+   while(BS.children.length<st.bs.length)BS.insertAdjacentHTML('beforeend','<div class="kb-b"></div>');
+   [...BS.children].forEach((el,j)=>{if(j>=st.bs.length)el.style.display='none'});
+   let y=0;const pos=[];
+   st.bs.forEach((b,j)=>{const el=BS.children[j],f=fontOf(b),lh=Math.round(f.px*4/3),cw=f.px*.58;
+    el.style.display='';
+    el.textContent=U(b.t==null?'':String(b.t));
+    el.style.font=(f.bold?'700 ':'')+f.px+'px/'+lh+'px '+f.fam;
+    el.style.width=b.w?Math.round(cw*+b.w+8+(f.px-12))+'px':'';
+    el.style.height=Math.round(lh*(+b.h||1)+10+(f.px-12)*.6)+'px';
+    el.style.minWidth=b.w?'':'18px';
+    el.style.background=C(b.bg,'whitesmoke');
+    el.classList.toggle('dis',/^disable/i.test(String(b.state||'')));
+    el.style.color=el.classList.contains('dis')?'':C(b.fg,'black');
+    const on=b.show!==false&&!b.gone;el.classList.toggle('hid',!on);
+    const bw=el.offsetWidth,bh=el.offsetHeight,py=+b.pady||0;let x,yy;
+    if(Array.isArray(b.at)){x=+b.at[0];yy=+b.at[1]}
+    else{x=Math.round((wv.w-bw)/2);yy=on?y+py:y;if(on)y+=py+bh+py}
+    el.style.left=x+'px';el.style.top=yy+'px';
+    const was=lastBs[j];el.classList.toggle('new',on&&!!w&&(!was||!was.on));
+    pos.push({x,y:yy,w:bw,h:bh,on,pady:py,at:Array.isArray(b.at),top:yy-py})});
+   lastBs=pos.map(p=>({on:p.on}));
+   /* відступи й координати */
+   GS.innerHTML='';
+   if(s.dims&&w){let g='';
+    pos.forEach(p=>{if(!p.on)return;
+     if(p.at){g+='<div class="kb-g hz" style="left:0;top:'+(p.y+p.h/2)+'px;width:'+p.x+'px"><span class="kb-d" style="left:50%;top:0">x = '+p.x+'</span></div>'+
+       '<div class="kb-g vt" style="left:'+(p.x+p.w/2)+'px;top:0;height:'+p.y+'px"><span class="kb-d" style="left:0;top:50%">y = '+p.y+'</span></div>'}
+     else if(p.pady){g+='<div class="kb-g vt" style="left:'+(p.x-14)+'px;top:'+p.top+'px;height:'+p.pady+'px"><span class="kb-d" style="left:0;top:50%;transform:translate(-100%,-50%)">pady = '+p.pady+'</span></div>'}});
+    if(pos.some(p=>p.on&&p.at))g+='<span class="kb-ax" style="left:3px;top:3px">(0, 0)</span><span class="kb-ax" style="right:4px;top:3px">x →</span><span class="kb-ax" style="left:3px;bottom:4px">y ↓</span>';
+    GS.innerHTML=g}
+   /* клацання */
+   [...BS.children].forEach(el=>el.classList.remove('down'));
+   const c=s.click==null?null:pos[+s.click];
+   if(c&&c.on&&w){Object.assign(CUROR.style,{left:(c.x+c.w*.6)+'px',top:(c.y+c.h*.45)+'px'});CUROR.classList.remove('off');
+    Object.assign(RP.style,{left:(c.x+c.w*.6)+'px',top:(c.y+c.h*.45)+'px'});RP.classList.remove('go');void RP.offsetWidth;RP.classList.add('go');
+    const el=BS.children[+s.click];el.classList.add('down');setTimeout(()=>el.classList.remove('down'),350)}
+   else CUROR.classList.add('off');
+   CAP.classList.toggle('ask',!!s.ask);
+   CAP.querySelector('.k').textContent=s.k||'';CAP.querySelector('p').innerHTML=B(s.say||'')}
+  return{count:steps.length-1,step}}}}
+W.knopka18=make();W.mistse18=make();W.klik18=make();
+})();
+}
+{
+/* sections/8-r2/widgets/prakt16.js */
+/* 8 клас: практична робота № 3 — повторення будови ПК і добір складових (урок 8-16) */
+
+/* Схема обміну даними в ПК: блоки з'являються кроками, потім шлях літери «А» від клавіатури до монітора й диска.
+   d.im — ключі картинок [введення, процесор, внутрішня, зовнішня, виведення] */
+W.flow16={html:d=>{
+  const im=k=>'<img src="'+((d.im&&IMG[d.im[k]])||'')+'" alt="">';
+  const B=(n,cls,k,t,s)=>'<div class="f16-b '+cls+'" data-n="'+n+'">'+im(k)+'<div><b>'+t+'</b><span>'+s+'</span></div></div>';
+  return '<style>.f16-g{display:grid;grid-template-columns:1fr 50px 1.25fr 50px 1fr;align-items:center;gap:6px;flex:none}'+
+   '.f16-b{border:3px solid var(--line);border-radius:16px;background:var(--paper);padding:6px 14px;display:flex;align-items:center;gap:14px;opacity:.12;transition:opacity .4s,border-color .4s,background .4s}'+
+   '.f16-b.vis{opacity:1}.f16-b.on{border-color:var(--accent);background:var(--accent-tint,var(--sun-soft))}'+
+   '.f16-b img{width:66px;height:62px;object-fit:contain;flex:none}.f16-b b{display:block;font-size:24px;line-height:1.15}.f16-b span{display:block;font-size:21px;color:var(--muted);margin-top:4px}'+
+   '.f16-side{flex-direction:column;text-align:center;padding:16px 12px}.f16-side img{width:130px;height:100px}'+
+   '.f16-mid{display:flex;flex-direction:column;gap:0}.f16-v,.f16-a{text-align:center;font:700 26px/1 var(--display,sans-serif);color:var(--muted);opacity:.12;transition:opacity .4s,color .4s}'+
+   '.f16-v.vis,.f16-a.vis{opacity:1}.f16-v.on,.f16-a.on{color:var(--accent)}'+
+   '.f16-t{margin-top:10px;padding:8px 20px;text-align:center;min-height:56px}.f16-t p{margin:0;font-size:24px}'+
+   '.feed .f16-g{grid-template-columns:1fr}.feed .f16-a{transform:rotate(90deg)}.feed .f16-b img{width:60px;height:60px}.feed .f16-side{flex-direction:row;text-align:left}</style>'+
+   '<div class="f16-g">'+B(1,'f16-side',0,'Пристрої введення','передавання даних')+'<div class="f16-a" data-n="2">→</div>'+
+   '<div class="f16-mid">'+B(3,'',1,'Процесор','опрацювання даних')+'<div class="f16-v" data-n="3">↕</div>'+
+    B(2,'',2,'Внутрішня пам’ять','зберігання, поки працює')+'<div class="f16-v" data-n="4">↕</div>'+
+    B(4,'',3,'Зовнішня пам’ять','зберігання надовго')+'</div>'+
+   '<div class="f16-a" data-n="5">→</div>'+B(5,'f16-side',4,'Пристрої виведення','передавання даних')+'</div>'+
+   '<div class="f16-t box sun"><p class="f16-tt"></p></div>'},
+ mount(r){
+  const T=['З чого складається комп’ютер? Пробіл або клік — далі.',
+   'Пристрої введення передають вхідні дані в комп’ютер: клавіатура, миша, мікрофон, сканер.',
+   'Дані потрапляють у внутрішню пам’ять — центр обміну даними між усіма пристроями.',
+   'Процесор бере дані з внутрішньої пам’яті, опрацьовує їх і повертає результат.',
+   'Зовнішня пам’ять зберігає дані надовго, і після вимкнення: HDD, SSD, флешки.',
+   'Пристрої виведення передають результати людині: монітор, принтер, колонки.',
+   '<b>Приклад.</b> Натиснули клавішу «А» — клавіатура передає код літери…',
+   '…код потрапляє в оперативну пам’ять…',
+   '…процесор опрацьовує його й повертає результат у пам’ять…',
+   '…а з пам’яті літера йде на монітор.',
+   '<b>Ctrl+S</b> — документ з оперативної пам’яті записано на диск. Тепер він не зникне.'];
+  // кроки 6–10: які блоки й стрілки підсвічено
+  const HL=[[1],['a2',2],[2,'v3',3],[2,'a5',5],[2,'v4',4]];
+  const all=[...r.querySelectorAll('[data-n]')],TT=r.querySelector('.f16-tt');
+  const key=e=>e.classList.contains('f16-b')?+e.dataset.n:(e.classList.contains('f16-a')?'a':'v')+e.dataset.n;
+  function step(i){const shown=Math.min(i,5),hl=i>5?HL[i-6]:[];
+   all.forEach(e=>{const n=+e.dataset.n;e.classList.toggle('vis',n<=shown);e.classList.toggle('on',hl.includes(key(e)))});
+   TT.innerHTML=T[i]}
+  return{count:10,step}}};
+
+/* Введення, виведення чи пам’ять: пристрій з’являється ліворуч, наступний крок кладе його в стовпець.
+   d.items — [[ключ картинки, назва, група 0–2]] */
+W.sort16={html:()=>'<style>.s16-g{display:grid;grid-template-columns:270px 1fr 1fr 1fr;gap:14px;flex:none;min-height:330px}'+
+  '.s16-q{border:3px dashed var(--line);border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:14px;text-align:center}'+
+  '.s16-q img{width:200px;height:170px;object-fit:contain}.s16-qn{font:700 27px/1.2 var(--display,sans-serif)}.s16-qs{font-size:21px;color:var(--muted)}'+
+  '.s16-c{border:3px solid var(--line);border-radius:16px;padding:10px;display:flex;flex-direction:column;gap:8px;min-height:0}'+
+  '.s16-h{text-align:center;font-size:24px;font-weight:800;padding-bottom:6px;border-bottom:3px solid var(--line)}'+
+  '.s16-i{display:none;align-items:center;gap:12px;font-size:22px;line-height:1.15;padding:4px 8px;border-radius:10px;border:2px solid transparent}'+
+  '.s16-i img{width:58px;height:50px;object-fit:contain;flex:none}.s16-i.new{border-color:var(--mint);background:var(--paper)}'+
+  '.feed .s16-g{grid-template-columns:1fr 1fr}.feed .s16-q{grid-column:1/-1}.feed .s16-q img{width:140px;height:110px}</style>'+
+  '<div class="s16-g"><div class="s16-q"><img class="s16-qi" alt=""><div class="s16-qn"></div><div class="s16-qs"></div></div>'+
+  ['Введення','Виведення','Пам’ять'].map((h,i)=>'<div class="s16-c" data-c="'+i+'"><div class="s16-h">'+h+'</div></div>').join('')+'</div>',
+ mount(r,d){
+  const T=d.items||[],C=[...r.querySelectorAll('.s16-c')],QI=r.querySelector('.s16-qi'),QN=r.querySelector('.s16-qn'),QS=r.querySelector('.s16-qs');
+  const cards=T.map(t=>{const e=document.createElement('div');e.className='s16-i';
+   e.innerHTML='<img src="'+(IMG[t[0]]||'')+'" alt=""><span>'+t[1]+'</span>';C[t[2]].append(e);return e});
+  function step(s){const placed=Math.max(0,s-1),ask=s>=1&&s<=T.length?s-1:-1;
+   cards.forEach((e,k)=>{e.style.display=k<placed?'flex':'none';e.classList.toggle('new',k===placed-1)});
+   QI.style.visibility=ask>=0?'visible':'hidden';if(ask>=0)QI.src=IMG[T[ask][0]]||'';
+   QN.innerHTML=ask>=0?T[ask][1]:(s===0?'Куди віднести пристрій?':'Готово!');
+   QS.textContent=ask>=0?'Введення, виведення чи пам’ять?':(s===0?'Пробіл або клік — перший пристрій.':'Кожен пристрій — на своєму місці.')}
+  return{count:T.length+1,step}}};
+
+/* Розбираємо приклад добору: рядки таблиці «властивість — значення — чому» відкриваються кроками, останній крок — зразок обґрунтування.
+   d.who — хто, d.tasks — його задачі, d.rows — [[властивість, значення, чому]], d.sum — обґрунтування */
+W.fill16={html:d=>'<style>.p16-w{padding:10px 20px;margin-bottom:12px;text-align:center}.p16-w p{margin:0;font-size:24px}'+
+  '.p16-t{display:grid;grid-template-columns:260px 340px 1fr;border-top:3px solid var(--ink);flex:none;align-content:start}'+
+  '.p16-t>div{padding:6px 12px;font-size:22px;line-height:1.2;border-bottom:2px solid var(--line)}'+
+  '.p16-t .p16-h{font-weight:800;font-size:21px;color:var(--muted)}.p16-t .p16-p{font-weight:700}'+
+  '.p16-t .p16-v,.p16-t .p16-y{opacity:0;transition:opacity .4s}.p16-t .on{opacity:1}.p16-t .p16-y{color:var(--muted)}'+
+  '.p16-s{margin-top:12px;padding:10px 20px;visibility:hidden}.p16-s.on{visibility:visible}.p16-s p{margin:0;font-size:23px}'+
+  '.feed .p16-t{grid-template-columns:1fr 1fr}.feed .p16-t .p16-y{grid-column:1/-1;border-bottom-width:3px}.feed .p16-t .p16-hy{display:none}</style>'+
+  '<div class="p16-w box sun"><p><b>'+(d.who||'')+'</b> — '+(d.tasks||'')+'</p></div>'+
+  '<div class="p16-t"><div class="p16-h">Властивість</div><div class="p16-h">Значення</div><div class="p16-h p16-hy">Чому</div>'+
+  (d.rows||[]).map(x=>'<div class="p16-p">'+x[0]+'</div><div class="p16-v">'+x[1]+'</div><div class="p16-y">'+x[2]+'</div>').join('')+'</div>'+
+  '<div class="p16-s box mint"><p>'+(d.sum||'')+'</p></div>',
+ mount(r,d){
+  const n=(d.rows||[]).length,V=[...r.querySelectorAll('.p16-v')],Y=[...r.querySelectorAll('.p16-y')],S=r.querySelector('.p16-s');
+  function step(i){V.forEach((e,k)=>e.classList.toggle('on',k<i));Y.forEach((e,k)=>e.classList.toggle('on',k<i));S.classList.toggle('on',i>n)}
+  return{count:n+1,step}}};
 }
 {
 /* sections/9-r2/widgets/layout.js */

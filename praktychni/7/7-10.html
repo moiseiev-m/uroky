@@ -12,6 +12,8 @@
 <div class="sheet">
 <header class="hdr"><span class="hdr-l">Урок №10 · Практичне завдання</span><span class="logo">Інформатика · 7 клас</span></header>
 <div class="ttl"><div class="num"><b>10</b><i>урок</i></div><div class="plate"><p class="kick">Практичне завдання</p><h1>Консольні проєкти з обчисленнями</h1><p class="tp">Тема: Програмування</p></div></div>
+<nav class="var-sw" aria-label="Як виконувати"><button type="button" data-var="pc" aria-pressed="true"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="4" width="19" height="12" rx="1.5"/><path d="M8 20h8M12 16v4"/></svg><span>За комп’ютером</span></button><button type="button" data-var="tel" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6.5" y="2.5" width="11" height="19" rx="2.2"/><path d="M10.5 18.5h3"/></svg><span>З телефона</span></button></nav><p class="var-hint">Немає комп’ютера — виберіть «З телефона»: завдання на ту саму тему, їх можна виконати на телефоні.</p>
+<div class="var" data-var="pc">
 <div class="uvaga"><b aria-hidden="true">!</b><p><strong>Увага!</strong> Під час роботи з комп’ютером дотримуйтеся вимог безпеки життєдіяльності та санітарно-гігієнічних норм.</p></div>
 <main>
 <p>Працюємо в <b>ЄPython</b>. У кожному завданні є кнопка <b>▶ Відкрити заготовку в ЄPython</b> — код одразу з’явиться в редакторі, набирати його не треба.</p>
@@ -61,6 +63,61 @@ t = int(input('Скільки горішків? '))
 <p class="end">Перевірте, що в папці <b>Завантаження</b> є <b>буфет.py</b> (і <b>клумба.py</b>, <b>білочки.py</b>, якщо робили). Закрийте вкладку браузера.</p>
 </main>
 </div>
+<div class="var" data-var="tel" hidden>
+<div class="uvaga"><b aria-hidden="true">!</b><p><strong>Увага!</strong> Працюйте з телефоном сидячи, тримайте екран на відстані 30–40 см від очей і кожні 15–20 хвилин робіть перерву: подивіться вдалину.</p></div>
+<main>
+<p>Працюємо в <b>ЄPython</b> у браузері телефона (Chrome або Safari) — нічого встановлювати не треба. Кнопка <b>▶ Відкрити заготовку в ЄPython</b> відкриває код завдання.</p>
+<p>Запуск — зелена кнопка <b>▶</b> унизу праворуч. Коли програма просить число, наберіть його в чорному вікні й натисніть <b>OK</b>. Червоний хрестик <b>×</b> угорі повертає до коду.</p>
+<p>Обов’язкове — завдання <b>⭐</b>. Зробили й перевірили себе — переходьте до <b>⭐⭐</b>, далі <b>⭐⭐⭐</b>.</p>
+<div class="tip"><span class="av" aria-hidden="true"><svg viewBox="14 8 212 212"><use href="#b-hd-hi" width="240" height="280"/><use href="#b-hd-g7" width="240" height="280"/></svg></span><p>Код пишеться англійськими літерами — перемкніть мову клавіатури. Дужки, лапки, знаки <b>+</b> і <b>=</b> шукайте на клавіатурі символів (кнопка <b>?123</b> або <b>123</b>). Дробові числа — через крапку: <b>2.5</b>.</p></div>
+<section class="zav">
+<h2><mark>Завдання 1 · рівень 1 ⭐ «Шкільний буфет» (обов’язкове)</mark></h2>
+<p class="zt">Програма рахує, скільки заплатити за булочки. Запустіть її, а потім змініть.</p>
+<div class="kod"><a class="kod-b" href="https://yepython.pp.ua/?code=IyDQqNC60ZbQu9GM0L3QuNC5INCx0YPRhNC10YI6INGB0LrRltC70YzQutC4INC30LDQv9C70LDRgtC40YLQuCDQt9CwINCx0YPQu9C%2B0YfQutC4CnByaWNlID0gMTIgICMg0YbRltC90LAg0L7QtNC90ZbRlNGXINCx0YPQu9C%2B0YfQutC4LCDQs9GA0L0KY291bnQgPSBpbnQoaW5wdXQoJ9Ch0LrRltC70YzQutC4INCx0YPQu9C%2B0YfQvtC6PyAnKSkKI2p1aWNlID0gMjAgICMg0YHRltC6LCDQs9GA0L0KdG90YWwgPSBwcmljZSAqIGNvdW50CnByaW50KCfQlNC%2BINGB0L%2FQu9Cw0YLQuDonLCB0b3RhbCwgJ9Cz0YDQvScpCg%3D%3D" target="_blank" rel="noopener">▶ Відкрити заготовку в ЄPython</a><details><summary>Показати код заготовки</summary><pre># Шкільний буфет: скільки заплатити за булочки
+price = 12  # ціна однієї булочки, грн
+count = int(input('Скільки булочок? '))
+#juice = 20  # сік, грн
+total = price * count
+print('До сплати:', total, 'грн')</pre></details></div>
+<ol class="kr"><li>Відкрийте заготовку й запустіть. Введіть <b>3</b> і натисніть <b>OK</b>. Має бути <b>До сплати: 36 грн</b>.</li><li>Булочка подорожчала: змініть <b>12</b> на <b>15</b>. Запустіть ще раз з <b>3</b> булочками — тепер <b>45</b> грн.</li><li>Додайте сік: у рядку з <b>juice</b> видаліть знак <b>#</b> на початку. Торкніться кінця рядка з <b>total</b> і допишіть <b>+ juice</b> — вийде <b>total = price * count + juice</b>.</li><li>Торкніться кінця останнього рядка, натисніть <b>Enter</b> і наберіть <b>print('Дякуємо за покупку!')</b>. Запустіть з <b>3</b> булочками.</li></ol>
+<figure class="rez"><figcaption>Як має вийти</figcaption><button type="button" class="rez-b" aria-label="Збільшити зразок"><img src="img/7-10-t1.webp" alt="Зразок: як має виглядати результат" draggable="false" loading="lazy"></button></figure>
+<div class="chk"><p class="chk-h">Перевірте себе</p><p class="chk-t">для <b>3</b> булочок програма виводить <b>До сплати: 65 грн</b>, а наступним рядком — подяку.</p></div>
+</section>
+<section class="zav">
+<h2><mark>Завдання 2 · рівень 2 ⭐⭐ «Клумба»</mark></h2>
+<p class="zt">Клумба прямокутна: довжина <b>a</b> м, ширина <b>b</b> м. Її треба обгородити й засадити — по <b>4</b> саджанці на кожен квадратний метр. Допишіть формули.</p>
+<div class="kod"><a class="kod-b" href="https://yepython.pp.ua/?code=IyDQmtC70YPQvNCx0LA6INC00L7QstC20LjQvdCwINC%2B0LPQvtGA0L7QttGWINC5INC60ZbQu9GM0LrRltGB0YLRjCDRgdCw0LTQttCw0L3RhtGW0LIgKDQg0YHQsNC00LbQsNC90YbRliDQvdCwIDEg0LzCsikKYSA9IGludChpbnB1dCgn0JTQvtCy0LbQuNC90LAg0LrQu9GD0LzQsdC4LCDQvDogJykpCmIgPSBpbnQoaW5wdXQoJ9Co0LjRgNC40L3QsCDQutC70YPQvNCx0LgsINC8OiAnKSkKcCA9IDAgICAgICMg4oaQINC30LDQvNGW0YHRgtGMIDAg4oCUINC%2F0LXRgNC40LzQtdGC0YA6INC00L7QstC20LjQvdCwINC%2B0LPQvtGA0L7QttGWCnMgPSAwICAgICAjIOKGkCDQt9Cw0LzRltGB0YLRjCAwIOKAlCDQv9C70L7RidCwINC60LvRg9C80LHQuAprID0gMCAgICAgIyDihpAg0LfQsNC80ZbRgdGC0YwgMCDigJQg0LrRltC70YzQutGW0YHRgtGMINGB0LDQtNC20LDQvdGG0ZbQsgpwcmludCgn0JTQvtCy0LbQuNC90LAg0L7Qs9C%2B0YDQvtC20ZY6JywgcCwgJ9C8JykKcHJpbnQoJ9Ch0LDQtNC20LDQvdGG0ZbQsjonLCBrKQo%3D" target="_blank" rel="noopener">▶ Відкрити заготовку в ЄPython</a><details><summary>Показати код заготовки</summary><pre># Клумба: довжина огорожі й кількість саджанців (4 саджанці на 1 м²)
+a = int(input('Довжина клумби, м: '))
+b = int(input('Ширина клумби, м: '))
+p = 0     # ← замість 0 — периметр: довжина огорожі
+s = 0     # ← замість 0 — площа клумби
+k = 0     # ← замість 0 — кількість саджанців
+print('Довжина огорожі:', p, 'м')
+print('Саджанців:', k)</pre></details></div>
+<ol class="kr"><li>Відкрийте заготовку. У рядку з <b>p</b> замість <b>0</b> наберіть периметр прямокутника: <b>2 * (a + b)</b>.</li><li>У рядку з <b>s</b> — площу: довжина, помножена на ширину.</li><li>У рядку з <b>k</b> — кількість саджанців: площа, помножена на <b>4</b>.</li><li>Запустіть і перевірте на трьох клумбах з підказки нижче.</li></ol>
+<p>Довжина <b>2</b> і ширина <b>3</b> → огорожа <b>10</b> м, саджанців <b>24</b>. Довжина <b>5</b> і ширина <b>25</b> → <b>60</b> м і <b>500</b>. Довжина <b>1</b> і ширина <b>8</b> → <b>18</b> м і <b>32</b>.</p>
+<figure class="rez"><figcaption>Як має вийти</figcaption><button type="button" class="rez-b" aria-label="Збільшити зразок"><img src="img/7-10-t2.webp" alt="Зразок: як має виглядати результат" draggable="false" loading="lazy"></button></figure>
+<div class="chk"><p class="chk-h">Перевірте себе</p><p class="chk-t">усі три клумби дали ті самі числа, що в підказці вище.</p></div>
+</section>
+<section class="zav">
+<h2><mark>Завдання 3 · рівень 3 ⭐⭐⭐ «Білочки: виправте ділення»</mark></h2>
+<p class="zt">Є <b>n</b> білочок і <b>t</b> горішків. Горішки ділять порівну. Програма мала б показати, по скільки <b>цілих</b> горішків отримає кожна білочка і скільки залишиться, але знаки ділення в ній неправильні. Виправте їх.</p>
+<div class="kod"><a class="kod-b" href="https://yepython.pp.ua/?code=IyDQkdGW0LvQvtGH0LrQuDogbiDQsdGW0LvQvtGH0L7QuiDQv9C%2B0YDRltCy0L3RgyDQtNGW0LvRj9GC0YwgdCDQs9C%2B0YDRltGI0LrRltCyCm4gPSBpbnQoaW5wdXQoJ9Ch0LrRltC70YzQutC4INCx0ZbQu9C%2B0YfQvtC6PyAnKSkKdCA9IGludChpbnB1dCgn0KHQutGW0LvRjNC60Lgg0LPQvtGA0ZbRiNC60ZbQsj8gJykpCmsgPSB0IC8gbiAgICMg0L%2FQviDRgdC60ZbQu9GM0LrQuCDRhtGW0LvQuNGFINCz0L7RgNGW0YjQutGW0LIg0L7RgtGA0LjQvNCw0ZQg0LrQvtC20L3QsAp6ID0gdCAvLyBuICAjINGB0LrRltC70YzQutC4INCz0L7RgNGW0YjQutGW0LIg0LfQsNC70LjRiNC40YLRjNGB0Y8KcHJpbnQoJ9Ca0L7QttC90LAg0LHRltC70L7Rh9C60LAg0L7RgtGA0LjQvNCw0ZQ6JywgaykKI3ByaW50KCfQl9Cw0LvQuNGI0LjRgtGM0YHRjyDQs9C%2B0YDRltGI0LrRltCyOicsIHopCg%3D%3D" target="_blank" rel="noopener">▶ Відкрити заготовку в ЄPython</a><details><summary>Показати код заготовки</summary><pre># Білочки: n білочок порівну ділять t горішків
+n = int(input('Скільки білочок? '))
+t = int(input('Скільки горішків? '))
+k = t / n   # по скільки цілих горішків отримає кожна
+z = t // n  # скільки горішків залишиться
+print('Кожна білочка отримає:', k)
+#print('Залишиться горішків:', z)</pre></details></div>
+<ol class="kr"><li>Відкрийте заготовку й запустіть: <b>3</b> білочки й <b>10</b> горішків. Кожна білочка «отримує» <b>3.33…</b> горішка — так не буває. У рядку з <b>k</b> замініть <b>/</b> на <b>//</b> (ціла частина частки).</li><li>В останньому рядку видаліть знак <b>#</b> і запустіть знову з тими самими числами. Залишилося <b>3</b> горішки? Це неправильно: у рядку з <b>z</b> замініть <b>//</b> на <b>%</b> (остача від ділення).</li><li>Перевірте: <b>3</b> білочки й <b>10</b> горішків, потім <b>4</b> білочки й <b>20</b> горішків.</li></ol>
+<p>Встигли? Ще задача «Кафе»: троє друзів ділять рахунок <b>n</b> грн порівну, чайові — <b>10 %</b> від рахунку. Скільки платить кожен? Суму вводьте через <b>float</b>, відповідь округліть: <b>round(…, 2)</b>. Для <b>35.27</b> має вийти <b>12.93</b>.</p>
+<div class="chk"><p class="chk-h">Перевірте себе</p><p class="chk-t"><b>3</b> білочки й <b>10</b> горішків → кожна отримає <b>3</b>, залишиться <b>1</b>; <b>4</b> білочки й <b>20</b> горішків → по <b>5</b>, залишиться <b>0</b>.</p></div>
+</section>
+<p class="end">Для кожного зробленого завдання зробіть два знімки екрана — код і результат (на більшості телефонів — одночасно кнопка живлення й гучність униз). У Google Classroom відкрийте це завдання, у блоці <b>Ваша робота</b> натисніть <b>Додати</b> → <b>Файл</b>, виберіть знімки й натисніть <b>Здати</b>.</p>
+</main>
+</div>
+</div>
 <script>document.addEventListener("click",function(e){var f=e.target.closest(".rez.big");if(f){f.classList.remove("big");return;}var b=e.target.closest(".rez-b");if(b){b.parentNode.classList.add("big");}});document.addEventListener("keydown",function(e){if(e.key==="Escape"){document.querySelectorAll(".rez.big").forEach(function(f){f.classList.remove("big");});}});document.addEventListener("contextmenu",function(e){if(e.target.closest(".rez"))e.preventDefault();});</script>
+<script>(function(){var bs=document.querySelectorAll(".var-sw button"),vs=document.querySelectorAll(".var");function show(k,save){var i;for(i=0;i<vs.length;i++)vs[i].hidden=vs[i].getAttribute("data-var")!==k;for(i=0;i<bs.length;i++)bs[i].setAttribute("aria-pressed",bs[i].getAttribute("data-var")===k?"true":"false");if(save){try{localStorage.setItem("praktychna-var",k);}catch(e){}try{history.replaceState(null,"",k==="tel"?"#telefon":"#komp");}catch(e){}}}function fromHash(){return location.hash==="#telefon"?"tel":location.hash==="#komp"?"pc":null;}var k=fromHash();if(!k){try{k=localStorage.getItem("praktychna-var");}catch(e){}}show(k==="tel"?"tel":"pc",false);for(var i=0;i<bs.length;i++)bs[i].addEventListener("click",function(){show(this.getAttribute("data-var"),true);});window.addEventListener("hashchange",function(){var h=fromHash();if(h)show(h,false);});})();</script>
 </body>
 </html>

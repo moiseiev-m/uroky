@@ -12,6 +12,8 @@
 <div class="sheet">
 <header class="hdr"><span class="hdr-l">Урок №9 · Практичне завдання</span><span class="logo">Інформатика · 7 клас</span></header>
 <div class="ttl"><div class="num"><b>9</b><i>урок</i></div><div class="plate"><p class="kick">Практичне завдання</p><h1>Середовище створення проєктів. ЄPython</h1><p class="tp">Тема: Програмування</p></div></div>
+<nav class="var-sw" aria-label="Як виконувати"><button type="button" data-var="pc" aria-pressed="true"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="4" width="19" height="12" rx="1.5"/><path d="M8 20h8M12 16v4"/></svg><span>За комп’ютером</span></button><button type="button" data-var="tel" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6.5" y="2.5" width="11" height="19" rx="2.2"/><path d="M10.5 18.5h3"/></svg><span>З телефона</span></button></nav><p class="var-hint">Немає комп’ютера — виберіть «З телефона»: завдання на ту саму тему, їх можна виконати на телефоні.</p>
+<div class="var" data-var="pc">
 <div class="uvaga"><b aria-hidden="true">!</b><p><strong>Увага!</strong> Під час роботи з комп’ютером дотримуйтеся вимог безпеки життєдіяльності та санітарно-гігієнічних норм.</p></div>
 <main>
 <p>Сьогодні пишемо команди мовою Python онлайн — у середовищі <b>ЄPython</b>. Встановлювати нічого не треба, працює в браузері.</p>
@@ -42,6 +44,42 @@
 <p class="end">Перевірте, що в папці <b>Завантаження</b> є файли <b>проєкт_1.py</b> (і <b>проєкт_2.py</b>, якщо робили завдання 3). Закрийте вкладку браузера.</p>
 </main>
 </div>
+<div class="var" data-var="tel" hidden>
+<div class="uvaga"><b aria-hidden="true">!</b><p><strong>Увага!</strong> Працюйте з телефоном сидячи, тримайте екран на відстані 30–40 см від очей і кожні 15–20 хвилин робіть перерву: подивіться вдалину.</p></div>
+<main>
+<p>Працюємо в <b>ЄPython</b> у браузері телефона (Chrome або Safari) — нічого встановлювати не треба. Відкрийте сайт <b>yepython.pp.ua</b>.</p>
+<p>Унизу праворуч — зелена кнопка <b>▶</b> (виконати) і <b>⋮</b> — вона показує інші кнопки: <b>■</b> (зупинити), <b>&gt;_</b> (консоль), кнопку файлів зі стрілками і <b>⚙</b> (налаштування).</p>
+<div class="tip"><span class="av" aria-hidden="true"><svg viewBox="14 8 212 212"><use href="#b-hd-hi" width="240" height="280"/><use href="#b-hd-g7" width="240" height="280"/></svg></span><p>Код пишеться англійськими літерами — перемкніть мову клавіатури. Дужки, лапки й знаки дій шукайте на клавіатурі символів (кнопка <b>?123</b> або <b>123</b>). Лапки — звичайні прямі <b>'</b>, текст у лапках можна писати українською.</p></div>
+<section class="zav">
+<h2><mark>Завдання 1</mark></h2>
+<p class="zt">Обчисліть кілька виразів в інтерактивному режимі — у консолі з символами <b>&gt;&gt;&gt;</b>.</p>
+<ol class="kr"><li>Натисніть <b>⋮</b>, а потім кнопку консолі <b>&gt;_</b>. На весь екран відкриється вікно <b>REPL</b> з символами <b>&gt;&gt;&gt;</b>.</li><li>Торкніться рядка з <b>&gt;&gt;&gt;</b>, наберіть <b>2 + 3</b> і натисніть на клавіатурі <b>Enter</b>. Результат з’явиться в наступному рядку.</li><li>Так само по черзі введіть: <b>125 * 8</b>, <b>100 - 37 * 2</b>, <b>(100 - 37) * 2</b>, <b>7 / 2</b>. Після кожного виразу — <b>Enter</b>.</li><li>Введіть команду <b>print('Привіт, Python!')</b> і натисніть <b>Enter</b>. Зробіть знімок екрана й закрийте консоль червоним хрестиком <b>×</b> угорі праворуч.</li></ol>
+<p>Порівняйте результати двох виразів з числами 100 і 37. Чому вони різні?</p>
+<figure class="rez"><figcaption>Як має вийти</figcaption><button type="button" class="rez-b" aria-label="Збільшити зразок"><img src="img/7-9-t1.webp" alt="Зразок: як має виглядати результат" draggable="false" loading="lazy"></button></figure>
+<div class="chk"><p class="chk-h">Перевірте себе</p><p class="chk-t">кожен вираз дав результат у наступному рядку, як на зразку; <b>print</b> вивів текст без лапок.</p></div>
+</section>
+<section class="zav">
+<h2><mark>Завдання 2</mark></h2>
+<p class="zt">Виконайте перший проєкт, знайдіть помилку і збережіть файл у пам’ять телефона.</p>
+<div class="kod"><a class="kod-b" href="https://yepython.pp.ua/?code=cHJpbnQoJ9Cc0LXQvdC1INC30LLQsNGC0Lgg4oCmJykKcHJpbnQoJ9CvINC90LDQstGH0LDRjtGB0Y8g0LIgNyDQutC70LDRgdGWJykKcHJpbnQoJ9Cl0LLQuNC70LjQvSDRgyDQtNC%2B0LHRljonLCAyNCAqIDYwKQo%3D" target="_blank" rel="noopener">▶ Відкрити заготовку в ЄPython</a><details><summary>Показати код заготовки</summary><pre>print('Мене звати …')
+print('Я навчаюся в 7 класі')
+print('Хвилин у добі:', 24 * 60)</pre></details></div>
+<ol class="kr"><li>Відкрийте заготовку. Двічі торкніться назви файлу <b>mycode.py</b> над редактором, введіть назву проєкту <b>проєкт_1</b> і натисніть <b>OK</b>.</li><li>У першому рядку замість <b>…</b> напишіть своє ім’я (лапки не зачіпайте) і виконайте проєкт кнопкою <b>▶</b>. Результат з’явиться в чорному вікні, червоний хрестик <b>×</b> повертає до коду.</li><li>Навмисно зітріть останню лапку в першому рядку й знову натисніть <b>▶</b>. Прочитайте червоне повідомлення <b>SyntaxError</b> і номер рядка (<b>line 1</b>), поверніть лапку.</li><li>Торкніться кінця останнього рядка, натисніть <b>Enter</b> і допишіть <b>print('Секунд у годині:', 60 * 60)</b>. Виконайте проєкт ще раз.</li><li>Збережіть файл у телефон: <b>⋮</b> → кнопка файлів зі стрілками → зелена кнопка <b>Зберегти</b>. У віконці з ім’ям файлу ще раз натисніть <b>Зберегти</b> (якщо браузер перепитає — <b>Завантажити</b>). Файл <b>проєкт_1.py</b> потрапить у <b>Завантаження</b> телефона.</li></ol>
+<p>Ваше ім’я в першому рядку, звісно, інше, ніж на зразку.</p>
+<figure class="rez"><figcaption>Як має вийти</figcaption><button type="button" class="rez-b" aria-label="Збільшити зразок"><img src="img/7-9-t2.webp" alt="Зразок: як має виглядати результат" draggable="false" loading="lazy"></button></figure>
+<div class="chk"><p class="chk-h">Перевірте себе</p><p class="chk-t">після <b>▶</b> виводяться чотири рядки, останній — <b>Секунд у годині: 3600</b>, а в <b>Завантаженнях</b> телефона є файл <b>проєкт_1.py</b>.</p></div>
+</section>
+<section class="zav">
+<h2><mark>Завдання 3 (додаткове)</mark></h2>
+<p class="zt">Відкрийте збережений проєкт і зробіть з нього «калькулятор часу».</p>
+<ol class="kr"><li>Натисніть <b>⋮</b> → кнопка файлів → жовта кнопка <b>Отримати файл</b> і виберіть у <b>Завантаженнях</b> свій <b>проєкт_1.py</b> — у редакторі знову ваш проєкт.</li><li>Перейменуйте проєкт на <b>проєкт_2</b> (подвійний дотик до назви файлу).</li><li>Допишіть ще два рядки: скільки <b>годин у тижні</b> і скільки <b>хвилин у навчальному тижні з 5 днів</b>, якщо щодня 6 уроків по 45 хвилин. Обчислення пишіть виразом, як у рядку з <b>24 * 60</b>. Щоб менше набирати, скопіюйте цей рядок (утримуйте на ньому палець → <b>Копіювати</b>, потім <b>Вставити</b>) і змініть текст і числа.</li><li>Виконайте проєкт (<b>▶</b>), перевірте один результат у консолі <b>&gt;_</b> і збережіть файл (<b>Зберегти</b>).</li></ol>
+<div class="chk"><p class="chk-h">Перевірте себе</p><p class="chk-t">проєкт виводить шість рядків: годин у тижні — <b>168</b>, хвилин уроків за тиждень — <b>1350</b>; у <b>Завантаженнях</b> телефона є <b>проєкт_2.py</b>.</p></div>
+</section>
+<p class="end">Для кожного зробленого завдання зробіть знімки екрана — код і результат (на більшості телефонів — одночасно кнопка живлення й гучність униз). У Google Classroom відкрийте це завдання, у блоці <b>Ваша робота</b> натисніть <b>Додати</b> → <b>Файл</b>, виберіть знімки й натисніть <b>Здати</b>.</p>
+</main>
+</div>
+</div>
 <script>document.addEventListener("click",function(e){var f=e.target.closest(".rez.big");if(f){f.classList.remove("big");return;}var b=e.target.closest(".rez-b");if(b){b.parentNode.classList.add("big");}});document.addEventListener("keydown",function(e){if(e.key==="Escape"){document.querySelectorAll(".rez.big").forEach(function(f){f.classList.remove("big");});}});document.addEventListener("contextmenu",function(e){if(e.target.closest(".rez"))e.preventDefault();});</script>
+<script>(function(){var bs=document.querySelectorAll(".var-sw button"),vs=document.querySelectorAll(".var");function show(k,save){var i;for(i=0;i<vs.length;i++)vs[i].hidden=vs[i].getAttribute("data-var")!==k;for(i=0;i<bs.length;i++)bs[i].setAttribute("aria-pressed",bs[i].getAttribute("data-var")===k?"true":"false");if(save){try{localStorage.setItem("praktychna-var",k);}catch(e){}try{history.replaceState(null,"",k==="tel"?"#telefon":"#komp");}catch(e){}}}function fromHash(){return location.hash==="#telefon"?"tel":location.hash==="#komp"?"pc":null;}var k=fromHash();if(!k){try{k=localStorage.getItem("praktychna-var");}catch(e){}}show(k==="tel"?"tel":"pc",false);for(var i=0;i<bs.length;i++)bs[i].addEventListener("click",function(){show(this.getAttribute("data-var"),true);});window.addEventListener("hashchange",function(){var h=fromHash();if(h)show(h,false);});})();</script>
 </body>
 </html>
