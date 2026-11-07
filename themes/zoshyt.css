@@ -271,8 +271,8 @@ ul.list li::before{content:"";position:absolute;left:2px;top:.32em;width:22px;he
 /* ===== Питання → відповідь ===== */
 .rv .item{border:0;border-bottom:2px dashed var(--rule-soft);padding:12px 0;background:none;border-radius:0}
 .rv .q{font-weight:500}
-.rv .a{color:var(--ink);font-weight:500;display:flex;gap:10px;align-items:baseline}
-.rv .a::before{content:"";flex:none;width:20px;height:20px;background:var(--topic-deep);transform:translateY(2px);
+.rv .a{color:var(--ink);font-weight:500;position:relative;padding-left:30px}
+.rv .a::before{content:"";position:absolute;left:0;top:calc(.65em - 10px);width:20px;height:20px;background:var(--topic-deep);
   -webkit-mask:var(--m-check) center/contain no-repeat;mask:var(--m-check) center/contain no-repeat}
 .rv.compact .item{padding:8px 0}
 

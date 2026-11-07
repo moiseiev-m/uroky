@@ -1389,6 +1389,128 @@ W.tblobj={html:()=>'<div class="to6"><table id="toT"></table><div><span class="t
 })();
 }
 {
+/* sections/6-r4/widgets/bezie.js */
+/* ===== 6 клас, урок 6-14 «Створення, редагування і форматування векторних зображень» (криві Безьє): демонстрації, якими керує вчитель (пробіл або клік — далі) =====
+   W.bez6  — будова кривої Безьє: вузли, дуги, відрізки з маркерами керування; маркер тягнемо — дуга змінюється.
+   W.toch6 — три типи точок перегинання: кутова, гладка, симетрична — тягнемо лівий маркер, дивимось на правий.
+   Кольори — лише токени теми. Класи з префіксами bz6 і tc6: CSS віджетів спільний для всього сайту.
+   Анімація йде лише на видимому слайді (offsetParent), крок — пробіл або клік. */
+(function(){
+document.head.insertAdjacentHTML('beforeend','<style>'+
+'.bz6{display:grid;grid-template-columns:auto 1fr;gap:36px;align-items:start}'+
+'.bz6s{display:flex;flex-direction:column;gap:16px;min-width:0}'+
+'.bz6tag{align-self:flex-start;font:700 24px var(--display);padding:4px 16px;border-radius:999px;background:var(--accent-tint);color:var(--ink)}'+
+'.bz6cap{font-size:27px;line-height:1.35;margin:0}'+
+'.bz6svg{width:520px;height:364px;border:2px solid var(--line);border-radius:12px;background:var(--paper);display:block}'+
+'.bz6l{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}'+
+'.bz6l li{font-size:24px;padding:6px 14px;border-radius:10px;border:2px solid transparent;color:var(--muted);transition:background .3s,border-color .3s,color .3s;display:flex;align-items:center;gap:12px}'+
+'.bz6l li.on{background:var(--accent-tint);border-color:var(--accent);color:var(--ink)}'+
+'.bz6l svg{width:34px;height:24px;flex:none}'+
+'.bz6svg .bz6c{fill:none;stroke:var(--accent);stroke-width:14;stroke-linecap:round}'+
+'.bz6svg .bz6arc{fill:none;stroke:var(--sun);stroke-width:26;stroke-linecap:round;opacity:.55}'+
+'.bz6svg .bz6h{stroke:var(--ink);stroke-width:3;stroke-dasharray:9 6}'+
+'.bz6svg .bz6m{fill:var(--sky);stroke:var(--ink);stroke-width:3}'+
+'.bz6svg .bz6n{fill:var(--paper);stroke:var(--ink);stroke-width:3}'+
+'.bz6svg .bz6sel{fill:var(--sky);stroke:var(--ink);stroke-width:3}'+
+'.bz6svg .bz6ghost{fill:none;stroke:var(--muted);stroke-width:4;stroke-dasharray:4 8}'+
+'.tc6{display:grid;grid-template-columns:auto 1fr;gap:36px;align-items:start}'+
+'.tc6t{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}'+
+'.tc6t span{font:600 23px var(--display);text-align:center;padding:8px 10px;border-radius:10px;border:2px solid var(--line);color:var(--muted);transition:background .3s,border-color .3s,color .3s}'+
+'.tc6t span.on{background:var(--accent-tint);border-color:var(--accent);color:var(--ink)}'+
+'.tc6info{font-size:22px;line-height:1.4;margin:0;color:var(--muted)}'+
+'.feed .stage .bz6,.feed .stage .tc6{grid-template-columns:minmax(0,1fr);gap:16px}'+
+'.feed .stage .bz6svg{width:100%;height:auto;aspect-ratio:60/42}'+
+'</style>');
+const b2h=t=>t.replace(/\*\*(.+?)\*\*/g,'<b>$1</b>');
+const P=(x,y)=>x.toFixed(1)+' '+y.toFixed(1);
+const ease=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
+/* цикл анімації: 0 → 1 → 0 за period мс, лише поки слайд видно; f(t) — малювання */
+function loop(root,f){let on=false,t0=0,id=0;
+  const tick=()=>{if(!root.isConnected){clearInterval(id);return}if(!on||!root.offsetParent)return;
+    const ph=((performance.now()-t0)%4200)/4200;      // 4,2 с: туди 1,6 с, пауза, назад 1,6 с, пауза
+    const t=ph<.38?ease(ph/.38):ph<.5?1:ph<.88?1-ease((ph-.5)/.38):0;f(t)};
+  id=setInterval(tick,40);
+  return{start(){on=true;t0=performance.now();f(0)},stop(){on=false}}}
+
+/* ---------- W.bez6: будова кривої Безьє ---------- */
+// два кубічні відрізки: A → B → C; у вузла B — два відрізки з маркерами (лівий bl, правий br)
+const A=[70,330],B=[300,150],C=[530,320];
+const AH=[120,200],CH=[520,200];
+function bzPath(bl,br){return 'M'+P(...A)+' C'+P(...AH)+' '+P(...bl)+' '+P(...B)+' C'+P(...br)+' '+P(...CH)+' '+P(...C)}
+const BL0=[190,150],BR0=[410,150];
+const LEG=[['Вузол','<svg viewBox="0 0 34 24"><rect x="8" y="3" width="18" height="18" class="bz6n" style="fill:var(--paper);stroke:var(--ink);stroke-width:3"/></svg>'],
+  ['Дуга','<svg viewBox="0 0 34 24"><path d="M3 20 Q17 0 31 20" style="fill:none;stroke:var(--sun);stroke-width:7;opacity:.8"/></svg>'],
+  ['Відрізок','<svg viewBox="0 0 34 24"><line x1="2" y1="12" x2="32" y2="12" style="stroke:var(--ink);stroke-width:3;stroke-dasharray:6 4"/></svg>'],
+  ['Маркер керування','<svg viewBox="0 0 34 24"><circle cx="17" cy="12" r="8" style="fill:var(--sky);stroke:var(--ink);stroke-width:3"/></svg>']];
+// крок: t — підпис, c — пояснення, show: n вузли, a дуги, s вибраний вузол з відрізками, on — пункт легенди, anim — як рухається лівий маркер
+const BS=[
+ {t:'Крива Безьє',c:'Плавна лінія, як у візерунку. З чого вона складається?',show:'',on:-1},
+ {t:'Вузли',c:'**Точки перегинання** (вузли) — опорні точки кривої. Тут їх три.',show:'n',on:0},
+ {t:'Дуги',c:'Між сусідніми вузлами — **дуги**. Тут дві дуги.',show:'na',on:1},
+ {t:'Вибрали вузол',c:'Вузол став **блакитним**. Від нього — **відрізки** з **маркерами керування** на кінцях.',show:'ns',on:2},
+ {t:'Довший відрізок',c:'Відсуваємо маркер від вузла — дуга довше йде вздовж відрізка і стає **ширшою**.',show:'ns',on:3,anim:'len'},
+ {t:'Поворот відрізка',c:'Повертаємо маркер — дуга змінює **напрям**. Форму кривої задають маркери.',show:'ns',on:3,anim:'rot'}];
+W.bez6={html:()=>'<div class="bz6"><svg class="bz6svg" id="bz6S" viewBox="0 0 600 420"></svg><div class="bz6s"><span class="bz6tag" id="bz6T"></span><p class="bz6cap" id="bz6C"></p>'+
+  '<ul class="bz6l" id="bz6L">'+LEG.map(l=>'<li>'+l[1]+l[0]+'</li>').join('')+'</ul></div></div>',
+  mount(r){let cur=0;
+    function draw(t){const s=BS[cur];let bl=BL0,br=BR0;
+      if(s.anim==='len'){const k=1+1.1*t;bl=[B[0]+(BL0[0]-B[0])*k,B[1]];br=[B[0]+(BR0[0]-B[0])*k,B[1]]}
+      if(s.anim==='rot'){const a=-0.75*t,L=110;bl=[B[0]-L*Math.cos(a),B[1]-L*Math.sin(a)];br=[B[0]+L*Math.cos(a),B[1]+L*Math.sin(a)]}
+      const sh=s.show;let h='';
+      if(s.anim)h+='<path class="bz6ghost" d="'+bzPath(BL0,BR0)+'"/>';
+      if(sh.includes('a'))h+='<path class="bz6arc" d="M'+P(...A)+' C'+P(...AH)+' '+P(...bl)+' '+P(...B)+'"/>'+
+        '<path class="bz6arc" style="stroke:var(--mint)" d="M'+P(...B)+' C'+P(...br)+' '+P(...CH)+' '+P(...C)+'"/>';
+      h+='<path class="bz6c" d="'+bzPath(bl,br)+'"/>';
+      if(sh.includes('s'))h+='<line class="bz6h" x1="'+bl[0]+'" y1="'+bl[1]+'" x2="'+br[0]+'" y2="'+br[1]+'"/>'+
+        '<circle class="bz6m" cx="'+bl[0]+'" cy="'+bl[1]+'" r="11"/><circle class="bz6m" cx="'+br[0]+'" cy="'+br[1]+'" r="11"/>';
+      if(sh.includes('n')){[A,C].forEach(p=>{h+='<rect class="bz6n" x="'+(p[0]-11)+'" y="'+(p[1]-11)+'" width="22" height="22"/>'});
+        h+=sh.includes('s')?'<rect class="bz6sel" x="'+(B[0]-14)+'" y="'+(B[1]-14)+'" width="28" height="28"/>':'<rect class="bz6n" x="'+(B[0]-11)+'" y="'+(B[1]-11)+'" width="22" height="22"/>'}
+      r.querySelector('#bz6S').innerHTML=h}
+    const an=loop(r,draw);
+    return{count:BS.length-1,step(i){cur=i;const s=BS[i];
+      r.querySelector('#bz6T').textContent=s.t;r.querySelector('#bz6C').innerHTML=b2h(s.c);
+      r.querySelectorAll('#bz6L li').forEach((e,k)=>e.classList.toggle('on',k===s.on));
+      if(s.anim)an.start();else{an.stop();draw(0)}}}}};
+
+/* ---------- W.toch6: три типи точок перегинання ---------- */
+// вузол N посередині; лівий маркер рухається (довшає і повертається), правий — за типом точки
+const N=[300,200],LA=[60,320],RC=[540,320];
+const TS=[
+ {t:'Тягнемо лівий маркер',c:'Вузол вибрано. Тягнемо **лівий** маркер. Що станеться з **правим**?',on:-1,typ:''},
+ {t:'Кутова точка',c:'Правий маркер **не рухається**. Дуги сходяться **кутом** — кожну змінюємо окремо.',on:0,typ:'k'},
+ {t:'Гладка точка',c:'Відрізки — на **одній прямій**: правий **повертається** разом з лівим, але його **довжина не змінюється**.',on:1,typ:'g'},
+ {t:'Симетрична точка',c:'Правий маркер повторює лівий **дзеркально**: той самий нахил і **та сама довжина**.',on:2,typ:'s'}];
+W.toch6={html:()=>'<div class="tc6"><svg class="bz6svg" id="tc6S" viewBox="0 0 600 420"></svg><div class="bz6s"><span class="bz6tag" id="tc6T"></span><p class="bz6cap" id="tc6C"></p>'+
+  '<div class="tc6t" id="tc6M"><span>Кутова</span><span>Гладка</span><span>Симетрична</span></div>'+
+  '<p class="tc6info">У Krita тип точки змінюють кнопками <b>Змінити форму</b> на панелі <b>Параметри інструмента</b>.</p></div></div>',
+  mount(r){let cur=0;
+    function draw(t){const s=TS[cur];
+      // лівий маркер: від короткого горизонтального до довшого, піднятого вгору
+      const a0=Math.PI,a1=Math.PI+0.6,L0=120,L1=200;
+      const a=a0+(a1-a0)*t,L=L0+(L1-L0)*t;
+      const bl=[N[0]+L*Math.cos(a),N[1]+L*Math.sin(a)];
+      let br;
+      if(s.typ==='g'){const R=120;br=[N[0]-R*Math.cos(a),N[1]-R*Math.sin(a)]}
+      else if(s.typ==='s')br=[N[0]-L*Math.cos(a),N[1]-L*Math.sin(a)];
+      else br=[N[0]+120,N[1]];
+      if(!s.typ){const q=[N[0]-120,N[1]];return paint(q,[N[0]+120,N[1]],false)}
+      paint(bl,br,true)}
+    function paint(bl,br,ghost){
+      const d='M'+P(...LA)+' C'+P(110,200)+' '+P(...bl)+' '+P(...N)+' C'+P(...br)+' '+P(490,200)+' '+P(...RC);
+      const d0='M'+P(...LA)+' C'+P(110,200)+' '+P(180,200)+' '+P(...N)+' C'+P(420,200)+' '+P(490,200)+' '+P(...RC);
+      r.querySelector('#tc6S').innerHTML=(ghost?'<path class="bz6ghost" d="'+d0+'"/>':'')+'<path class="bz6c" d="'+d+'"/>'+
+        '<line class="bz6h" x1="'+bl[0]+'" y1="'+bl[1]+'" x2="'+N[0]+'" y2="'+N[1]+'"/><line class="bz6h" x1="'+N[0]+'" y1="'+N[1]+'" x2="'+br[0]+'" y2="'+br[1]+'"/>'+
+        '<circle class="bz6m" cx="'+bl[0]+'" cy="'+bl[1]+'" r="13" style="fill:var(--sun)"/><circle class="bz6m" cx="'+br[0]+'" cy="'+br[1]+'" r="11"/>'+
+        '<rect class="bz6n" x="'+(LA[0]-11)+'" y="'+(LA[1]-11)+'" width="22" height="22"/><rect class="bz6n" x="'+(RC[0]-11)+'" y="'+(RC[1]-11)+'" width="22" height="22"/>'+
+        '<rect class="bz6sel" x="'+(N[0]-14)+'" y="'+(N[1]-14)+'" width="28" height="28"/>'}
+    const an=loop(r,draw);
+    return{count:TS.length-1,step(i){cur=i;const s=TS[i];
+      r.querySelector('#tc6T').textContent=s.t;r.querySelector('#tc6C').innerHTML=b2h(s.c);
+      r.querySelectorAll('#tc6M span').forEach((e,k)=>e.classList.toggle('on',k===s.on));
+      if(s.typ)an.start();else{an.stop();draw(0)}}}}};
+})();
+}
+{
 /* sections/6-r4/widgets/grafika.js */
 /* ===== 6 клас, урок 6-11 «Базові поняття комп’ютерної графіки»: демонстрації, якими керує вчитель (пробіл або клік — далі) =====
    W.pix6    — растровий малюнок із пікселів: сітка, розташування й колір пікселя, зміна кольору пікселя.
@@ -1508,6 +1630,157 @@ W.rastvec={html:()=>'<div class="rv6"><div class="rv6b"><p class="rv6h">Раст
       r.querySelector('#rvZ1').textContent=r.querySelector('#rvZ2').textContent='×'+z;
       r.querySelector('#rvT').innerHTML=b2h(ZS[i][1])}
     return{count:ZS.length-1,step}}};
+})();
+}
+{
+/* sections/6-r4/widgets/kompon.js */
+/* ===== 6 клас, урок 6-15 «Додавання тексту до графічних зображень та його форматування» (§ 4.4): демонстрації, якими керує вчитель (пробіл або клік — далі) =====
+   W.vyr6   — бічна панель Компонування, група Вирівняти: шість кнопок на тих самих трьох об’єктах, наприкінці — обидві «за центром».
+   W.rozp6  — Розподілити (однакові відстані між центрами) проти Інтервал (однакові проміжки між краями); Згрупувати і Розгрупувати.
+   W.tekst6 — текст на малюнку: область, набір, розмір, колір, інтервал між літерами, штрих, без заповнення, тінь, фаска і рельєф.
+   Кольори — лише токени теми. Класи з префіксами kp6 і tk6: CSS віджетів спільний для всього сайту.
+   Рух — CSS-переходи; анімація тексту йде лише на видимому слайді (offsetParent). */
+(function(){
+document.head.insertAdjacentHTML('beforeend','<style>'+
+'.kp6{display:grid;grid-template-columns:auto 1fr;gap:32px;align-items:start}'+
+'.kp6s{display:flex;flex-direction:column;gap:14px;min-width:0}'+
+'.kp6tag{align-self:flex-start;font:700 24px var(--display);padding:4px 16px;border-radius:999px;background:var(--accent-tint);color:var(--ink)}'+
+'.kp6cap{font-size:27px;line-height:1.35;margin:0}'+
+'.kp6svg{width:520px;height:364px;border:2px solid var(--line);border-radius:12px;background:var(--paper);display:block}'+
+'.kp6h{font:600 21px var(--display);color:var(--muted);margin:0}'+
+'.kp6b{display:flex;flex-wrap:wrap;gap:8px}'+
+'.kp6b span{font-size:21px;padding:4px 12px;border-radius:10px;border:2px solid var(--line);color:var(--muted);transition:background .3s,border-color .3s,color .3s}'+
+'.kp6b span.on{background:var(--accent-tint);border-color:var(--accent);color:var(--ink)}'+
+'.kp6svg .kp6o{transition:transform .9s cubic-bezier(.5,0,.3,1)}'+
+'.kp6svg .kp6f{stroke:var(--ink);stroke-width:3}'+
+'.kp6svg .kp6sel{fill:none;stroke:var(--ink);stroke-width:2;stroke-dasharray:7 5;opacity:.7}'+
+'.kp6svg .kp6gd{stroke:var(--accent);stroke-width:3;stroke-dasharray:10 7;transition:opacity .4s}'+
+'.kp6svg .kp6m{stroke:var(--ink);stroke-width:2.5;fill:none}'+
+'.kp6svg .kp6mt{font:700 22px var(--display);fill:var(--ink);text-anchor:middle}'+
+'.kp6svg .kp6dim{opacity:.35}'+
+'.kp6svg .kp6grp{fill:none;stroke:var(--accent);stroke-width:3;stroke-dasharray:12 7}'+
+'.kp6svg .kp6up{animation:kp6up 2.6s ease-in-out infinite}'+
+'@keyframes kp6up{0%,25%,100%{transform:translateY(0)}55%,75%{transform:translateY(-50px)}}'+
+'.tk6svg text{font-family:var(--display);font-weight:800;text-anchor:middle;dominant-baseline:middle}'+
+'.tk6svg .tk6fr{fill:none;stroke:var(--ink);stroke-width:2;stroke-dasharray:8 6}'+
+'.feed .stage .kp6{grid-template-columns:minmax(0,1fr);gap:16px}'+
+'.feed .stage .kp6svg{width:100%;height:auto;aspect-ratio:60/42}'+
+'</style>');
+const b2h=t=>t.replace(/\*\*(.+?)\*\*/g,'<b>$1</b>');
+const chips=(id,groups)=>groups.map(g=>'<p class="kp6h">'+g[0]+'</p><div class="kp6b" id="'+id+g[1]+'">'+g[2].map(x=>'<span>'+x+'</span>').join('')+'</div>').join('');
+const mark=(r,sel,on)=>r.querySelectorAll(sel+' span').forEach((e,k)=>e.classList.toggle('on',on.includes(k)));
+
+/* ---------- W.vyr6: група Вирівняти ---------- */
+// три об’єкти: квадрат, коло, смуга; межі виділення: ліворуч 60, праворуч 550, угорі 60, унизу 315
+const VO=[{x:60,y:60,w:120,h:120,s:'<rect class="kp6f" width="120" height="120" rx="6" style="fill:var(--coral)"/>'},
+  {x:380,y:100,w:170,h:44,s:'<rect class="kp6f" width="170" height="44" rx="6" style="fill:var(--mint)"/>'},
+  {x:285,y:225,w:90,h:90,s:'<circle class="kp6f" cx="45" cy="45" r="45" style="fill:var(--sky)"/>'}];
+const BB={l:60,r:550,t:60,b:315};
+const VS=[
+ {t:'Вибрали три об’єкти',c:'Рамкою або з **Shift**. Тепер — кнопки групи **Вирівняти**.',m:'',on:[]},
+ {t:'Вирівняти ліворуч',c:'Ліві краї — на одній лінії, по **найлівішому** об’єкту.',m:'L',on:[0]},
+ {t:'Горизонтально за центром',c:'Центри — на одній **вертикальній** лінії.',m:'C',on:[1]},
+ {t:'Вирівняти праворуч',c:'Праві краї — по **найправішому** об’єкту.',m:'R',on:[2]},
+ {t:'За верхнім краєм',c:'Верхні краї — по **найвищому** об’єкту.',m:'T',on:[3]},
+ {t:'Вертикально за центром',c:'Центри — на одній **горизонтальній** лінії.',m:'M',on:[4]},
+ {t:'За нижнім краєм',c:'Нижні краї — по **найнижчому** об’єкту.',m:'B',on:[5]},
+ {t:'Обидві «за центром»',c:'Центри збіглися: так з кількох фігур складають **елемент вишивки**.',m:'CM',on:[1,4]}];
+function vPos(o,m){let x=o.x,y=o.y;
+  if(m.includes('L'))x=BB.l; if(m.includes('C'))x=(BB.l+BB.r)/2-o.w/2; if(m.includes('R'))x=BB.r-o.w;
+  if(m.includes('T'))y=BB.t; if(m.includes('M'))y=(BB.t+BB.b)/2-o.h/2; if(m.includes('B'))y=BB.b-o.h;
+  return [x,y]}
+const VG={L:['v',BB.l],C:['v',(BB.l+BB.r)/2],R:['v',BB.r],T:['h',BB.t],M:['h',(BB.t+BB.b)/2],B:['h',BB.b]};
+W.vyr6={html:()=>'<div class="kp6"><svg class="kp6svg" id="vr6S" viewBox="0 0 600 420">'+
+  '<g id="vr6G"></g>'+VO.map((o,i)=>'<g class="kp6o" id="vr6O'+i+'" style="transform:translate('+o.x+'px,'+o.y+'px)">'+o.s+
+  '<rect class="kp6sel" x="-7" y="-7" width="'+(o.w+14)+'" height="'+(o.h+14)+'"/></g>').join('')+'</svg>'+
+  '<div class="kp6s"><span class="kp6tag" id="vr6T"></span><p class="kp6cap" id="vr6C"></p>'+
+  chips('vr6',[['По горизонталі','H',['Ліворуч','За центром','Праворуч']],['По вертикалі','V',['Верхній край','За центром','Нижній край']]])+
+  '</div></div>',
+  mount(r){
+    return{count:VS.length-1,step(i){const s=VS[i];
+      VO.forEach((o,k)=>{const p=vPos(o,s.m);r.querySelector('#vr6O'+k).style.transform='translate('+p[0]+'px,'+p[1]+'px)'});
+      r.querySelector('#vr6G').innerHTML=s.m.split('').map(c=>{const g=VG[c];return g[0]==='v'?
+        '<line class="kp6gd" x1="'+g[1]+'" y1="20" x2="'+g[1]+'" y2="400"/>':'<line class="kp6gd" x1="20" y1="'+g[1]+'" x2="580" y2="'+g[1]+'"/>'}).join('');
+      r.querySelector('#vr6T').textContent=s.t;r.querySelector('#vr6C').innerHTML=b2h(s.c);
+      mark(r,'#vr6H',s.on.filter(k=>k<3));mark(r,'#vr6V',s.on.filter(k=>k>2).map(k=>k-3))}}}};
+
+/* ---------- W.rozp6: Розподілити чи Інтервал; Згрупувати ---------- */
+// крайні об’єкти стоять на місці; середній (широкий прямокутник) рухається; низи — на одній лінії y = 300
+const RA={x:30,w:40,h:40},RC={x:430,w:140,h:110},RBw=240,RBh=70,BOT=300;
+const RS=[
+ {t:'Стоять нерівно',c:'Три різні об’єкти. Як розставити їх **рівномірно**?',bx:80,on:[]},
+ {t:'Розподілити',c:'Однакові відстані між **центрами**. А проміжки між краями — різні.',bx:155,on:[0],ms:'c'},
+ {t:'Інтервал',c:'Однакові **проміжки між краями**. Відстані між центрами — різні.',bx:130,on:[1],ms:'g'},
+ {t:'Згрупувати',c:'Тепер це **один** об’єкт: пересуваємо — рухаються всі разом.',bx:130,on:[2],grp:1},
+ {t:'Розгрупувати',c:'Кожен об’єкт знову **окремий**: змінюємо колір лише одного.',bx:130,on:[3],ungr:1}];
+function arrow(x1,x2,y,lab,dim){const a=Math.min(10,(x2-x1)/3);
+  return '<g'+(dim?' class="kp6dim"':'')+'><line class="kp6m" x1="'+x1+'" y1="'+y+'" x2="'+x2+'" y2="'+y+'"/>'+
+  '<path class="kp6m" d="M'+(x1+a)+' '+(y-7)+' L'+x1+' '+y+' L'+(x1+a)+' '+(y+7)+' M'+(x2-a)+' '+(y-7)+' L'+x2+' '+y+' L'+(x2-a)+' '+(y+7)+'"/>'+
+  '<text class="kp6mt" x="'+((x1+x2)/2)+'" y="'+(y-12)+'">'+lab+'</text></g>'}
+W.rozp6={html:()=>'<div class="kp6"><svg class="kp6svg" id="rz6S" viewBox="0 0 600 420"><g id="rz6M"></g><g id="rz6W">'+
+  '<g id="rz6A" style="transform:translate('+RA.x+'px,'+(BOT-RA.h)+'px)"><circle class="kp6f" cx="20" cy="20" r="20" style="fill:var(--sky)"/></g>'+
+  '<g class="kp6o" id="rz6B" style="transform:translate(80px,'+(BOT-RBh)+'px)"><rect class="kp6f" width="'+RBw+'" height="'+RBh+'" rx="8" style="fill:var(--mint)"/></g>'+
+  '<g id="rz6C" style="transform:translate('+RC.x+'px,'+(BOT-RC.h)+'px)"><rect class="kp6f" id="rz6Cf" width="'+RC.w+'" height="'+RC.h+'" rx="8" style="fill:var(--coral);transition:fill .5s"/></g>'+
+  '<g id="rz6F"></g></g></svg>'+
+  '<div class="kp6s"><span class="kp6tag" id="rz6T"></span><p class="kp6cap" id="rz6Cp"></p>'+
+  chips('rz6',[['Компонування','K',['Розподілити','Інтервал','Згрупувати','Розгрупувати']]])+'</div></div>',
+  mount(r){
+    return{count:RS.length-1,step(i){const s=RS[i],bx=s.bx;
+      r.querySelector('#rz6B').style.transform='translate('+bx+'px,'+(BOT-RBh)+'px)';
+      const ca=RA.x+RA.w/2,cb=bx+RBw/2,cc=RC.x+RC.w/2,ga=RA.x+RA.w,gc=RC.x;
+      let m='';
+      if(s.ms){m+='<g'+(s.ms==='c'?'':' class="kp6dim"')+'>'+[ca,cb,cc].map(x=>'<line class="kp6gd" x1="'+x+'" y1="128" x2="'+x+'" y2="'+BOT+'"/>').join('')+'</g>'+
+        arrow(ca,cb,140,Math.round(cb-ca),s.ms!=='c')+arrow(cb,cc,140,Math.round(cc-cb),s.ms!=='c')+
+        arrow(ga,bx,345,bx-ga,s.ms!=='g')+arrow(bx+RBw,gc,345,gc-bx-RBw,s.ms!=='g')}
+      r.querySelector('#rz6M').innerHTML=m;
+      r.querySelector('#rz6F').innerHTML=s.grp?'<rect class="kp6grp" x="18" y="'+(BOT-RC.h-12)+'" width="564" height="'+(RC.h+24)+'" rx="10"/>'+
+          '<text class="kp6mt" x="80" y="'+(BOT-RC.h-26)+'">Група</text>':
+        s.ungr?[[RA.x,RA.w,RA.h],[bx,RBw,RBh],[RC.x,RC.w,RC.h]].map(q=>'<rect class="kp6sel" x="'+(q[0]-8)+'" y="'+(BOT-q[2]-8)+'" width="'+(q[1]+16)+'" height="'+(q[2]+16)+'"/>').join(''):'';
+      r.querySelector('#rz6W').classList.toggle('kp6up',!!s.grp);
+      r.querySelector('#rz6Cf').style.fill=s.ungr?'var(--sun)':'var(--coral)';
+      r.querySelector('#rz6T').textContent=s.t;r.querySelector('#rz6Cp').innerHTML=b2h(s.c);
+      mark(r,'#rz6K',s.on)}}}};
+
+/* ---------- W.tekst6: текст на малюнку ---------- */
+const WORD='Вітаємо!';
+const TS=[
+ {t:'Інструмент «Текст»',c:'Окреслюємо мишею **область**, де буде текст.',on:[0]},
+ {t:'Набираємо текст',c:'Відкривається вікно **Редагування тексту**: набираємо слова, як у текстовому процесорі.',on:[1]},
+ {t:'Розмір',c:'Більші літери — напис видно здалеку.',on:[2]},
+ {t:'Колір літер',c:'Розмір і колір — для **виділених** літер або для **всього** тексту.',on:[3]},
+ {t:'Інтервал між літерами',c:'Лічильник **Інтервал між літерами** розсуває літери.',on:[4]},
+ {t:'Штрих',c:'Вкладка **Штрих**: контур навколо кожної літери.',on:[5]},
+ {t:'Без заповнення',c:'Вкладка **Заповнити** ⇒ без заповнення: лишився тільки **контур**.',on:[6]},
+ {t:'Тінь',c:'**Шар ⇒ Стиль шару ⇒ Тінь**: напис ніби над аркушем.',on:[7]},
+ {t:'Фаска і рельєф',c:'**Шар ⇒ Стиль шару ⇒ Фаска і рельєф**: літери ніби витиснуті.',on:[8]}];
+// вигляд напису на кожному кроці (накопичується): розмір, колір, інтервал, штрих, заповнення, ефект
+const TV=[null,{z:54,f:'var(--ink)',ls:0},{z:84,f:'var(--ink)',ls:0},{z:84,f:'var(--accent)',ls:0},{z:84,f:'var(--accent)',ls:9},
+  {z:84,f:'var(--accent)',ls:9,st:1},{z:84,f:'none',ls:9,st:1},{z:84,f:'var(--accent)',ls:9,fx:'sh'},{z:84,f:'var(--accent)',ls:9,fx:'em'}];
+const FR={x:70,y:150,w:460,h:130};
+W.tekst6={html:()=>'<div class="kp6"><svg class="kp6svg tk6svg" id="tk6S" viewBox="0 0 600 420">'+
+  '<rect x="16" y="16" width="568" height="388" rx="14" style="fill:var(--sun-soft)"/>'+
+  '<g style="fill:var(--sky)">'+[60,110,160,440,490,540].map((x,k)=>'<circle cx="'+x+'" cy="'+(k%2?62:52)+'" r="14"/><circle cx="'+x+'" cy="'+(k%2?358:368)+'" r="14"/>').join('')+'</g>'+
+  '<g id="tk6G"></g></svg>'+
+  '<div class="kp6s"><span class="kp6tag" id="tk6T"></span><p class="kp6cap" id="tk6C"></p>'+
+  chips('tk6',[['Вікно Редагування тексту','A',['Область','Набір','Розмір','Колір','Інтервал']],['Параметри і стиль шару','B',['Штрих','Без заповнення','Тінь','Фаска і рельєф']]])+
+  '</div></div>',
+  mount(r){let cur=0,t0=0;
+    const g=r.querySelector('#tk6G');
+    function txt(v,n){const s=WORD.slice(0,n),cx=300,cy=FR.y+FR.h/2+4,a='x="'+cx+'" y="'+cy+'" style="font-size:'+v.z+'px;letter-spacing:'+v.ls+'px';
+      let h='';
+      if(v.fx==='sh')h+='<text '+a+';fill:var(--ink);opacity:.35" transform="translate(9 9)">'+s+'</text>';
+      if(v.fx==='em')h+='<text '+a+';fill:var(--ink);opacity:.55" transform="translate(3 4)">'+s+'</text><text '+a+';fill:var(--paper)" transform="translate(-2 -2)">'+s+'</text>';
+      return h+'<text '+a+';fill:'+v.f+(v.st?';stroke:var(--ink);stroke-width:3;paint-order:stroke':'')+'">'+s+'</text>'}
+    function frame(k){return '<rect class="tk6fr" x="'+FR.x+'" y="'+FR.y+'" width="'+(FR.w*k)+'" height="'+(FR.h*k)+'"/>'}
+    function draw(){if(!r.isConnected){clearInterval(id);return}if(!r.offsetParent)return;
+      const e=performance.now()-t0;
+      if(cur===0){const k=Math.min(1,e/1400);g.innerHTML=frame(.08+.92*k);return}
+      if(cur===1){const n=Math.min(WORD.length,Math.floor(e/220)+1);g.innerHTML=frame(1)+txt(TV[1],n);return}}
+    const id=setInterval(draw,40);
+    return{count:TS.length-1,step(i){cur=i;t0=performance.now();const s=TS[i];
+      if(i>1)g.innerHTML=(i<5?frame(1):'')+txt(TV[i],WORD.length);else draw();
+      r.querySelector('#tk6T').textContent=s.t;r.querySelector('#tk6C').innerHTML=b2h(s.c);
+      mark(r,'#tk6A',s.on);mark(r,'#tk6B',s.on.map(k=>k-5))}}}};
 })();
 }
 {
@@ -2037,6 +2310,418 @@ W.krok={html:()=>'<div class="kr">'+
    CAP.classList.toggle('ask',!!s.ask);
    CAP.querySelector('.k').textContent=s.k||'';CAP.querySelector('p').innerHTML=B(s.say||'')}
   return{count:steps.length-1,step}}};
+})();
+}
+{
+/* sections/7-r2/widgets/podii.js */
+/* ===== Події з вікном і вікна повідомлень (7 клас, урок 14, tkinter): код + «екран» з вікном =====
+   Один рушій — два імена, бо віджет можна взяти лише раз на урок:
+     W.podii   — як працює обробник події (клацання);   W.povidom — два обробники й вікно повідомлень.
+   YAML слайда:
+     code:  [рядки програми]
+     scr:   [ширина, висота] умовного екрана в пікселях (типово [1000, 600])
+     steps: [{line, k, say, ask, win, dims, ev, msg, vars}]
+       line — номер рядка, що виконується (1…), або [від, до] — кілька рядків; 0 — жоден;
+       k — короткий заголовок;  say — пояснення (**жирний** можна);  ask — крок-питання;
+       win  — зміни вікна після кроку {t, w, h, x, y, bg} — накопичуються (перший раз — до вікна за замовчуванням
+              200 на 200, tk, у куті); false — вікна немає;  dims — показати розміри й відстані від країв екрана;
+       ev   — що зробив користувач на цьому кроці: click, dbl, move, close, key:A;
+       msg  — вікно повідомлень на цьому кроці {kind: info | warning | error, t: заголовок, m: текст};
+       vars — значення змінних: [[ім’я, значення], …].
+   Вікно й вікно повідомлень — як у ЄPython (перевірено 07.11.2026): повідомлення посередині вікна проєкту,
+   значки — синє «i», жовтий трикутник «!», червоне «×». Колір фону вікна — той, що в програмі (yellow…).
+   Учитель: пробіл або клік — далі. Класи з префіксом pd-. */
+(function(){
+document.head.insertAdjacentHTML('beforeend','<style>'+
+'.pd{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:16px;flex:1;min-height:0;align-content:start}'+
+'.pd-p{border:3px solid var(--ink);background:var(--paper);display:flex;flex-direction:column;min-height:0}'+
+'.pd-h{padding:6px 12px;border-bottom:3px solid var(--ink);font:700 20px var(--body);display:flex;justify-content:space-between;gap:8px}'+
+'.pd-h small{font:600 17px var(--body);color:var(--muted)}'+
+'.pd-code{padding:8px 0;display:flex;flex-direction:column}'+
+'.pd-l{display:grid;grid-template-columns:30px 26px minmax(0,1fr);align-items:center;font:600 21px/1.45 var(--mono);padding:1px 6px;transition:background .3s;white-space:pre}'+
+'.pd-l i{font-style:normal;color:var(--muted);font-size:18px;line-height:1;text-align:right;padding-right:8px}'+
+'.pd-l b{color:var(--accent);font:800 24px/1 var(--body);visibility:hidden}'+
+'.pd-l.cur{background:var(--accent-tint)}.pd-l.cur b{visibility:visible}'+
+'.pd-l span{overflow:hidden;text-overflow:ellipsis}'+
+/* довга програма (11+ рядків) — щільніше, щоб вмістилась */
+'.pd-dense .pd-l{font-size:18px;line-height:1.2}.pd-dense .pd-code{padding:3px 0}.pd-dense .pd-l b{font-size:19px}.pd-dense .pd-l i{font-size:16px}'+
+/* значення змінних — у рядку підпису, праворуч від заголовка кроку */
+'.pd-ch{display:flex;justify-content:space-between;align-items:center;gap:6px 14px;flex-wrap:wrap;margin-bottom:3px}'+
+'.pd-vars{display:flex;flex-wrap:wrap;gap:6px 10px;font:700 20px/1.2 var(--mono)}'+
+'.pd-vars span{background:var(--sun);color:var(--ink);padding:1px 10px}'+
+'.pd-scrw{padding:10px}'+
+'.pd-scr{position:relative;background:var(--ink);border:3px solid var(--ink);overflow:hidden}'+
+'.pd-scr .pd-lb{position:absolute;right:8px;bottom:4px;font:600 15px var(--body);color:var(--paper);opacity:.6}'+
+'.pd-w{position:absolute;background:var(--paper);border:2px solid var(--accent);display:flex;flex-direction:column;transition:left .7s,top .7s,width .7s,height .7s,opacity .4s;box-shadow:0 4px 14px rgba(0,0,0,.35)}'+
+'.pd-w.off{opacity:0}'+
+'.pd-t{height:24px;flex:none;background:white;border-bottom:1px solid lightgray;display:flex;align-items:center;gap:6px;padding:0 6px;font:14px/1 Arial,sans-serif;color:black;white-space:nowrap;overflow:hidden}'+
+'.pd-t span{flex:1;overflow:hidden;text-overflow:ellipsis}.pd-t em{font-style:normal;letter-spacing:6px;color:dimgray}'+
+'.pd-t em u{text-decoration:none;display:inline-block;letter-spacing:0;padding:0 3px;border-radius:50%;transition:box-shadow .3s}'+
+'.pd-t.new{animation:pdf 1.4s}@keyframes pdf{0%{background:var(--sun)}100%{background:white}}'+
+'.pd-c{flex:1;position:relative;background:gainsboro;transition:background .7s}'+
+'.pd-d{position:absolute;font:800 18px var(--mono);color:var(--ink);background:var(--paper);border:2px solid var(--ink);padding:0 5px;line-height:1.3;transform:translate(-50%,-50%);transition:opacity .4s;white-space:nowrap}'+
+'.pd-g{position:absolute;border-color:var(--sun);border-style:dashed;border-width:0;transition:all .7s,opacity .4s}'+
+'.pd-g.hz{border-top-width:3px;height:0}.pd-g.vt{border-left-width:3px;width:0}'+
+'.pd-g .pd-d{color:var(--ink);background:var(--sun);border-color:var(--sun)}'+
+'.pd-g.hz .pd-d{left:50%;top:0}.pd-g.vt .pd-d{left:0;top:50%}'+
+'.pd-nod .pd-d,.pd-nod .pd-g{opacity:0}'+
+/* вікно повідомлень — як у ЄPython */
+'.pd-m{position:absolute;transform:translate(-50%,-50%);min-width:170px;max-width:80%;background:white;border:1px solid dodgerblue;box-shadow:0 6px 18px rgba(0,0,0,.4);font:15px/1.3 Arial,sans-serif;color:black;transition:opacity .3s;z-index:3}'+
+'.pd-m.off{opacity:0;pointer-events:none}'+
+'.pd-mt{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:4px 8px;font-size:13px;white-space:nowrap}'+
+'.pd-mt em{font-style:normal;color:dimgray}'+
+'.pd-mb{display:flex;align-items:center;gap:10px;padding:8px 14px 10px}'+
+'.pd-mb p{margin:0}'+
+'.pd-ic{flex:none;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font:900 17px/1 Arial,sans-serif;color:white}'+
+'.pd-ic.info{background:dodgerblue}.pd-ic.info:before{content:"i"}'+
+'.pd-ic.error{background:crimson}.pd-ic.error:before{content:"×";font-size:22px}'+
+'.pd-ic.warning{border-radius:0;background:gold;color:black;clip-path:polygon(50% 4%,98% 94%,2% 94%);align-items:flex-end;padding-bottom:2px}.pd-ic.warning:before{content:"!"}'+
+'.pd-mf{background:whitesmoke;padding:5px 8px;display:flex;justify-content:flex-end}'+
+'.pd-mf b{font-weight:400;font-size:13px;border:2px solid dodgerblue;background:gainsboro;padding:1px 22px}'+
+/* що зробив користувач */
+'.pd-ev{position:absolute;z-index:4;pointer-events:none;transition:opacity .3s}'+
+'.pd-ev.off{opacity:0}'+
+'.pd-cur{width:30px;height:30px;transform:translate(-4px,-2px)}'+
+'.pd-cur path{fill:white;stroke:black;stroke-width:1.6}'+
+'.pd-rip{position:absolute;left:-22px;top:-22px;width:44px;height:44px;border-radius:50%;border:4px solid var(--coral);opacity:0}'+
+'.pd-ev.go .pd-rip{animation:pdr 1.1s ease-out 2}.pd-ev.go.dbl .pd-rip{animation:pdr .45s ease-out 4}'+
+'@keyframes pdr{0%{transform:scale(.3);opacity:1}100%{transform:scale(1.6);opacity:0}}'+
+'.pd-ev.mv .pd-cur{animation:pdm 1.6s ease-in-out infinite alternate}@keyframes pdm{0%{transform:translate(-40px,-12px)}100%{transform:translate(36px,10px)}}'+
+'.pd-evl{position:absolute;left:24px;top:22px;font:800 17px var(--body);background:var(--coral);color:var(--paper);padding:1px 8px;white-space:nowrap}'+
+'.pd-key{position:absolute;z-index:4;right:16px;bottom:30px;display:flex;align-items:center;gap:10px;transition:opacity .3s}'+
+'.pd-key.off{opacity:0}'+
+'.pd-key kbd{display:inline-block;min-width:46px;padding:4px 10px;text-align:center;font:800 26px var(--mono);background:var(--paper);color:var(--ink);border:3px solid var(--paper);border-bottom-width:8px;border-radius:8px;box-shadow:0 0 0 2px var(--ink)}'+
+'.pd-key.go kbd{animation:pdk .5s ease-in-out 3}@keyframes pdk{50%{transform:translateY(5px);border-bottom-width:3px}}'+
+'.pd-key span{font:800 17px var(--body);background:var(--coral);color:var(--paper);padding:1px 8px}'+
+'.pd-cls .pd-t em u{box-shadow:0 0 0 4px var(--coral)}'+
+'.pd-cap{grid-column:1/-1;border:3px solid var(--ink);background:var(--paper-alt);padding:10px 16px}'+
+'.pd-cap b.k{display:block;font:700 19px var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:3px}'+
+'.pd-cap.ask b.k{color:var(--coral)}'+
+'.pd-cap p{font-size:24px;line-height:1.3;margin:0}'+
+/* учнівська стрічка (телефон вертикально): одне під одним */
+'.feed .stage .pd{grid-template-columns:minmax(0,1fr)}.feed .stage .pd-l{font-size:17px}.feed .stage .pd-vars{font-size:16px}'+
+/* учнівська сторінка горизонтально: щільніше, бо під слайдом кнопки */
+'html.student:not(.feed) .pd{gap:10px}html.student:not(.feed) .pd-h{padding:3px 12px}html.student:not(.feed) .pd-code{padding:3px 0}'+
+'html.student:not(.feed) .pd-l{font-size:16px;line-height:1.12}html.student:not(.feed) .pd-scrw{padding:6px}'+
+'html.student:not(.feed) .pd-dense .pd-l{font-size:13px;line-height:1.05;grid-template-columns:22px 16px minmax(0,1fr)}'+
+'html.student:not(.feed) .pd-dense .pd-l i{font-size:11px}html.student:not(.feed) .pd-dense .pd-l b{font-size:13px}'+
+'html.student:not(.feed) .pd-vars{font-size:16px}'+
+'html.student:not(.feed) .pd-cap{padding:6px 12px}html.student:not(.feed) .pd-cap p{font-size:19px}'+
+'</style>');
+
+const U=s=>{const t=document.createElement('textarea');t.innerHTML=String(s);return t.value};
+const H=s=>U(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const B=s=>/<b>/.test(s)?s:H(s).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>');
+/* назва кольору з програми — лише латинські літери (інакше — сірий, як за замовчуванням) */
+const C=c=>/^[a-z]+$/i.test(String(c||''))?String(c):'gainsboro';
+const DEF={t:'tk',w:200,h:200,x:0,y:0,bg:''};
+const CUR='<svg class="pd-cur" viewBox="0 0 24 24"><path d="M3 2 L3 19 L7.5 15 L10.5 22 L13.5 20.7 L10.6 14 L17 14 Z"/></svg>';
+
+function mk(defHint){return{html:d=>'<div class="pd">'+
+  '<div class="pd-p"><div class="pd-h">Програма<small>'+H(d.hint||defHint)+'</small></div><div class="pd-code"></div></div>'+
+  '<div class="pd-p"><div class="pd-h">Екран<small class="pd-sz"></small></div><div class="pd-scrw"><div class="pd-scr">'+
+   '<div class="pd-g hz"><span class="pd-d"></span></div><div class="pd-g vt"><span class="pd-d"></span></div>'+
+   '<div class="pd-w off"><div class="pd-t"><span></span><em>–□<u>×</u></em></div><div class="pd-c"><span class="pd-d pd-dw"></span><span class="pd-d pd-dh"></span></div></div>'+
+   '<div class="pd-m off"><div class="pd-mt"><span></span><em>×</em></div><div class="pd-mb"><i class="pd-ic info"></i><p></p></div><div class="pd-mf"><b>OK</b></div></div>'+
+   '<div class="pd-ev off"><div class="pd-rip"></div>'+CUR+'<span class="pd-evl"></span></div>'+
+   '<div class="pd-key off"><span></span><kbd></kbd></div>'+
+   '<span class="pd-lb">ліва верхня точка екрана — (0, 0)</span></div></div></div>'+
+  '<div class="pd-cap"><div class="pd-ch"><b class="k"></b><span class="pd-vars"></span></div><p></p></div></div>',
+ mount(r,d,api){
+  const code=d.code||[],steps=d.steps||[{line:0,k:'',say:''}],S=d.scr||[1000,600],SW=+S[0],SH=+S[1];
+  const Q=s=>r.querySelector(s);
+  const CO=Q('.pd-code'),VA=Q('.pd-vars'),SCR=Q('.pd-scr'),WIN=Q('.pd-w'),T=WIN.querySelector('.pd-t'),
+    TS=T.querySelector('span'),CL=WIN.querySelector('.pd-c'),DW=Q('.pd-dw'),DH=Q('.pd-dh'),
+    GH=Q('.pd-g.hz'),GV=Q('.pd-g.vt'),CAP=Q('.pd-cap'),M=Q('.pd-m'),EV=Q('.pd-ev'),KEY=Q('.pd-key');
+  SCR.style.aspectRatio=SW+' / '+SH;
+  Q('.pd-sz').textContent=SW+' × '+SH+' пікселів';
+  if(code.length>10)Q('.pd').classList.add('pd-dense');
+  CO.innerHTML=code.map((t,j)=>'<div class="pd-l"><i>'+(j+1)+'</i><b>➜</b><span>'+H(t)+'</span></div>').join('');
+  const LS=[...CO.children],P=(v,m)=>(v/m*100)+'%';
+  /* стан вікна після кожного кроку: зміни накопичуються */
+  const WS=[];let cur=null;
+  steps.forEach(s=>{if(s.win===false)cur=null;else if(s.win)cur=Object.assign({},cur||DEF,s.win);WS.push(cur)});
+  let lastT=null;
+  /* екран не вищий за вільне місце (учнівська сторінка горизонтально — низька): лише зменшуємо */
+  const PD=Q('.pd'),HD=SCR.closest('.pd-p').querySelector('.pd-h');
+  function fit(){SCR.style.width='';SCR.style.margin='';
+   const box=PD.parentElement.clientHeight,maxH=box-CAP.offsetHeight-HD.offsetHeight-40;
+   if(box>0&&maxH>80&&SCR.offsetHeight>maxH){SCR.style.width=Math.floor(maxH*SW/SH)+'px';SCR.style.margin='0 auto'}}
+  function step(i){const s=steps[i]||{},w=WS[i];fit();
+   const ln=Array.isArray(s.line)?s.line:[s.line,s.line];
+   LS.forEach((l,j)=>l.classList.toggle('cur',j+1>=ln[0]&&j+1<=ln[1]));
+   VA.innerHTML=(s.vars||[]).map(v=>'<span>'+H(v[0])+' = '+H(v[1])+'</span>').join('');
+   WIN.classList.toggle('off',!w);
+   SCR.classList.toggle('pd-nod',!(w&&s.dims));
+   let cx=SW/2,cy=SH/2;
+   if(w){const x=+w.x||0,y=+w.y||0,ww=+w.w||200,hh=+w.h||200,t=w.t==null?'tk':String(w.t);
+    Object.assign(WIN.style,{left:P(x,SW),top:P(y,SH),width:P(ww,SW),height:P(hh,SH)});
+    TS.textContent=U(t);
+    if(lastT!==null&&lastT!==t){T.classList.remove('new');void T.offsetWidth;T.classList.add('new')}
+    lastT=t;
+    CL.style.background=C(w.bg);
+    DW.textContent=ww;DW.style.left='50%';DW.style.top='22%';
+    DH.textContent=hh;DH.style.left='12%';DH.style.top='55%';
+    Object.assign(GH.style,{left:'0',top:P(y+hh/2,SH),width:P(x,SW)});GH.firstChild.textContent='+'+x;GH.style.display=x?'':'none';
+    Object.assign(GV.style,{left:P(x+ww/2,SW),top:'0',height:P(y,SH)});GV.firstChild.textContent='+'+y;GV.style.display=y?'':'none';
+    cx=x+ww/2;cy=y+hh/2}
+   else lastT=null;
+   /* вікно повідомлень — посередині вікна проєкту, але не за краєм екрана (як у ЄPython) */
+   const m=s.msg;M.classList.toggle('off',!m);
+   if(m){M.querySelector('.pd-mt span').textContent=U(m.t||'');M.querySelector('.pd-mb p').textContent=U(m.m||'');
+    M.querySelector('.pd-ic').className='pd-ic '+(['info','warning','error'].includes(m.kind)?m.kind:'info');
+    const sw=SCR.clientWidth,sh=SCR.clientHeight,mw=M.offsetWidth,mh=M.offsetHeight,
+     cl=(v,a,b)=>b<a?(a+b)/2:Math.min(Math.max(v,a),b);
+    M.style.left=sw?P(cl(cx/SW*sw,mw/2+4,sw-mw/2-4),sw):P(cx,SW);M.style.top=sh?P(cl(cy/SH*sh,mh/2+4,sh-mh/2-4),sh):P(cy,SH)}
+   /* подія від користувача */
+   const ev=String(s.ev||''),kind=ev.split(':')[0];
+   const mouse=['click','dbl','move'].includes(kind);
+   EV.className='pd-ev'+(mouse?'':' off')+(kind==='dbl'?' dbl':'')+(kind==='move'?' mv':'');
+   if(mouse){const ax=w?cx+(+w.w||200)*.18:cx,ay=w?cy+(+w.h||200)*.12:cy;
+    EV.style.left=P(ax,SW);EV.style.top=P(ay,SH);
+    EV.querySelector('.pd-evl').textContent={click:'клацання',dbl:'подвійне клацання',move:'рух миші'}[kind];
+    void EV.offsetWidth;if(kind!=='move')EV.classList.add('go')}
+   KEY.className='pd-key'+(kind==='key'?'':' off');
+   if(kind==='key'){KEY.querySelector('kbd').textContent=ev.slice(4)||'A';KEY.querySelector('span').textContent='натиснули клавішу';
+    void KEY.offsetWidth;KEY.classList.add('go')}
+   WIN.classList.toggle('pd-cls',kind==='close');
+   CAP.classList.toggle('ask',!!s.ask);
+   CAP.querySelector('.k').textContent=s.k||'';CAP.querySelector('p').innerHTML=B(s.say||'')}
+  return{count:steps.length-1,step}}}}
+W.podii=mk('обробник виконується після події');
+W.povidom=mk('два обробники — дві події');
+})();
+}
+{
+/* sections/7-r2/widgets/polotno.js */
+/* ===== Малюємо на полотні Canvas (7 клас, урок 15, tkinter): код + вікно з полотном і лінійками координат =====
+   Один рушій — три імена, бо віджет можна взяти лише раз на урок:
+     W.koord7  — система координат на вікні (ліворуч — площина з уроку математики, праворуч — полотно);
+     W.polotno — як Python малює на полотні (методи й властивості фігур);
+     W.trykut  — процедура для малювання (рівнобедрений трикутник).
+   YAML слайда:
+     code:  [рядки програми] — ліворуч; без code, але з math: true — ліворуч площина з уроку математики (вісь y — угору);
+     cv:    [ширина, висота] полотна (типово [378, 265] — як Canvas() без розмірів у ЄPython);
+     bg:    колір полотна з програми (white…); без bg — світло-сірий, як у ЄPython;
+     grid:  крок сітки й лінійок (типово 50; 0 — без сітки);  t: напис у заголовку вікна (типово tk);
+     wide:  true — ширша колонка коду (довгі рядки), вікно вужче;
+     steps: [{line, k, say, ask, stage, add, clear, pts, guide, box, axes, vars, mpt}]
+       line  — номер рядка, що виконується (1…), [від, до] — кілька рядків; 0 — жоден;
+       k — короткий заголовок;  say — пояснення (**жирний** можна);  ask — крок-питання;
+       stage — що вже є на екрані: none (нічого), win (порожнє вікно), canvas (вікно з полотном); діє до наступної зміни;
+               без stage у жодному кроці полотно видно від початку;
+       add   — фігури, що з’являються на цьому кроці й лишаються далі: {t: line | rect | oval | poly, p: [x1, y1, x2, y2, …],
+               fill, outline, width, dash: 7 або [7, 2], arrow: first | last | both} — як у tkinter (poly без fill — чорний);
+       clear — true: перед цим кроком полотно очищено (delete('all'));
+       pts   — позначені точки лише на цьому кроці: [[x, y], [x, y, 'A'], [x, y, '', 'se'], …] — 4-й елемент — бік підпису
+               (ne, nw, se, sw: n — над точкою, s — під, e — праворуч, w — ліворуч; без нього — як уміститься);
+       dots  — точки без підпису [[x, y], …];  guide — true: пунктир від точок до лінійок;
+       box   — пунктирна рамка [x1, y1, x2, y2] (прямокутник, у який вписано овал) лише на цьому кроці;
+       axes  — true: осі x, y і початок (0, 0) яскраво;  vars — значення змінних [[ім’я, значення], …];
+       mpt   — точка на площині з уроку математики [x, y] (W.koord7).
+   Фігури — справжніми кольорами з програми, як у ЄPython (перевірено 07.11.2026: штрихи dash і стрілки arrow малюються,
+   багатокутник без fill — чорний). Сітка й лінійки — підказка вчителя, у справжньому вікні їх немає.
+   Учитель: пробіл або клік — далі. Класи з префіксом cv7-. */
+(function(){
+document.head.insertAdjacentHTML('beforeend','<style>'+
+'.cv7{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;flex:1;min-height:0;align-content:start}'+
+'.cv7.cv7-wide{grid-template-columns:minmax(0,1.5fr) minmax(0,1fr)}'+
+'.cv7-p{border:3px solid var(--ink);background:var(--paper);display:flex;flex-direction:column;min-height:0}'+
+'.cv7-h{padding:6px 12px;border-bottom:3px solid var(--ink);font:700 20px var(--body);display:flex;justify-content:space-between;gap:8px}'+
+'.cv7-h small{font:600 17px var(--body);color:var(--muted)}'+
+'.cv7-code{padding:8px 0;display:flex;flex-direction:column}'+
+'.cv7-l{display:grid;grid-template-columns:30px 26px minmax(0,1fr);align-items:center;font:600 21px/1.45 var(--mono);padding:1px 6px;transition:background .3s;white-space:pre}'+
+'.cv7-l i{font-style:normal;color:var(--muted);font-size:18px;line-height:1;text-align:right;padding-right:8px}'+
+'.cv7-l b{color:var(--accent);font:800 24px/1 var(--body);visibility:hidden}'+
+'.cv7-l.cur{background:var(--accent-tint)}.cv7-l.cur b{visibility:visible}'+
+'.cv7-l span{overflow:hidden;text-overflow:ellipsis}'+
+'.cv7-dense .cv7-l{font-size:18px;line-height:1.22}.cv7-dense .cv7-code{padding:3px 0}.cv7-dense .cv7-l b{font-size:19px}.cv7-dense .cv7-l i{font-size:16px}'+
+'.cv7-sw{padding:8px 10px;display:flex;justify-content:center}'+
+'.cv7-sw svg{display:block;width:100%;height:auto}'+
+'.cv7-ru{font-family:var(--mono);font-weight:700;fill:var(--muted)}'+
+'.cv7-tick{stroke:var(--muted)}'+
+'.cv7-win,.cv7-rul{transition:opacity .4s}.cv7-win.off,.cv7-rul.off{opacity:0}'+
+'.cv7-cvs{transition:opacity .4s}.cv7-cvs.off{opacity:0}'+
+'.cv7-new{animation:cv7n 1.1s ease-out}@keyframes cv7n{0%{opacity:0}35%{opacity:1}55%{opacity:.35}100%{opacity:1}}'+
+'.cv7-pt circle{fill:var(--coral);stroke:var(--paper)}'+
+'.cv7-pt text,.cv7-lab{font-family:var(--mono);font-weight:800;fill:var(--ink);paint-order:stroke;stroke:var(--paper);stroke-linejoin:round}'+
+'.cv7-gd{stroke:var(--coral);fill:none}'+
+'.cv7-gl rect{fill:var(--coral)}.cv7-gl text{font-family:var(--mono);font-weight:800;fill:var(--paper)}'+
+'.cv7-box{fill:none;stroke:var(--accent)}'+
+'.cv7-ax{stroke:var(--coral);fill:var(--coral)}.cv7-axt{font-family:var(--body);font-weight:800;fill:var(--coral)}'+
+'.cv7-math .cv7-mx{stroke:var(--ink);fill:var(--ink)}.cv7-math text{font-family:var(--mono);font-weight:700;fill:var(--ink)}'+
+'.cv7-math .cv7-mg{stroke:var(--line)}'+
+'.cv7-cap{grid-column:1/-1;border:3px solid var(--ink);background:var(--paper-alt);padding:10px 16px}'+
+'.cv7-ch{display:flex;justify-content:space-between;align-items:center;gap:6px 14px;flex-wrap:wrap;margin-bottom:3px}'+
+'.cv7-cap b.k{display:block;font:700 19px var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}'+
+'.cv7-cap.ask b.k{color:var(--coral)}'+
+'.cv7-cap p{font-size:24px;line-height:1.3;margin:0}'+
+'.cv7-vars{display:flex;flex-wrap:wrap;gap:6px 10px;font:700 20px/1.2 var(--mono)}'+
+'.cv7-vars span{background:var(--sun);color:var(--ink);padding:1px 10px}'+
+/* учнівська стрічка (телефон вертикально): одне під одним */
+'.feed .stage .cv7{grid-template-columns:minmax(0,1fr)}.feed .stage .cv7-l{font-size:16px}.feed .stage .cv7-vars{font-size:16px}'+
+'.feed .stage .cv7-dense .cv7-l{font-size:14px;grid-template-columns:24px 20px minmax(0,1fr)}'+
+/* учнівська сторінка горизонтально: щільніше, бо під слайдом кнопки */
+'html.student:not(.feed) .cv7{gap:10px}html.student:not(.feed) .cv7-h{padding:3px 12px}html.student:not(.feed) .cv7-code{padding:3px 0}'+
+'html.student:not(.feed) .cv7-l{font-size:15px;line-height:1.12}html.student:not(.feed) .cv7-sw{padding:4px 6px}'+
+'html.student:not(.feed) .cv7-dense .cv7-l{font-size:12px;line-height:1.05;grid-template-columns:22px 16px minmax(0,1fr)}'+
+'html.student:not(.feed) .cv7-dense .cv7-l i{font-size:11px}html.student:not(.feed) .cv7-dense .cv7-l b{font-size:13px}'+
+'html.student:not(.feed) .cv7-vars{font-size:15px}'+
+'html.student:not(.feed) .cv7-cap{padding:6px 12px}html.student:not(.feed) .cv7-cap p{font-size:18px}'+
+'</style>');
+
+const U=s=>{const t=document.createElement('textarea');t.innerHTML=String(s);return t.value};
+const H=s=>U(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const B=s=>/<b>/.test(s)?s:H(s).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>');
+/* назва кольору з програми — лише латинські літери; інакше — типовий */
+const C=(c,def)=>/^[a-z]+$/i.test(String(c||''))?String(c):def;
+const N=v=>Math.round(+v*100)/100;
+const STAGES=['none','win','canvas'];
+
+/* фігура tkinter → SVG */
+function shape(f,cls){
+ const p=(f.p||[]).map(Number),w=+f.width||1,t=f.t||'line';
+ const dash=f.dash==null?'':' stroke-dasharray="'+(Array.isArray(f.dash)?f.dash.join(' '):f.dash+' '+f.dash)+'"';
+ const c=cls?' class="'+cls+'"':'';
+ if(t==='rect'||t==='oval'){
+  const x1=Math.min(p[0],p[2]),y1=Math.min(p[1],p[3]),x2=Math.max(p[0],p[2]),y2=Math.max(p[1],p[3]);
+  const fill=f.fill?C(f.fill,'none'):'none',st=C(f.outline,'black');
+  const a=' fill="'+fill+'" stroke="'+st+'" stroke-width="'+w+'"'+dash;
+  return t==='rect'?'<rect'+c+' x="'+x1+'" y="'+y1+'" width="'+(x2-x1)+'" height="'+(y2-y1)+'"'+a+'/>':
+   '<ellipse'+c+' cx="'+N((x1+x2)/2)+'" cy="'+N((y1+y2)/2)+'" rx="'+N((x2-x1)/2)+'" ry="'+N((y2-y1)/2)+'"'+a+'/>'}
+ const pts=[];for(let i=0;i+1<p.length;i+=2)pts.push(p[i]+','+p[i+1]);
+ if(t==='poly'){
+  const fill=f.fill===''?'none':C(f.fill,'black'),st=f.outline?C(f.outline,'black'):'none';
+  return '<polygon'+c+' points="'+pts.join(' ')+'" fill="'+fill+'" stroke="'+st+'" stroke-width="'+w+'" stroke-linejoin="miter"'+dash+'/>'}
+ const col=C(f.fill,'black');
+ let s='<polyline points="'+pts.join(' ')+'" fill="none" stroke="'+col+'" stroke-width="'+w+'" stroke-linejoin="miter"'+dash+'/>';
+ /* стрілка — як у tkinter: трикутник на кінці лінії */
+ const arr=(ax,ay,bx,by)=>{const dx=bx-ax,dy=by-ay,l=Math.hypot(dx,dy)||1,ux=dx/l,uy=dy/l,L=8+1.6*w,hw=3+w;
+  const sx=bx-ux*L,sy=by-uy*L;return '<polygon points="'+N(bx)+','+N(by)+' '+N(sx-uy*hw)+','+N(sy+ux*hw)+' '+N(sx+uy*hw)+','+N(sy-ux*hw)+'" fill="'+col+'"/>'};
+ const n=p.length;
+ if(n>=4&&(f.arrow==='first'||f.arrow==='both'))s+=arr(p[2],p[3],p[0],p[1]);
+ if(n>=4&&(f.arrow==='last'||f.arrow==='both'))s+=arr(p[n-4],p[n-3],p[n-2],p[n-1]);
+ return '<g'+c+'>'+s+'</g>'}
+
+/* площина з уроку математики: початок унизу ліворуч, вісь y — угору */
+function mathSvg(){
+ const O=[46,214],S=36;let g='';
+ for(let i=1;i<=6;i++){g+='<line class="cv7-mg" x1="'+(O[0]+i*S)+'" y1="'+(O[1]-5*S)+'" x2="'+(O[0]+i*S)+'" y2="'+O[1]+'" stroke-width="1"/>';
+  g+='<text x="'+(O[0]+i*S)+'" y="'+(O[1]+22)+'" font-size="16" text-anchor="middle">'+i+'</text>'}
+ for(let j=1;j<=5;j++){g+='<line class="cv7-mg" x1="'+O[0]+'" y1="'+(O[1]-j*S)+'" x2="'+(O[0]+6*S)+'" y2="'+(O[1]-j*S)+'" stroke-width="1"/>';
+  g+='<text x="'+(O[0]-10)+'" y="'+(O[1]-j*S+6)+'" font-size="16" text-anchor="end">'+j+'</text>'}
+ g+='<g class="cv7-mx"><line x1="'+O[0]+'" y1="'+O[1]+'" x2="'+(O[0]+6*S+22)+'" y2="'+O[1]+'" stroke-width="2.5"/>'+
+  '<polygon points="'+(O[0]+6*S+30)+','+O[1]+' '+(O[0]+6*S+18)+','+(O[1]-6)+' '+(O[0]+6*S+18)+','+(O[1]+6)+'"/>'+
+  '<line x1="'+O[0]+'" y1="'+O[1]+'" x2="'+O[0]+'" y2="'+(O[1]-5*S-22)+'" stroke-width="2.5"/>'+
+  '<polygon points="'+O[0]+','+(O[1]-5*S-30)+' '+(O[0]-6)+','+(O[1]-5*S-18)+' '+(O[0]+6)+','+(O[1]-5*S-18)+'"/></g>'+
+  '<text x="'+(O[0]+6*S+26)+'" y="'+(O[1]+24)+'" font-size="20">x</text><text x="'+(O[0]+12)+'" y="'+(O[1]-5*S-18)+'" font-size="20">y</text>'+
+  '<text x="'+(O[0]-10)+'" y="'+(O[1]+22)+'" font-size="16" text-anchor="end">0</text>'+
+  '<g class="cv7-mp"></g>';
+ return '<svg class="cv7-math" viewBox="0 0 320 250" aria-hidden="true">'+g+'</svg>'}
+
+function mk(defHint){return{html:d=>{
+  const left=(d.code&&d.code.length)?'<div class="cv7-p"><div class="cv7-h">Програма<small>'+H(d.hint||defHint)+'</small></div><div class="cv7-code"></div></div>':
+   '<div class="cv7-p"><div class="cv7-h">На уроці математики<small>y — угору</small></div><div class="cv7-sw">'+mathSvg()+'</div></div>';
+  return '<div class="cv7">'+left+
+  '<div class="cv7-p"><div class="cv7-h">'+((d.code&&d.code.length)?'Вікно проєкту':'На вікні')+'<small class="cv7-sz"></small></div><div class="cv7-sw cv7-main"></div></div>'+
+  '<div class="cv7-cap"><div class="cv7-ch"><b class="k"></b><span class="cv7-vars"></span></div><p></p></div></div>'},
+ mount(r,d,api){
+  const code=d.code||[],steps=d.steps&&d.steps.length?d.steps:[{line:0,k:'',say:''}];
+  const cv=d.cv||[378,265],W=+cv[0],Hh=+cv[1],G=d.grid==null?50:+d.grid,BG=C(d.bg,'whitesmoke'),T=d.t==null?'tk':U(d.t);
+  const Q=s=>r.querySelector(s),CO=Q('.cv7-code'),VA=Q('.cv7-vars'),CAP=Q('.cv7-cap'),MAIN=Q('.cv7-main');
+  Q('.cv7-sz').textContent='полотно '+W+' × '+Hh;
+  if(code.length>11)Q('.cv7').classList.add('cv7-dense');
+  if(d.wide)Q('.cv7').classList.add('cv7-wide');
+  if(CO)CO.innerHTML=code.map((t,j)=>'<div class="cv7-l"><i>'+(j+1)+'</i><b>➜</b><span>'+H(t)+'</span></div>').join('');
+  const LS=CO?[...CO.children]:[];
+  /* розміри в одиницях полотна */
+  const MX=Math.max(W,Hh),fs=Math.max(14,MX/15),M=Math.round(fs*2.75),TB=Math.round(Math.max(24,MX*.07)),P=Math.round(fs*1.2);
+  const VW=M+W+P,VH=M+TB+Hh+P,X0=M,Y0=M+TB;
+  /* числа на лінійках — не густіше ніж через 1/6 ширини (400 → через 100) */
+  let lab=G||100;while(lab&&MX/lab>6)lab*=2;
+  /* лінійки, сітка, вікно */
+  let ru='',grid='';
+  if(G){for(let x=0;x<=W;x+=G){const big=x%lab===0;
+     ru+='<line class="cv7-tick" x1="'+(X0+x)+'" y1="'+(M-fs*(big?.45:.25))+'" x2="'+(X0+x)+'" y2="'+M+'" stroke-width="'+(fs*.09)+'"/>';
+     if(big)ru+='<text class="cv7-ru" x="'+(X0+x)+'" y="'+(M-fs*.65)+'" font-size="'+(fs*.78)+'" text-anchor="middle">'+x+'</text>';
+     if(x&&x<W)grid+='<line x1="'+x+'" y1="0" x2="'+x+'" y2="'+Hh+'" stroke="gainsboro" stroke-width="'+(MX/500)+'"/>'}
+   for(let y=0;y<=Hh;y+=G){const big=y%lab===0;
+     ru+='<line class="cv7-tick" x1="'+(M-fs*(big?.45:.25))+'" y1="'+(Y0+y)+'" x2="'+M+'" y2="'+(Y0+y)+'" stroke-width="'+(fs*.09)+'"/>';
+     if(big)ru+='<text class="cv7-ru" x="'+(M-fs*.6)+'" y="'+(Y0+y+fs*.28)+'" font-size="'+(fs*.78)+'" text-anchor="end">'+y+'</text>';
+     if(y&&y<Hh)grid+='<line x1="0" y1="'+y+'" x2="'+W+'" y2="'+y+'" stroke="gainsboro" stroke-width="'+(MX/500)+'"/>'}}
+  const tfs=TB*.5,ic=TB*.42;
+  const win='<g class="cv7-win off">'+
+   '<rect x="'+(X0-1)+'" y="'+M+'" width="'+(W+2)+'" height="'+(TB+Hh+1)+'" fill="whitesmoke" stroke="dodgerblue" stroke-width="'+(MX/260)+'"/>'+
+   '<rect x="'+X0+'" y="'+M+'" width="'+W+'" height="'+TB+'" fill="white"/>'+
+   '<text x="'+(X0+TB*.4)+'" y="'+(M+TB*.66)+'" font-size="'+tfs+'" font-family="Arial,sans-serif" fill="black" class="cv7-tt"></text>'+
+   '<g stroke="black" stroke-width="'+(MX/400)+'" fill="none">'+
+    '<line x1="'+(X0+W-ic*5.2)+'" y1="'+(M+TB/2)+'" x2="'+(X0+W-ic*4.4)+'" y2="'+(M+TB/2)+'"/>'+
+    '<rect x="'+(X0+W-ic*3.2)+'" y="'+(M+TB/2-ic*.4)+'" width="'+(ic*.8)+'" height="'+(ic*.8)+'"/>'+
+    '<line x1="'+(X0+W-ic*1.6)+'" y1="'+(M+TB/2-ic*.4)+'" x2="'+(X0+W-ic*.8)+'" y2="'+(M+TB/2+ic*.4)+'"/>'+
+    '<line x1="'+(X0+W-ic*.8)+'" y1="'+(M+TB/2-ic*.4)+'" x2="'+(X0+W-ic*1.6)+'" y2="'+(M+TB/2+ic*.4)+'"/></g></g>';
+  MAIN.innerHTML='<svg viewBox="0 0 '+VW+' '+VH+'" aria-hidden="true"><g class="cv7-rul">'+ru+'</g>'+win+
+   '<g transform="translate('+X0+' '+Y0+')"><g class="cv7-cvs off"><rect x="0" y="0" width="'+W+'" height="'+Hh+'" fill="'+BG+'"/>'+grid+
+   '<g class="cv7-shp"></g></g><g class="cv7-ovl"></g></g>'+
+   '<g class="cv7-gls"></g></svg>';
+  const SVG=MAIN.querySelector('svg'),WIN=SVG.querySelector('.cv7-win'),CVS=SVG.querySelector('.cv7-cvs'),RUL=SVG.querySelector('.cv7-rul'),
+   SHP=SVG.querySelector('.cv7-shp'),OVL=SVG.querySelector('.cv7-ovl'),GLS=SVG.querySelector('.cv7-gls');
+  SVG.querySelector('.cv7-tt').textContent=T;
+  /* стан після кожного кроку: фігури й етап накопичуються */
+  const hasStage=steps.some(s=>s.stage!=null);
+  const ST=[],SH=[];let stg=hasStage?'none':'canvas',list=[];
+  steps.forEach(s=>{if(s.stage!=null&&STAGES.includes(s.stage))stg=s.stage;
+   if(s.clear)list=[];
+   const add=(s.add||[]).map(f=>Object.assign({},f));
+   list=list.map(f=>Object.assign({},f,{_n:false})).concat(add.map(f=>Object.assign(f,{_n:true})));
+   ST.push(stg);SH.push(list)});
+  /* площина з уроку математики */
+  const MP=r.querySelector('.cv7-mp');
+  /* екран не вищий за вільне місце — лише зменшуємо */
+  const CVP=MAIN.closest('.cv7-p'),HD=CVP.querySelector('.cv7-h'),MS=r.querySelector('.cv7-math');
+  /* розміри — без масштабу сторінки (clientHeight), як offsetHeight у podii: сторінку можуть показувати зменшеною */
+  function fit(){SVG.style.width='';SVG.style.margin='';if(MS){MS.style.width='';MS.style.margin=''}
+   const box=Q('.cv7').parentElement.clientHeight,maxH=box-CAP.offsetHeight-HD.offsetHeight-44;
+   if(box>0&&maxH>80&&SVG.clientHeight>maxH){SVG.style.width=Math.floor(maxH*VW/VH)+'px';SVG.style.margin='0 auto'}
+   /* площина з уроку математики — не вища за полотно */
+   if(MS){const h=SVG.clientHeight;if(h>0&&MS.clientHeight>h){MS.style.width=Math.floor(h*320/250)+'px';MS.style.margin='0 auto'}}}
+  function step(i){const s=steps[i]||{};
+   const ln=Array.isArray(s.line)?s.line:[s.line,s.line];
+   LS.forEach((l,j)=>l.classList.toggle('cur',j+1>=ln[0]&&j+1<=ln[1]));
+   VA.innerHTML=(s.vars||[]).map(v=>'<span>'+H(v[0])+' = '+H(v[1])+'</span>').join('');
+   const st=ST[i];WIN.classList.toggle('off',st==='none');CVS.classList.toggle('off',st!=='canvas');RUL.classList.toggle('off',st==='none');
+   SHP.innerHTML=SH[i].map(f=>shape(f,f._n?'cv7-new':'')).join('');
+   /* підказки поверх полотна */
+   let o='',gl='';
+   if(s.box){const b=s.box.map(Number);o+='<rect class="cv7-box" x="'+Math.min(b[0],b[2])+'" y="'+Math.min(b[1],b[3])+'" width="'+Math.abs(b[2]-b[0])+'" height="'+Math.abs(b[3]-b[1])+'" stroke-width="'+(fs*.14)+'" stroke-dasharray="'+(fs*.45)+' '+(fs*.3)+'"/>'}
+   if(s.axes){const aw=fs*.22,ah=fs*.55;
+    o+='<g class="cv7-ax"><line x1="0" y1="0" x2="'+(W*.86)+'" y2="0" stroke-width="'+aw+'"/><polygon points="'+(W*.86+ah*1.4)+',0 '+(W*.86)+','+(-ah*.7)+' '+(W*.86)+','+(ah*.7)+'"/>'+
+     '<line x1="0" y1="0" x2="0" y2="'+(Hh*.84)+'" stroke-width="'+aw+'"/><polygon points="0,'+(Hh*.84+ah*1.4)+' '+(-ah*.7)+','+(Hh*.84)+' '+(ah*.7)+','+(Hh*.84)+'"/></g>'+
+     '<text class="cv7-axt" x="'+(W*.86+ah*.4)+'" y="'+(fs*1.4)+'" font-size="'+(fs*1.1)+'">x</text>'+
+     '<text class="cv7-axt" x="'+(fs*.6)+'" y="'+(Hh*.84+ah*1.2)+'" font-size="'+(fs*1.1)+'">y</text>'+
+     '<text class="cv7-lab" x="'+(fs*.5)+'" y="'+(fs*1.3)+'" font-size="'+(fs*.9)+'" stroke-width="'+(fs*.25)+'">(0, 0)</text>'}
+   (s.pts||[]).forEach(q=>{const x=+q[0],y=+q[1],nm=q[2]?U(q[2])+' ':'',t=nm+'('+x+', '+y+')';
+    if(s.guide){o+='<path class="cv7-gd" d="M'+x+' '+y+'V0M'+x+' '+y+'H0" stroke-width="'+(fs*.12)+'" stroke-dasharray="'+(fs*.35)+' '+(fs*.25)+'"/>';
+     const bw=fs*(.55*String(x).length+.6),bh=fs*1.05;
+     gl+='<g class="cv7-gl"><rect x="'+(X0+x-bw/2)+'" y="'+(M-fs*1.55)+'" width="'+bw+'" height="'+bh+'" rx="'+(fs*.2)+'"/><text x="'+(X0+x)+'" y="'+(M-fs*.73)+'" font-size="'+(fs*.82)+'" text-anchor="middle">'+x+'</text></g>';
+     const bw2=fs*(.55*String(y).length+.6);
+     gl+='<g class="cv7-gl"><rect x="'+(M-fs*.35-bw2)+'" y="'+(Y0+y-bh/2)+'" width="'+bw2+'" height="'+bh+'" rx="'+(fs*.2)+'"/><text x="'+(M-fs*.35-bw2/2)+'" y="'+(Y0+y+fs*.3)+'" font-size="'+(fs*.82)+'" text-anchor="middle">'+y+'</text></g>'}
+    /* бік підпису: 4-й елемент ne | nw | se | sw (n — над точкою, w — ліворуч); без нього — як уміститься */
+    const pos=String(q[3]||''),tw=t.length*.6*.92*fs;
+    const right=pos?pos.includes('w'):x+fs*.55+tw>W,up=pos?pos.includes('n'):y>fs*1.6;
+    o+='<g class="cv7-pt"><circle cx="'+x+'" cy="'+y+'" r="'+(fs*.32)+'" stroke-width="'+(fs*.1)+'"/>'+
+     '<text x="'+(right?x-fs*.55:x+fs*.55)+'" y="'+(up?y-fs*.5:y+fs*1.25)+'" font-size="'+(fs*.92)+'" text-anchor="'+(right?'end':'start')+'" stroke-width="'+(fs*.28)+'">'+H(t)+'</text></g>'});
+   (s.dots||[]).forEach(q=>{o+='<g class="cv7-pt"><circle cx="'+(+q[0])+'" cy="'+(+q[1])+'" r="'+(fs*.32)+'" stroke-width="'+(fs*.1)+'"/></g>'});
+   OVL.innerHTML=o;GLS.innerHTML=gl;
+   if(MP){const m=s.mpt;MP.innerHTML=m?'<circle cx="'+(46+36*m[0])+'" cy="'+(214-36*m[1])+'" r="7" fill="var(--coral)"/>'+
+     '<path d="M'+(46+36*m[0])+' '+(214-36*m[1])+'V214M'+(46+36*m[0])+' '+(214-36*m[1])+'H46" stroke="var(--coral)" stroke-width="2.5" stroke-dasharray="6 4" fill="none"/>'+
+     '<text x="'+(56+36*m[0])+'" y="'+(206-36*m[1])+'" font-size="19" font-weight="800" fill="var(--ink)">('+m[0]+'; '+m[1]+')</text>':''}
+   CAP.classList.toggle('ask',!!s.ask);
+   CAP.querySelector('.k').textContent=s.k||'';CAP.querySelector('p').innerHTML=B(s.say||'');
+   fit()}
+  return{count:steps.length-1,step}}}}
+W.koord7=mk('');
+W.polotno=mk('методи малювання');
+W.trykut=mk('процедура малює фігуру');
 })();
 }
 {
@@ -3633,5 +4318,89 @@ W.eqbuild={html:()=>W98CSS+'<div class="w98" style="grid-template-columns:1fr"><
    A.innerHTML=s[3];A.style.outline=(i>0&&i<8)?'2px solid var(--muted)':'none';A.style.outlineOffset='10px';
    r.querySelector('#eqK').textContent=s[0];r.querySelector('#eqT').innerHTML=s[1]}
   return{count:S.length-1,step}}};
+}
+{
+/* sections/9-r3/widgets/krok.js */
+/* ===== Покрокове виконання програми Python (7–9 класи): код + «коробки» змінних + екран =====
+   W.krok — універсальна демонстрація, код і кроки задає YAML слайда:
+     code:  [рядки програми]
+     names: {змінна: підпис}            — необов'язково, підпис під коробкою («ціна булочки»)
+     steps: [{line, k, say, vars, out, inp, ask}]
+       line — номер рядка, що виконується (1…; 0 — жоден);  k — короткий заголовок кроку;  say — пояснення (**жирний** можна);
+       vars — {змінна: 'значення як показати'} — стан пам'яті ПІСЛЯ кроку (накопичувати не треба: пишіть усі змінні, що вже є);
+       out  — увесь текст екрана після кроку (рядки через \n);  inp — що «набирає» користувач (показується в рядку екрана);
+       ask  — true: крок-питання «Передбачте!» (значення нової змінної ще приховано знаком ?).
+   Учитель: пробіл або клік — далі. Кольори — лише змінними теми. */
+(function(){
+document.head.insertAdjacentHTML('beforeend','<style>'+
+'.kr{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);gap:16px;flex:1;min-height:0;align-content:start}'+
+'.kr-p{border:3px solid var(--ink);background:var(--paper);display:flex;flex-direction:column;min-height:0}'+
+'.kr-h{padding:6px 12px;border-bottom:3px solid var(--ink);font:700 20px var(--body);display:flex;justify-content:space-between;gap:8px}'+
+'.kr-h small{font:600 17px var(--body);color:var(--muted)}'+
+'.kr-code{padding:8px 0;display:flex;flex-direction:column}'+
+'.kr-l{display:grid;grid-template-columns:34px 26px minmax(0,1fr);align-items:center;font:600 22px/1.45 var(--mono);padding:1px 6px;transition:background .3s;white-space:pre}'+
+'.kr-l i{font-style:normal;color:var(--muted);font-size:19px;text-align:right;padding-right:8px}'+
+'.kr-l b{color:var(--accent);font:800 24px var(--body);visibility:hidden}'+
+'.kr-l.cur{background:var(--accent-tint)}.kr-l.cur b{visibility:visible}'+
+'.kr-l.done{opacity:.55}'+
+'.kr-l span{overflow:hidden;text-overflow:ellipsis}'+
+'.kr-r{display:flex;flex-direction:column;gap:14px;min-height:0}'+
+'.kr-mem{display:flex;flex-wrap:wrap;gap:10px;padding:10px 12px;min-height:118px;align-content:flex-start}'+
+'.kr-mem .em{color:var(--muted);font:500 19px var(--body)}'+
+/* коробки гнучкі: до 5 змінних в один рядок, без переносу за рамку панелі */
+'.kr-box{border:3px solid var(--ink);flex:1 1 0;min-width:72px;max-width:140px;text-align:center;background:var(--paper)}'+
+'.kr-box .v,.kr-box .d{overflow-wrap:anywhere}'+
+'.kr-box .n{font:700 19px var(--mono);border-bottom:2px solid var(--ink);padding:2px 8px;background:var(--paper-alt)}'+
+'.kr-box .v{font:800 28px var(--mono);padding:4px 10px;min-height:1.4em}'+
+'.kr-box .d{font:500 15px var(--body);color:var(--muted);padding:0 6px 4px}'+
+'.kr-box.new{animation:krf 1.4s}.kr-box.q .v{color:var(--coral)}'+
+'@keyframes krf{0%{background:var(--sun)}100%{background:var(--paper)}}'+
+'.kr-scr{background:var(--ink);color:var(--paper);font:600 23px/1.35 var(--mono);padding:10px 14px;min-height:118px;white-space:pre-wrap}'+
+'.kr-scr .in{color:var(--sun)}.kr-scr .cur{display:inline-block;width:12px;height:1.05em;background:var(--paper);vertical-align:-3px;animation:krb 1s steps(1) infinite}'+
+'@keyframes krb{50%{opacity:0}}'+
+'.kr-cap{grid-column:1/-1;border:3px solid var(--ink);background:var(--paper-alt);padding:10px 16px}'+
+'.kr-cap b.k{display:block;font:700 19px var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:3px}'+
+'.kr-cap.ask b.k{color:var(--coral)}'+
+'.kr-cap p{font-size:24px;line-height:1.3;margin:0}'+
+/* учнівська стрічка (телефон вертикально): одне під одним */
+'.feed .stage .kr{grid-template-columns:minmax(0,1fr)}.feed .stage .kr-l{font-size:20px}'+
+/* учнівська сторінка горизонтально: нижче, бо під слайдом кнопки */
+'html.student:not(.feed) .kr,html.student:not(.feed) .kr-p{min-height:auto}'+
+'html.student:not(.feed) .kr{gap:10px}html.student:not(.feed) .kr-h{padding:3px 12px}html.student:not(.feed) .kr-code{padding:3px 0}'+
+'html.student:not(.feed) .kr-l{font-size:19px;line-height:1.08}html.student:not(.feed) .kr-mem{min-height:0;padding:6px 10px}'+
+'html.student:not(.feed) .kr-box .v{font-size:22px}html.student:not(.feed) .kr-scr{min-height:0;font-size:19px;padding:6px 12px}'+
+'html.student:not(.feed) .kr-cap{padding:6px 12px}html.student:not(.feed) .kr-cap p{font-size:20px}'+
+'</style>');
+
+/* збірка вже екранує рядки YAML (&gt;) — спершу повертаємо символи, потім екрануємо один раз */
+const U=s=>{const t=document.createElement('textarea');t.innerHTML=String(s);return t.value};
+const H=s=>U(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+/* say приходить зі збірки вже з <b> замість **…**; якщо ні — перетворюємо самі */
+const B=s=>/<b>/.test(s)?s:H(s).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>');
+
+W.krok={html:()=>'<div class="kr">'+
+  '<div class="kr-p"><div class="kr-h">Програма<small>виконується згори вниз</small></div><div class="kr-code"></div></div>'+
+  '<div class="kr-r"><div class="kr-p"><div class="kr-h">Пам’ять<small>змінні — «коробки» з іменами</small></div><div class="kr-mem"></div></div>'+
+  '<div class="kr-p"><div class="kr-h">Екран<small>що бачить користувач</small></div><div class="kr-scr"></div></div></div>'+
+  '<div class="kr-cap"><b class="k"></b><p></p></div></div>',
+ mount(r,d,api){
+  const code=d.code||[],steps=d.steps||[{line:0,k:'',say:''}],names=d.names||{};
+  const CO=r.querySelector('.kr-code'),ME=r.querySelector('.kr-mem'),SC=r.querySelector('.kr-scr'),CAP=r.querySelector('.kr-cap');
+  CO.innerHTML=code.map((t,j)=>'<div class="kr-l"><i>'+(j+1)+'</i><b>➜</b><span>'+H(t)+'</span></div>').join('');
+  const LS=[...CO.children];
+  function step(i){const s=steps[i]||{},prev=steps[i-1]||{},pv=prev.vars||{},v=s.vars||{};
+   LS.forEach((l,j)=>{l.classList.toggle('cur',s.line===j+1);l.classList.toggle('done',!!s.line&&j+1<s.line)});
+   const ks=Object.keys(v);
+   ME.innerHTML=ks.length?ks.map(n=>{const val=String(v[n]),q=s.ask&&!(n in pv);
+     return '<div class="kr-box'+(q?' q':'')+(!q&&pv[n]!==v[n]?' new':'')+'"><div class="n">'+H(n)+'</div><div class="v">'+(q?'?':H(val))+'</div>'+
+      (names[n]?'<div class="d">'+H(names[n])+'</div>':'')+'</div>'}).join(''):'<span class="em">поки що порожньо</span>';
+   let o=H(s.out||'');
+   if(s.inp!=null)o+='<span class="in">'+H(s.inp)+'</span>';
+   if(s.wait)o+='<span class="cur"></span>';
+   SC.innerHTML=o;
+   CAP.classList.toggle('ask',!!s.ask);
+   CAP.querySelector('.k').textContent=s.k||'';CAP.querySelector('p').innerHTML=B(s.say||'')}
+  return{count:steps.length-1,step}}};
+})();
 }
 start();
