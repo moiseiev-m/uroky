@@ -834,6 +834,239 @@ W.wordlab={html:()=>'<div class="wl-rib" style="position:relative;width:1000px;a
     return{count:SEQ.length,step}}};
 
 {
+/* sections/6-r1/widgets/cyfra.js */
+/* ===== 6 клас, розділ 1 «Цифрові пристрої. Цифрові технології» (уроки 6-1 і 6-2, § 1.1–1.2): демонстрації, якими керує вчитель (пробіл або клік — далі) =====
+   W.proc6  — цифровий термометр: число замість стовпчика, опрацювання, зберігання, передавання на смартфон.
+   W.smart6 — смартфон: багато цифрових пристроїв в одному (зв’язок, процесор, пам’ять, камера, GPS, датчики).
+   W.klas6  — класифікація цифрових пристроїв за призначенням: передавання, опрацювання, зберігання даних.
+   W.dim6   — «розумний» будинок: хаб, датчик диму, смартфон, лампа, робот-пилосос; без мережі — не працює.
+   W.slid6  — цифровий слід за один день: пасивний і активний.
+   Кольори — лише токени теми. Класи з префіксом cy6: CSS віджетів спільний для всього сайту. */
+(function(){
+document.head.insertAdjacentHTML('beforeend','<style>'+
+'.cy6{display:grid;grid-template-columns:auto 1fr;gap:34px;align-items:start}'+
+'.cy6s{display:flex;flex-direction:column;gap:14px;min-width:0}'+
+'.cy6tag{align-self:flex-start;font:700 24px var(--display);padding:4px 16px;border-radius:999px;background:var(--accent-tint);color:var(--ink)}'+
+'.cy6cap{font-size:27px;line-height:1.35;margin:0}'+
+'.cy6h{font:600 21px var(--display);color:var(--muted);margin:0}'+
+'.cy6b{display:flex;flex-wrap:wrap;gap:8px}'+
+'.cy6b span{font-size:22px;padding:4px 12px;border-radius:10px;border:2px solid var(--line);color:var(--muted);transition:background .3s,border-color .3s,color .3s}'+
+'.cy6b span.on{background:var(--accent-tint);border-color:var(--accent);color:var(--ink)}'+
+'.cy6svg{width:600px;height:400px;border:2px solid var(--line);border-radius:12px;background:var(--paper);display:block}'+
+'.cy6svg text{font-family:var(--display);fill:var(--ink)}'+
+'.cy6svg .cy6t{font-size:22px;font-weight:700;text-anchor:middle}'+
+'.cy6svg .cy6sm{font-size:19px;text-anchor:middle;fill:var(--muted)}'+
+'.cy6svg .cy6box{fill:var(--paper);stroke:var(--ink);stroke-width:3;transition:fill .4s,stroke .4s}'+
+'.cy6svg .cy6on .cy6box{fill:var(--accent-tint);stroke:var(--accent)}'+
+'.cy6svg .cy6ln{stroke:var(--line);stroke-width:4;fill:none;transition:stroke .4s,opacity .4s}'+
+'.cy6svg .cy6ln.on{stroke:var(--accent);stroke-dasharray:12 8;animation:cy6run .8s linear infinite}'+
+'.cy6svg .cy6ln.off{stroke:var(--muted);stroke-dasharray:4 10;opacity:.5}'+
+'@keyframes cy6run{to{stroke-dashoffset:-20}}'+
+'.cy6svg .cy6f{transition:opacity .5s}'+
+'.cy6svg .cy6hide{opacity:0}'+
+/* смартфон */
+'.cy6ph{display:grid;grid-template-columns:1fr 210px 1fr;gap:22px;align-items:center}'+
+'.cy6col{display:flex;flex-direction:column;gap:14px}'+
+'.cy6it{padding:10px 16px;border-radius:12px;border:2px solid var(--line);background:var(--paper);opacity:.12;transform:translateY(8px);transition:opacity .45s,transform .45s,border-color .45s,background .45s}'+
+'.cy6it.vis{opacity:1;transform:none}'+
+'.cy6it.cur{border-color:var(--accent);background:var(--accent-tint)}'+
+'.cy6it b{display:block;font:700 25px var(--display)}'+
+'.cy6it span{display:block;font-size:21px;color:var(--muted)}'+
+'.cy6it i{font-style:normal;font:600 19px var(--display);padding:1px 10px;border-radius:999px;background:var(--sun-soft);display:inline-block;margin-top:4px}'+
+'.cy6phone{width:210px;height:380px;display:block}'+
+'.cy6capw{font-size:27px;line-height:1.35;margin:18px 0 0;text-align:center}'+
+/* класифікація */
+'.cy6k{display:flex;flex-direction:column;gap:18px}'+
+'.cy6kq{display:flex;align-items:center;gap:18px;min-height:64px}'+
+'.cy6kq .cy6tag{font-size:26px}'+
+'.cy6kc{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}'+
+'.cy6kb{border:3px solid var(--line);border-radius:14px;padding:14px 16px;min-height:300px;background:var(--paper);transition:border-color .4s}'+
+'.cy6kb.on{border-color:var(--accent)}'+
+'.cy6kb h4{margin:0 0 4px;font:800 27px var(--display)}'+
+'.cy6kb p{margin:0 0 12px;font-size:20px;color:var(--muted)}'+
+'.cy6kb ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}'+
+'.cy6kb li{font-size:25px;padding:6px 14px;border-radius:10px;background:var(--mint-soft);transition:opacity .45s,transform .45s}'+
+'.cy6kb li.hid{opacity:0;transform:translateY(-30px)}'+
+'.cy6kb li.cur{background:var(--accent-tint);box-shadow:inset 0 0 0 2px var(--accent)}'+
+/* цифровий слід */
+'.cy6sl{display:grid;grid-template-columns:1fr 240px;gap:30px;align-items:start}'+
+'.cy6sll{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}'+
+'.cy6sll li{display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center;padding:8px 14px;border-radius:12px;border:2px solid var(--line);background:var(--paper);transition:opacity .45s,transform .45s,border-color .45s}'+
+'.cy6sll li.hid{opacity:0;transform:translateX(-24px)}'+
+'.cy6sll li.cur{border-color:var(--accent)}'+
+'.cy6sll li span{font-size:24px;line-height:1.3}'+
+'.cy6sll li em{font-style:normal;font:700 20px var(--display);padding:3px 12px;border-radius:999px;white-space:nowrap}'+
+'.cy6sll li em.p{background:var(--sky-soft)}.cy6sll li em.a{background:var(--pink-soft)}'+
+'.cy6cnt{border:3px solid var(--line);border-radius:16px;padding:16px;text-align:center;background:var(--paper)}'+
+'.cy6cnt svg{width:180px;height:150px;display:block;margin:0 auto}'+
+'.cy6cnt b{display:block;font:800 26px var(--display)}'+
+'.cy6cnt span{display:block;font-size:21px;color:var(--muted)}'+
+'.cy6foot{transition:opacity .4s}'+
+/* стрічка на телефоні */
+'.feed .stage .cy6,.feed .stage .cy6sl{grid-template-columns:minmax(0,1fr);gap:16px}'+
+'.feed .stage .cy6svg{width:100%;height:auto;aspect-ratio:3/2}'+
+'.feed .stage .cy6ph{grid-template-columns:1fr 1fr;gap:12px}'+
+'.feed .stage .cy6phone{grid-column:1/3;grid-row:1;margin:0 auto;width:160px;height:290px}'+
+'.feed .stage .cy6kc{grid-template-columns:minmax(0,1fr);gap:12px}'+
+'.feed .stage .cy6kb{min-height:0}'+
+'</style>');
+const b2h=t=>t.replace(/\*\*(.+?)\*\*/g,'<b>$1</b>');
+const chips=(id,head,items)=>'<p class="cy6h">'+head+'</p><div class="cy6b" id="'+id+'">'+items.map(x=>'<span>'+x+'</span>').join('')+'</div>';
+const mark=(r,sel,on)=>r.querySelectorAll(sel+' span').forEach((e,k)=>e.classList.toggle('on',on.includes(k)));
+const $=(r,s)=>r.querySelector(s);
+
+/* ---------- W.proc6: цифровий термометр ---------- */
+// вузли: термометр (ліворуч), процесор і пам’ять (центр), смартфон (праворуч)
+const PS=[
+ {t:'Цифровий термометр',c:'Вимірює температуру тіла. Що відбувається всередині?',on:[],sh:{}},
+ {t:'Число замість стовпчика',c:'Температуру перетворено на **число** 36,6. Дані записано цифрами — звідси й назва «цифровий».',on:[],sh:{num:1}},
+ {t:'Опрацювання',c:'**Процесор** порівнює число з нормою і вирішує, чи подати сигнал.',on:[1],sh:{num:1,cpu:1}},
+ {t:'Зберігання',c:'**Пам’ять** зберігає попередні вимірювання: видно, як змінюється температура.',on:[2],sh:{num:1,cpu:1,mem:1}},
+ {t:'Передавання',c:'Через **Bluetooth** число надходить на смартфон — батьки бачать його в програмі.',on:[0],sh:{num:1,cpu:1,mem:1,tx:1}},
+ {t:'Три процеси в одному',c:'Один маленький пристрій **передає**, **опрацьовує** і **зберігає** дані.',on:[0,1,2],sh:{num:1,cpu:1,mem:1,tx:1,all:1}}];
+W.proc6={html:()=>'<div class="cy6"><svg class="cy6svg" id="pc6S" viewBox="0 0 600 400">'+
+  /* термометр */
+  '<g id="pc6Th"><rect class="cy6box" x="30" y="70" width="120" height="260" rx="50"/>'+
+  '<rect x="52" y="120" width="76" height="52" rx="8" style="fill:var(--ink)"/>'+
+  '<text id="pc6N" x="90" y="156" style="font:800 28px var(--mono);fill:var(--mint);text-anchor:middle" class="cy6f cy6hide">36,6</text>'+
+  '<circle cx="90" cy="300" r="12" style="fill:var(--coral)"/>'+
+  '<text class="cy6t" x="90" y="364">термометр</text></g>'+
+  /* процесор */
+  '<g id="pc6Cpu"><rect class="cy6box" x="215" y="50" width="170" height="110" rx="10"/>'+
+  [0,1,2,3].map(k=>'<line x1="'+(255+k*30)+'" y1="40" x2="'+(255+k*30)+'" y2="50" style="stroke:var(--ink);stroke-width:4"/><line x1="'+(255+k*30)+'" y1="160" x2="'+(255+k*30)+'" y2="170" style="stroke:var(--ink);stroke-width:4"/>').join('')+
+  '<text class="cy6t" x="300" y="100">Процесор</text>'+
+  '<text id="pc6Cv" class="cy6sm cy6f cy6hide" x="300" y="134">36,6 — норма</text></g>'+
+  /* пам’ять */
+  '<g id="pc6Mem"><rect class="cy6box" x="215" y="215" width="170" height="135" rx="10"/>'+
+  '<text class="cy6t" x="300" y="248">Пам’ять</text>'+
+  '<g id="pc6Mv" class="cy6f cy6hide"><text class="cy6sm" x="300" y="280">пн 36,9</text><text class="cy6sm" x="300" y="306">вт 36,7</text><text class="cy6sm" x="300" y="332">ср 36,6</text></g></g>'+
+  /* смартфон */
+  '<g id="pc6Ph"><rect class="cy6box" x="455" y="80" width="115" height="230" rx="18"/>'+
+  '<rect x="468" y="108" width="89" height="168" rx="6" style="fill:var(--sky-soft)"/>'+
+  '<text id="pc6Pv" x="512" y="200" class="cy6f cy6hide" style="font:800 26px var(--display);text-anchor:middle">36,6°</text>'+
+  '<text class="cy6t" x="512" y="364">смартфон</text></g>'+
+  /* зв’язки */
+  '<path id="pc6L1" class="cy6ln" d="M150 150 L215 105"/>'+
+  '<path id="pc6L2" class="cy6ln" d="M150 230 L215 280"/>'+
+  '<path id="pc6L3" class="cy6ln" d="M385 105 Q430 110 455 160"/>'+
+  '<text id="pc6Bt" class="cy6sm cy6f cy6hide" x="440" y="34">Bluetooth</text>'+
+  '</svg><div class="cy6s"><span class="cy6tag" id="pc6T"></span><p class="cy6cap" id="pc6C"></p>'+
+  chips('pc6B','Інформаційні процеси',['Передавання','Опрацювання','Зберігання'])+'</div></div>',
+  mount(r){
+    return{count:PS.length-1,step(i){const s=PS[i],h=s.sh;
+      const vis=(id,on)=>$(r,id).classList.toggle('cy6hide',!on);
+      vis('#pc6N',h.num);vis('#pc6Cv',h.cpu);vis('#pc6Mv',h.mem);vis('#pc6Pv',h.tx);vis('#pc6Bt',h.tx);
+      const cur=k=>s.on.includes(k);
+      $(r,'#pc6Cpu').classList.toggle('cy6on',cur(1));$(r,'#pc6Mem').classList.toggle('cy6on',cur(2));
+      $(r,'#pc6Ph').classList.toggle('cy6on',cur(0));$(r,'#pc6Th').classList.toggle('cy6on',i===0||i===1);
+      $(r,'#pc6L1').classList.toggle('on',cur(1));$(r,'#pc6L2').classList.toggle('on',cur(2));$(r,'#pc6L3').classList.toggle('on',cur(0));
+      $(r,'#pc6T').textContent=s.t;$(r,'#pc6C').innerHTML=b2h(s.c);mark(r,'#pc6B',s.on)}}}};
+
+/* ---------- W.smart6: смартфон — багато пристроїв в одному ---------- */
+const SM=[ // [бік 0 ліво / 1 право, назва, що робить, процес]
+ [0,'Модем, Wi‑Fi, Bluetooth','дзвінки, повідомлення, інтернет','передавання'],
+ [0,'Процесор','виконує програми','опрацювання'],
+ [0,'Пам’ять','фото, музика, програми','зберігання'],
+ [1,'Камера і мікрофон','фото, відео, звук','опрацювання'],
+ [1,'GPS-приймач','де ви і з якою швидкістю','опрацювання'],
+ [1,'Датчики','компас, рівень, крокомір','опрацювання']];
+const SMC=['У смартфон вмонтовано багато **цифрових пристроїв**. Які саме?',
+ '**Зв’язок**: дзвінки, повідомлення, інтернет — передавання даних.',
+ '**Процесор** опрацьовує дані: виконує програми.',
+ '**Пам’ять** зберігає фото, музику, програми.',
+ '**Камера** й **мікрофон**: фото- та відеозйомка, запис звуку.',
+ '**GPS**: карта показує, де ви і як швидко рухаєтеся.',
+ '**Датчики** + програма «Розумні інструменти» — і смартфон стає лінійкою, компасом, рівнем.'];
+W.smart6={html:()=>{const it=(k)=>'<div class="cy6it" id="sm6I'+k+'"><b>'+SM[k][1]+'</b><span>'+SM[k][2]+'</span><i>'+SM[k][3]+'</i></div>';
+  return '<div class="cy6ph"><div class="cy6col">'+[0,1,2].map(it).join('')+'</div>'+
+  '<svg class="cy6phone" viewBox="0 0 210 380"><rect x="10" y="6" width="190" height="368" rx="30" style="fill:var(--ink)"/>'+
+  '<rect x="24" y="44" width="162" height="290" rx="8" style="fill:var(--sky-soft)"/><circle cx="105" cy="25" r="7" style="fill:var(--paper)"/>'+
+  [0,1,2,3,4,5,6,7,8].map(k=>'<rect x="'+(40+(k%3)*48)+'" y="'+(70+Math.floor(k/3)*62)+'" width="34" height="34" rx="9" style="fill:'+['var(--accent)','var(--sun)','var(--mint)','var(--coral)','var(--sky)'][k%5]+'"/>').join('')+
+  '<rect x="80" y="350" width="50" height="8" rx="4" style="fill:var(--paper)"/></svg>'+
+  '<div class="cy6col">'+[3,4,5].map(it).join('')+'</div></div><p class="cy6capw" id="sm6C"></p>'},
+  mount(r){
+    return{count:SM.length,step(i){
+      SM.forEach((_,k)=>{const e=$(r,'#sm6I'+k);e.classList.toggle('vis',k<i);e.classList.toggle('cur',k===i-1)});
+      $(r,'#sm6C').innerHTML=b2h(SMC[i])}}}};
+
+/* ---------- W.klas6: класифікація за призначенням ---------- */
+const KG=[['Передавання','роутер, модем'],['Опрацювання','камери, сканер'],['Зберігання','флешкарта, SSD']];
+const KD=[['Роутер',0,'Роздає інтернет пристроям у квартирі — **передає** дані.'],
+ ['Цифрова фотокамера',1,'Перетворює світло на число для кожної точки — **опрацьовує** дані.'],
+ ['Флешкарта',2,'Головне — **зберігати** фото, музику, документи.'],
+ ['Модем',0,'Приймає й надсилає дані мережею — **передавання**.'],
+ ['Сканер',1,'Перетворює аркуш паперу на зображення — **опрацювання**.'],
+ ['SSD-диск',2,'Зберігає програми й файли комп’ютера — **зберігання**.'],
+ ['Приставка Т2',0,'Приймає цифрове телебачення — **передавання**.'],
+ ['Сервер зберігання',2,'Тисячі дисків у шафі: «хмара» для фото — **зберігання**.']];
+W.klas6={html:()=>'<div class="cy6k"><div class="cy6kq"><span class="cy6tag" id="kl6T"></span><p class="cy6cap" id="kl6C"></p></div>'+
+  '<div class="cy6kc">'+KG.map((g,k)=>'<div class="cy6kb" id="kl6B'+k+'"><h4>'+g[0]+'</h4><p>даних</p><ul>'+
+    KD.map((d,j)=>d[1]===k?'<li id="kl6D'+j+'" class="hid">'+d[0]+'</li>':'').join('')+'</ul></div>').join('')+'</div></div>',
+  mount(r){
+    return{count:KD.length,step(i){
+      KD.forEach((d,j)=>{const e=$(r,'#kl6D'+j);e.classList.toggle('hid',j>=i);e.classList.toggle('cur',j===i-1)});
+      const g=i?KD[i-1][1]:-1;KG.forEach((_,k)=>$(r,'#kl6B'+k).classList.toggle('on',k===g));
+      $(r,'#kl6T').textContent=i?KD[i-1][0]:'Головне призначення';
+      $(r,'#kl6C').innerHTML=b2h(i?KD[i-1][2]:'Куди віднести пристрій? Що він робить **найбільше**: передає, опрацьовує чи зберігає?')}}}};
+
+/* ---------- W.dim6: «розумний» будинок ---------- */
+const DN={hub:[300,200],smoke:[95,80],lamp:[505,80],robot:[95,320],phone:[505,320]};
+const DS=[
+ {t:'Хаб — центр будинку',c:'Усі «розумні» пристрої з’єднано з **хабом** дротами або через Wi‑Fi.',ln:[],on:['hub']},
+ {t:'Датчик помітив дим',c:'**Датчик диму** надсилає сигнал хабу.',ln:['smoke'],on:['smoke'],smoke:1},
+ {t:'Сповіщення на смартфон',c:'Хаб передає повідомлення в програму на **смартфоні** — навіть якщо ви не вдома.',ln:['smoke','phone'],on:['phone'],smoke:1,msg:'Дим на кухні!'},
+ {t:'Керування зі смартфона',c:'Торкнулися кнопки — хаб **вмикає світло**.',ln:['phone','lamp'],on:['lamp'],lamp:1,msg:'Світло: увімк.'},
+ {t:'За розкладом',c:'О 10:00 **робот-пилосос** почав прибирання сам — розклад у його пам’яті.',ln:['robot','phone'],on:['robot'],lamp:1,msg:'Прибирання почалося'},
+ {t:'А якщо мережі немає?',c:'Немає **Wi‑Fi** чи **живлення** — пристрої не можуть обмінюватися даними.',ln:[],off:1,on:[]}];
+function dnode(id,x,y,label,inner){return '<g id="dm6'+id+'"><rect class="cy6box" x="'+(x-62)+'" y="'+(y-48)+'" width="124" height="96" rx="16"/>'+inner+
+  '<text class="cy6t" x="'+x+'" y="'+(y+(id==='hub'?6:76))+'">'+label+'</text></g>'}
+W.dim6={html:()=>'<div class="cy6"><svg class="cy6svg" viewBox="0 0 600 400">'+
+  ['smoke','lamp','robot','phone'].map(k=>'<line id="dm6L'+k+'" class="cy6ln" x1="'+DN.hub[0]+'" y1="'+DN.hub[1]+'" x2="'+DN[k][0]+'" y2="'+DN[k][1]+'"/>').join('')+
+  dnode('hub',300,200,'Хаб','')+
+  dnode('smoke',95,80,'Датчик диму','<circle cx="95" cy="80" r="26" style="fill:var(--paper);stroke:var(--ink);stroke-width:3"/><circle cx="95" cy="80" r="6" style="fill:var(--ink)"/>'+
+    '<g id="dm6Sm" class="cy6f cy6hide" style="fill:var(--muted)"><circle cx="70" cy="38" r="10"/><circle cx="88" cy="32" r="13"/><circle cx="110" cy="38" r="10"/></g>')+
+  dnode('lamp',505,80,'Лампочка','<circle id="dm6Lb" cx="505" cy="72" r="22" style="fill:var(--paper);stroke:var(--ink);stroke-width:3;transition:fill .4s"/><rect x="495" y="94" width="20" height="12" style="fill:var(--ink)"/>')+
+  dnode('robot',95,320,'Робот-пилосос','<circle cx="95" cy="320" r="30" style="fill:var(--paper);stroke:var(--ink);stroke-width:3"/><circle cx="95" cy="320" r="9" style="fill:var(--coral)"/>')+
+  dnode('phone',505,320,'Смартфон','<rect x="485" y="282" width="40" height="76" rx="7" style="fill:var(--ink)"/><rect x="489" y="290" width="32" height="58" rx="3" style="fill:var(--sky-soft)"/>')+
+  '<g id="dm6Mg" class="cy6f cy6hide"><rect x="345" y="236" width="200" height="40" rx="10" style="fill:var(--sun);stroke:var(--ink);stroke-width:2"/>'+
+  '<text id="dm6Mt" x="445" y="263" style="font:700 19px var(--display);text-anchor:middle"></text></g>'+
+  '<g id="dm6X" class="cy6f cy6hide"><line x1="270" y1="170" x2="330" y2="230" style="stroke:var(--coral);stroke-width:8"/><line x1="330" y1="170" x2="270" y2="230" style="stroke:var(--coral);stroke-width:8"/></g>'+
+  '</svg><div class="cy6s"><span class="cy6tag" id="dm6T"></span><p class="cy6cap" id="dm6C"></p>'+
+  chips('dm6B','Що відбувається',['Датчик → хаб','Хаб → смартфон','Смартфон → пристрій','Розклад'])+'</div></div>',
+  mount(r){
+    return{count:DS.length-1,step(i){const s=DS[i];
+      ['smoke','lamp','robot','phone'].forEach(k=>{const l=$(r,'#dm6L'+k);l.classList.toggle('on',s.ln.includes(k));l.classList.toggle('off',!!s.off)});
+      ['hub','smoke','lamp','robot','phone'].forEach(k=>$(r,'#dm6'+k).classList.toggle('cy6on',s.on.includes(k)));
+      $(r,'#dm6Sm').classList.toggle('cy6hide',!s.smoke);$(r,'#dm6X').classList.toggle('cy6hide',!s.off);
+      $(r,'#dm6Lb').style.fill=s.lamp?'var(--sun)':'var(--paper)';
+      $(r,'#dm6Mg').classList.toggle('cy6hide',!s.msg);$(r,'#dm6Mt').textContent=s.msg||'';
+      $(r,'#dm6T').textContent=s.t;$(r,'#dm6C').innerHTML=b2h(s.c);
+      mark(r,'#dm6B',[[],[0],[1],[2],[3],[]][i])}}}};
+
+/* ---------- W.slid6: цифровий слід за один день ---------- */
+const SL=[['Шукали «як зробити повітряного змія»','p'],['Відкрили сайт із відео','p'],['Сайт зберіг файл cookie','p'],
+ ['Написали коментар під відео','a'],['Виклали фото «Ми з мамою на морі до неділі»','a']];
+const SLC=['Ранок. Ви ще нічого не робили в мережі — сліду немає.',
+ 'Пошуковий запит зберігся в пошуковику. Ви нічого не писали «для всіх» — це **пасивний** слід.',
+ 'Сайт записав, яку сторінку ви відкрили, коли і з якої адреси — **пасивний** слід.',
+ '**Cookie** — дані, за якими сайт упізнає ваш браузер наступного разу. Теж **пасивний** слід.',
+ 'Коментар ви написали **свідомо** — це **активний** слід. Його бачать усі.',
+ 'Активний слід, ще й **небезпечний**: зловмисник дізнався, що квартира порожня до неділі.'];
+W.slid6={html:()=>'<div class="cy6sl"><div class="cy6s"><span class="cy6tag" id="sl6T">Один день у мережі</span>'+
+  '<ul class="cy6sll">'+SL.map((s,k)=>'<li id="sl6I'+k+'" class="hid"><span>'+s[0]+'</span><em class="'+s[1]+'">'+(s[1]==='p'?'пасивний':'активний')+'</em></li>').join('')+'</ul>'+
+  '<p class="cy6cap" id="sl6C"></p></div>'+
+  '<div class="cy6cnt"><svg viewBox="0 0 180 150">'+[[30,120],[70,95],[40,65],[90,40],[130,25]].map((p,k)=>
+    '<g id="sl6F'+k+'" class="cy6foot" style="opacity:.12"><ellipse cx="'+p[0]+'" cy="'+p[1]+'" rx="11" ry="17" style="fill:var(--'+(SL[k][1]==='p'?'sky':'coral')+')"/>'+
+    '<circle cx="'+(p[0]-6)+'" cy="'+(p[1]-24)+'" r="4" style="fill:var(--ink)"/><circle cx="'+(p[0]+5)+'" cy="'+(p[1]-25)+'" r="4" style="fill:var(--ink)"/></g>').join('')+
+  '</svg><b id="sl6N">0</b><span>відбитків сліду</span></div></div>',
+  mount(r){
+    return{count:SL.length,step(i){
+      SL.forEach((_,k)=>{const e=$(r,'#sl6I'+k);e.classList.toggle('hid',k>=i);e.classList.toggle('cur',k===i-1);
+        $(r,'#sl6F'+k).style.opacity=k<i?1:.12});
+      $(r,'#sl6N').textContent=i;$(r,'#sl6C').innerHTML=b2h(SLC[i])}}}};
+})();
+}
+{
 /* sections/6-r2/widgets/anim.js */
 /* ===== 6 клас, тема «Анімація об'єктів на слайді»: демонстрації, якими керує вчитель (→) ===== */
 const _AIC={
@@ -1029,6 +1262,232 @@ W.timing={html:()=>'<div class="cols" style="grid-template-columns:1fr 1fr;gap:3
   return{count:3,step(i){st=i?i-1:0;du=1;de=0;ui();if(i)play();else{reset();ob.forEach(o=>o.style.opacity=1)}}}}};
 }
 {
+/* sections/6-r2/widgets/anim64.js */
+/* ===== 6 клас, урок 6-4 (схема v2): демонстрації з anim.js, але з назвами, як у PowerPoint і підручнику =====
+   Група ефектів — «Виокремлення» (в anim.js — «Виділення», як у старій презентації; anim.js не чіпаємо — ним користується старий урок).
+   Підказка показу — без «→»: на дошці → гортає слайди.
+   Список «Початок» — як у PowerPoint (Microsoft 365) і підручнику: Клацання, Одночасно, Відразу після. */
+(function(){
+ const FIX=[['Виділення','Виокремлення'],[' (або натискання →)',''],['По клацанню','Клацання'],['З попереднім','Одночасно'],['Після попереднього','Відразу після']];
+ const fix=s=>FIX.reduce((t,[a,b])=>t.split(a).join(b),s);
+ const fixTree=root=>{const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);let n;while((n=w.nextNode())){const v=fix(n.nodeValue);if(v!==n.nodeValue)n.nodeValue=v}};
+ const wrap=base=>({
+  /* .win — рамка-макет: перевірка check_fit знає, що обрізання тут навмисне (сонце вилітає з-за краю слайда) */
+  html:d=>fix(W[base].html(d)).split('class="ms').join('class="win ms'),
+  mount(root,d,api){
+   const r=W[base].mount(root,d,api);fixTree(root);
+   /* підписи віджет переписує сам після кліків по кнопках — виправляємо кожну зміну */
+   const mo=new MutationObserver(()=>{mo.disconnect();fixTree(root);mo.observe(root,{subtree:true,childList:true,characterData:true})});
+   mo.observe(root,{subtree:true,childList:true,characterData:true});
+   return{count:r.count,step(i){r.step(i);fixTree(root)}}}});
+ W.grupy64=wrap('groups');
+ W.lab64=wrap('efflab');
+ W.chas64=wrap('timing');
+})();
+}
+{
+/* sections/6-r2/widgets/etapy63.js */
+/* ===== 6 клас, урок 6-3 «Етапи створення комп’ютерної презентації»: демонстрації, якими керує вчитель (пробіл або клік — далі) =====
+   W.meta63  — одна тема «Карпати», різна мета: без мети (усе підряд), усний виступ, реклама з автоматичною зміною слайдів.
+   W.chyt63  — одна книжка, дві цільові аудиторії: учні й торговельні представники.
+   W.struk63 — структура: відібрані матеріали походу → слайди, заголовки, макети, два способи вказати джерела.
+   Кольори — лише токени теми. Класи з префіксами mt63 / ch63 / st63: CSS віджетів спільний для всього сайту. */
+(function(){
+document.head.insertAdjacentHTML('beforeend','<style>'+
+/* спільне */
+'.mt63tag,.ch63tag,.st63tag{align-self:flex-start;font:700 23px var(--display);padding:5px 18px;border-radius:999px;background:var(--accent-tint);color:var(--ink)}'+
+'.mt63cap,.ch63cap,.st63cap{font-size:27px;line-height:1.35;margin:0}'+
+/* W.meta63 */
+'.mt63{display:grid;grid-template-columns:600px 1fr;gap:40px;align-items:start}'+
+'.mt63l{display:flex;flex-direction:column;gap:12px;min-width:0}'+
+'.mt63scr{position:relative;width:600px;height:338px;border:3px solid var(--ink);border-radius:12px;background:var(--paper);overflow:hidden}'+
+'.mt63ly{position:absolute;inset:0;opacity:0;transition:opacity .4s}'+
+'.mt63ly.on{opacity:1}'+
+'.mt63ly svg{display:block;width:100%;height:100%}'+
+'.mt63wall{padding:22px 28px}'+
+'.mt63wall b{display:block;font:700 30px var(--display);margin-bottom:14px}'+
+'.mt63wall i{display:block;height:11px;border-radius:6px;background:var(--line);margin:0 0 11px}'+
+'.mt63sp{display:grid;grid-template-columns:330px 1fr;height:100%}'+
+'.mt63sp div{padding:24px 18px 0 22px;display:flex;flex-direction:column;gap:10px}'+
+'.mt63sp b{font:700 34px var(--display)}'+
+'.mt63sp span{font-size:22px;line-height:1.25;padding:4px 10px;border-radius:8px;background:var(--accent-tint);align-self:flex-start}'+
+'.mt63ad{position:absolute;inset:0}'+
+'.mt63ad .mt63f{position:absolute;inset:0;opacity:0}.mt63ad .mt63f:first-child{opacity:1}'+
+'.mt63scr.run .mt63f{animation:mt63cyc 7.5s infinite}'+
+'.mt63scr.run .mt63f:nth-child(2){animation-delay:-5s}.mt63scr.run .mt63f:nth-child(3){animation-delay:-2.5s}'+
+'@keyframes mt63cyc{0%{opacity:1}30%{opacity:1}34%{opacity:0}96%{opacity:0}100%{opacity:1}}'+
+'.mt63slog{position:absolute;left:24px;bottom:22px;font:800 38px var(--display);padding:6px 18px;border-radius:10px;background:var(--paper);color:var(--ink)}'+
+'.mt63who{display:flex;align-items:center;gap:14px;margin-top:14px;min-height:56px;font-size:24px}'+
+'.mt63who svg{width:56px;height:56px;flex:none}'+
+'.mt63bar{flex:none;width:180px;height:14px;border-radius:7px;background:var(--line);overflow:hidden}'+
+'.mt63bar i{display:block;height:100%;width:0;background:var(--accent)}'+
+'.mt63scr.run~.mt63who .mt63bar i{animation:mt63fill 2.5s linear infinite}'+
+'@keyframes mt63fill{from{width:0}to{width:100%}}'+
+'.mt63rows{list-style:none;margin:6px 0 0;padding:0;display:flex;flex-direction:column;gap:10px}'+
+'.mt63rows li{font-size:24px;line-height:1.3;padding:8px 14px;border-radius:10px;border:2px solid var(--line);background:var(--paper)}'+
+'.mt63rows li.on{border-color:var(--accent);background:var(--accent-tint)}'+
+'.mt63rows small{display:block;font-size:21px;color:var(--muted)}'+
+'.mt63rows b{font-weight:700}'+
+/* W.chyt63 */
+'.ch63{display:grid;grid-template-columns:250px 1fr;gap:44px;align-items:start}'+
+'.ch63book{width:250px;height:330px;border-radius:8px 16px 16px 8px;border:3px solid var(--ink);background:var(--accent);color:var(--on-accent);position:relative;box-shadow:inset 16px 0 0 rgba(0,0,0,.15)}'+
+'.ch63book b{position:absolute;left:34px;right:16px;top:40px;font:800 34px/1.1 var(--display)}'+
+'.ch63book svg{position:absolute;left:40px;bottom:30px;width:180px;height:140px}'+
+'.ch63new{position:absolute;right:-14px;top:-14px;font:800 21px var(--display);padding:4px 12px;border-radius:999px;background:var(--sun);color:var(--ink);border:2px solid var(--ink)}'+
+'.ch63aud{display:flex;flex-wrap:wrap;gap:12px}'+
+'.ch63aud span{font-size:22px;padding:6px 14px;border-radius:999px;border:2px solid var(--line);text-align:center;transition:background .3s,border-color .3s}'+
+'.ch63aud span.on{border-color:var(--accent);background:var(--accent-tint);font-weight:700}'+
+'.ch63r{display:flex;flex-direction:column;gap:14px;min-width:0}'+
+'.ch63sl{width:570px;height:320px;border:3px solid var(--ink);border-radius:12px;background:var(--paper);padding:20px 26px;box-sizing:border-box;display:flex;flex-direction:column;gap:14px}'+
+'.ch63sl h4{margin:0;font:700 30px var(--display)}'+
+'.ch63q{font:700 34px var(--display);color:var(--muted);margin:auto;text-align:center}'+
+'.ch63kids{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;flex:1}'+
+'.ch63kids div{border-radius:12px;background:var(--sun-soft);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;text-align:center;font-size:22px;line-height:1.2;padding:8px}'+
+'.ch63kids svg{width:54px;height:54px}'+
+'.ch63tb{width:100%;border-collapse:collapse;font-size:22px}'+
+'.ch63tb td{padding:5px 10px;border-bottom:2px solid var(--line)}'+
+'.ch63tb td:first-child{color:var(--muted);width:150px}'+
+'.ch63tb td:last-child{font-weight:700}'+
+/* W.struk63 */
+'.st63{display:flex;flex-direction:column;gap:14px}'+
+'.st63top{display:flex;align-items:center;gap:18px;min-height:46px}.st63top .st63tag{white-space:nowrap;flex:none}'+
+'.st63g{display:grid;grid-template-columns:repeat(3,330px);gap:14px 22px;justify-content:center}'+
+'.st63c{display:flex;flex-direction:column;gap:6px;min-width:0}'+
+'.st63fr{height:176px;box-sizing:border-box;border:3px solid var(--ink);border-radius:10px;background:var(--paper);padding:10px 14px;display:flex;flex-direction:column;gap:6px;transition:opacity .3s}'+
+'.st63fr.off{border-style:dashed;border-color:var(--line);background:transparent}'+
+'.st63fr.src{background:var(--sun-soft)}'+
+'.st63hd{display:flex;align-items:center;gap:10px;min-width:0}'+
+'.st63n{flex:none;width:30px;height:30px;border-radius:50%;background:var(--ink);color:var(--paper);font:700 21px/30px var(--display);text-align:center}'+
+'.st63h{font:700 22px var(--display);line-height:1.15;min-height:26px}'+
+'.st63h.ph{background:var(--line);border-radius:6px;flex:1;max-width:70%;min-height:22px;opacity:.6}'+
+'.st63it{display:flex;gap:16px;align-items:flex-end;flex:1}'+
+'.st63it div{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:21px}'+
+'.st63it svg{width:62px;height:48px}'+
+'.st63s{font-size:21px;color:var(--muted);line-height:1.2}'+
+'.st63s.on{color:var(--ink);background:var(--sun-soft);border-radius:6px;padding:0 6px;align-self:flex-start}'+
+'.st63lay{font-size:21px;min-height:24px;color:var(--accent);font-weight:700;text-align:center}'+
+'.st63pile{height:176px;box-sizing:border-box;border:2px solid var(--line);border-radius:12px;background:var(--paper);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;font-size:24px;text-align:center;box-shadow:var(--shadow)}'+
+'.st63pile svg{width:90px;height:70px}'+
+'.st63g>.st63c:nth-child(odd) .st63pile{transform:rotate(-2deg)}.st63g>.st63c:nth-child(even) .st63pile{transform:rotate(2deg)}'+
+/* стрічка учнівської версії (телефон вертикально) */
+'.feed .stage .mt63,.feed .stage .ch63{grid-template-columns:minmax(0,1fr);gap:18px}'+
+'.feed .stage .mt63scr,.feed .stage .ch63sl{width:100%;height:auto;aspect-ratio:16/9}'+
+'.feed .stage .ch63sl{height:auto;aspect-ratio:auto;min-height:300px}'+
+'.feed .stage .ch63book{width:200px;height:260px}.feed .stage .ch63book b{font-size:28px}.feed .stage .ch63book svg{width:140px;height:110px}'+
+
+'.feed .stage .mt63sp{grid-template-columns:55% 1fr}'+
+'.feed .stage .st63g{grid-template-columns:repeat(2,minmax(0,1fr))}'+
+'.feed .stage .st63top{flex-direction:column;align-items:flex-start}'+
+/* телефон горизонтально: унизу слайда кнопки «Назад / Далі» — демонстрація закінчується вище */
+'.touch:not(.feed) .st63fr,.touch:not(.feed) .st63pile{height:148px}.touch:not(.feed) .st63it svg{width:44px;height:34px}.touch:not(.feed) .st63it span{display:none}'+
+'.touch:not(.feed) .st63pile svg{width:70px;height:54px}'+
+'</style>');
+const b2h=t=>t.replace(/\*\*(.+?)\*\*/g,'<b>$1</b>');
+
+/* ---------- малюнки (SVG, кольори теми) ---------- */
+// Гори; v: 0 — гори з сонцем, 1 — озеро, 2 — ліс
+function hills(v){
+  const sky='<rect width="160" height="90" style="fill:var(--sky-soft)"/>';
+  const sun='<circle cx="128" cy="20" r="11" style="fill:var(--sun)"/>';
+  const m='<polygon points="0,90 0,62 34,26 62,58 92,18 130,62 160,44 160,90" style="fill:var(--mint)"/>'+
+    '<polygon points="34,26 27,34 34,32 41,35" style="fill:var(--paper)"/><polygon points="92,18 84,28 92,25 100,29" style="fill:var(--paper)"/>';
+  if(v===1)return'<svg viewBox="0 0 160 90" preserveAspectRatio="xMidYMid slice">'+sky+sun+m+'<ellipse cx="80" cy="80" rx="62" ry="10" style="fill:var(--sky)"/></svg>';
+  if(v===2){let t='';[[10,90],[30,84],[52,92],[74,86],[96,92],[118,84],[140,90]].forEach(([x,y])=>{t+='<polygon points="'+(x-12)+','+y+' '+x+','+(y-34)+' '+(x+12)+','+y+'" style="fill:var(--mint);stroke:var(--ink);stroke-width:1"/>'});
+    return'<svg viewBox="0 0 160 90" preserveAspectRatio="xMidYMid slice">'+sky+sun+'<polygon points="0,70 50,30 100,62 160,36 160,90 0,90" style="fill:var(--mintb)"/>'+t+'</svg>'}
+  return'<svg viewBox="0 0 160 90" preserveAspectRatio="xMidYMid slice">'+sky+sun+m+'</svg>'}
+const PERSON='<svg viewBox="0 0 56 56"><circle cx="20" cy="16" r="9" style="fill:var(--sun);stroke:var(--ink);stroke-width:2.5"/>'+
+  '<path d="M6 52 Q6 30 20 30 Q34 30 34 52 Z" style="fill:var(--accent);stroke:var(--ink);stroke-width:2.5"/>'+
+  '<path d="M36 6 h16 a3 3 0 0 1 3 3 v10 a3 3 0 0 1 -3 3 h-9 l-5 5 v-5 h-2 a3 3 0 0 1 -3 -3 v-10 a3 3 0 0 1 3 -3 z" style="fill:var(--paper);stroke:var(--ink);stroke-width:2.5"/></svg>';
+const AUTO='<svg viewBox="0 0 56 56"><circle cx="28" cy="28" r="22" style="fill:var(--paper);stroke:var(--ink);stroke-width:3"/>'+
+  '<path d="M28 14 V28 L38 34" style="fill:none;stroke:var(--accent);stroke-width:4;stroke-linecap:round"/></svg>';
+
+/* ---------- W.meta63: мета змінює презентацію ---------- */
+const MS=[
+ {t:'Мету не визначено',c:'На слайд потрапило **все підряд**: слухачі читають і не слухають.',
+  r:[['На слайді','увесь текст доповіді'],['Хто пояснює','незрозуміло'],['Зміна слайдів','незрозуміло']]},
+ {t:'Мета: усний виступ',c:'Слайди лише **допомагають** доповідачу.',
+  r:[['На слайді','малюнки, відео, кілька слів'],['Хто пояснює','доповідач'],['Зміна слайдів','клацанням доповідача']]},
+ {t:'Мета: реклама',c:'Показ у торговельному залі, на виставці, у транспорті.',
+  r:[['На слайді','наочні матеріали, майже без тексту'],['Хто пояснює','ніхто'],['Зміна слайдів','автоматично']]}];
+W.meta63={html:()=>'<div class="mt63"><div><div class="mt63scr" id="mt63S">'+
+   '<div class="mt63ly mt63wall" id="mt63L0"><b>Карпати</b>'+'<i></i>'.repeat(4)+'<i style="width:80%"></i>'+'<i></i>'.repeat(4)+'<i style="width:60%"></i></div>'+
+   '<div class="mt63ly" id="mt63L1"><div class="mt63sp"><div style="padding:0">'+hills(0)+'</div><div><b>Говерла</b><span>2061 м</span><span>найвища гора України</span></div></div></div>'+
+   '<div class="mt63ly" id="mt63L2"><div class="mt63ad"><div class="mt63f">'+hills(0)+'</div><div class="mt63f">'+hills(1)+'</div><div class="mt63f">'+hills(2)+'</div></div><span class="mt63slog">Карпати чекають!</span></div>'+
+   '</div><div class="mt63who" id="mt63W"></div></div>'+
+   '<div class="mt63l"><span class="mt63tag" id="mt63T"></span><p class="mt63cap" id="mt63C"></p><ul class="mt63rows" id="mt63R"></ul></div></div>',
+  mount(r){
+    const S=r.querySelector('#mt63S');let prev=null;
+    function step(i){const s=MS[i];
+      [0,1,2].forEach(k=>r.querySelector('#mt63L'+k).classList.toggle('on',k===i));
+      S.classList.toggle('run',i===2);
+      r.querySelector('#mt63W').innerHTML=i===1?PERSON+'<span>Пояснює <b>доповідач</b></span>':
+        i===2?AUTO+'<span class="mt63bar"><i></i></span><span>Слайди змінюються <b>самі</b></span>':'';
+      r.querySelector('#mt63T').textContent=s.t;r.querySelector('#mt63C').innerHTML=b2h(s.c);
+      r.querySelector('#mt63R').innerHTML=s.r.map((x,k)=>'<li class="'+(prev&&prev.r[k][1]!==x[1]?'on':'')+'"><small>'+x[0]+'</small><b>'+x[1]+'</b></li>').join('');
+      prev=s}
+    return{count:MS.length-1,step(i){i=Math.max(0,Math.min(i,MS.length-1));prev=i>0?MS[i-1]:null;step(i)}}}};
+
+/* ---------- W.chyt63: одна книжка — дві аудиторії ---------- */
+const IC={
+ who:'<svg viewBox="0 0 54 54"><circle cx="27" cy="18" r="10" style="fill:var(--paper);stroke:var(--ink);stroke-width:3"/><path d="M8 50 Q8 32 27 32 Q46 32 46 50 Z" style="fill:var(--accent);stroke:var(--ink);stroke-width:3"/></svg>',
+ star:'<svg viewBox="0 0 54 54"><polygon points="27,4 33,20 50,20 36,31 41,48 27,38 13,48 18,31 4,20 21,20" style="fill:var(--coral);stroke:var(--ink);stroke-width:3;stroke-linejoin:round"/></svg>',
+ book:'<svg viewBox="0 0 54 54"><path d="M6 12 Q16 8 27 14 Q38 8 48 12 V46 Q38 42 27 48 Q16 42 6 46 Z" style="fill:var(--paper);stroke:var(--ink);stroke-width:3;stroke-linejoin:round"/><path d="M27 14 V48" style="stroke:var(--ink);stroke-width:3"/></svg>'};
+const CS=[
+ {t:'Для кого презентація?',a:-1,c:'Мета — повідомити про **нову книжку**. Що розповісти — залежить від того, **хто слухатиме**.',
+  sl:'<h4>Нова книжка «Пригоди Біта»</h4><div class="ch63q">Що розповісти?</div>'},
+ {t:'Учням і ученицям',a:0,c:'Мета — **заохотити до читання**.',
+  sl:'<h4>Прочитай «Пригоди Біта»!</h4><div class="ch63kids"><div>'+IC.who+'Хто написав</div><div>'+IC.star+'Хто герої</div><div>'+IC.book+'Чому цікаво</div></div>'},
+ {t:'Торговельним представникам',a:1,c:'Мета — **замовити й довезти** книжки до магазинів.',
+  sl:'<h4>«Пригоди Біта»: для магазинів</h4><table class="ch63tb"><tr><td>Ціна</td><td>180 грн</td></tr><tr><td>Тираж</td><td>5 000 примірників</td></tr>'+
+   '<tr><td>Маса</td><td>350 г</td></tr><tr><td>Сторінок</td><td>128</td></tr><tr><td>Друкарня</td><td>звідки везти до магазинів</td></tr></table>'}];
+W.chyt63={html:()=>'<div class="ch63"><div><div class="ch63book"><b>Пригоди Біта</b><span class="ch63new">Новинка</span>'+
+   '<svg viewBox="0 0 180 140"><polygon points="90,6 104,46 146,46 112,70 126,112 90,88 54,112 68,70 34,46 76,46" style="fill:var(--sun);stroke:var(--ink);stroke-width:4;stroke-linejoin:round"/></svg></div>'+
+   '</div><div class="ch63r"><div class="ch63aud" id="ch63A"><span>Учням і ученицям</span><span>Торговельним представникам</span></div>'+
+   '<div class="ch63sl" id="ch63S"></div><p class="ch63cap" id="ch63C"></p></div></div>',
+  mount(r){
+    function step(i){const s=CS[i];
+      r.querySelectorAll('#ch63A span').forEach((e,k)=>e.classList.toggle('on',k===s.a));
+      r.querySelector('#ch63S').innerHTML=s.sl;r.querySelector('#ch63C').innerHTML=b2h(s.c)}
+    return{count:CS.length-1,step:i=>step(Math.max(0,Math.min(i,CS.length-1)))}}};
+
+/* ---------- W.struk63: розкладаємо матеріали по слайдах ---------- */
+const MI={
+ foto:'<svg viewBox="0 0 62 48"><rect x="2" y="2" width="58" height="44" rx="5" style="fill:var(--sky-soft);stroke:var(--ink);stroke-width:3"/><polygon points="6,42 22,20 34,34 42,26 56,42" style="fill:var(--mint)"/><circle cx="46" cy="13" r="5" style="fill:var(--sun)"/></svg>',
+ video:'<svg viewBox="0 0 62 48"><rect x="2" y="2" width="58" height="44" rx="5" style="fill:var(--accent-tint);stroke:var(--ink);stroke-width:3"/><polygon points="25,13 25,35 42,24" style="fill:var(--accent)"/></svg>',
+ karta:'<svg viewBox="0 0 62 48"><polygon points="3,8 21,3 41,9 59,4 59,42 41,46 21,40 3,45" style="fill:var(--sun-soft);stroke:var(--ink);stroke-width:3;stroke-linejoin:round"/><path d="M10 34 Q22 16 32 26 T52 14" style="fill:none;stroke:var(--coral);stroke-width:3;stroke-dasharray:5 4"/></svg>',
+ chat:'<svg viewBox="0 0 62 48"><path d="M8 4 h46 a5 5 0 0 1 5 5 v22 a5 5 0 0 1 -5 5 h-30 l-10 9 v-9 h-6 a5 5 0 0 1 -5 -5 v-22 a5 5 0 0 1 5 -5 z" style="fill:var(--mint-soft);stroke:var(--ink);stroke-width:3"/><path d="M14 15 h34 M14 24 h22" style="stroke:var(--ink);stroke-width:3;stroke-linecap:round"/></svg>'};
+// матеріали походу: [значок, підпис у купі, коротко на слайді, джерело]
+const MAT=[['foto','Фото вершини','фото','Фото: учні 6-А'],['foto','Фото намету','фото','Фото: учні 6-А'],['foto','Фото озера','фото','Фото: учні 6-А'],
+ ['video','Відео з Говерли','відео','Відео: учні 6-А'],['karta','Карта маршруту з сайту парку','карта','Карта: сайт нацпарку'],['chat','Інтерв’ю з інструктором','інтерв’ю','Інтерв’ю: інструктор']];
+// слайди: заголовок, які матеріали, макет
+const SL=[['Похід у Карпати',[0],'Титульний слайд'],['Маршрут',[4],'Рисунок із підписом'],['Наш табір',[1,2],'Два об’єкти'],
+ ['На вершині',[3],'Заголовок і об’єкт'],['Інструктор радить',[5],'Заголовок і об’єкт']];
+const SS=[
+ ['Відібрані матеріали','Матеріали для презентації «Наш похід» зібрано. Як розкласти їх по слайдах?'],
+ ['Послідовність','Що — на **одному** слайді, а для чого — **окремий**. Два фото табору — разом.'],
+ ['Заголовки','**Заголовок** пояснює, що розміщено на слайді.'],
+ ['Макети','**Макет** — як на слайді розташовані заголовок і об’єкти.'],
+ ['Джерела: окремий слайд','Посилання на джерела — **на окремому слайді** наприкінці.'],
+ ['Джерела: біля матеріалу','Або — **біля кожного** зображення, відео чи тексту.']];
+W.struk63={html:()=>'<div class="st63"><div class="st63top"><span class="st63tag" id="st63T"></span><p class="st63cap" id="st63C"></p></div><div class="st63g" id="st63G"></div></div>',
+  mount(r){
+    const G=r.querySelector('#st63G');
+    function step(i){
+      r.querySelector('#st63T').textContent=SS[i][0];r.querySelector('#st63C').innerHTML=b2h(SS[i][1]);
+      if(i===0){G.innerHTML=MAT.map(m=>'<div class="st63c"><div class="st63pile">'+MI[m[0]]+'<span>'+m[1]+'</span></div></div>').join('');return}
+      let h=SL.map((s,k)=>'<div class="st63c"><div class="st63fr"><div class="st63hd"><span class="st63n">'+(k+1)+'</span>'+
+        (i>=2?'<span class="st63h">'+s[0]+'</span>':'<span class="st63h ph"></span>')+'</div>'+
+        '<div class="st63it">'+s[1].map(m=>'<div>'+MI[MAT[m][0]]+'<span>'+MAT[m][2]+'</span></div>').join('')+'</div>'+
+        (i===5?'<span class="st63s on">'+MAT[s[1][0]][3]+'</span>':'')+
+        '</div><span class="st63lay">'+(i>=3?s[2]:'')+'</span></div>').join('');
+      h+=i===4?'<div class="st63c"><div class="st63fr src"><div class="st63hd"><span class="st63n">6</span><span class="st63h">Джерела</span></div>'+
+        '<span class="st63s">Карта — сайт нацпарку</span><span class="st63s">Фото, відео — учні 6-А</span><span class="st63s">Інтерв’ю — інструктор</span></div><span class="st63lay">Заголовок і об’єкт</span></div>':
+        '<div class="st63c"><div class="st63fr off"></div><span class="st63lay"></span></div>';
+      G.innerHTML=h}
+    return{count:SS.length-1,step:i=>step(Math.max(0,Math.min(i,SS.length-1)))}}};
+})();
+}
+{
 /* sections/6-r2/widgets/trans.js */
 /* ===== 6 клас, урок 6-5 «Анімація слайдів. Налаштування показу»: демонстрації, якими керує вчитель (пробіл або клік — далі) =====
    W.trans    — лабораторія ефектів появи слайдів (переходів): ефект, Параметри ефекту, Тривалість;
@@ -1216,6 +1675,17 @@ W.rehearse={html:()=>'<div style="display:grid;grid-template-columns:.75fr 1.25f
    for(let k=0;k<3;k++)if(rec[k]==null)rec[k]=DEF[k];
    if(i===4){st.innerHTML=SLIDES[2]+'<div class="tw-dlg"><div class="dh">Microsoft PowerPoint</div><div class="db">Загальний час показу слайдів: '+fmt3(total())+'.<br>Зберегти новий хронометраж показу слайдів?</div><div class="dbt"><span class="y">Так</span><span>Ні</span></div></div>';return}
    st.innerHTML=sorter(rec)}}}};
+})();
+}
+{
+/* sections/6-r2/widgets/trans65.js */
+/* ===== 6 клас, урок 6-5 (схема v2): лабораторія переходів з trans.js =====
+   Сцена .tw-stage навмисно обрізає слайд, що від’їжджає (Відкривання, Зсув), — позначаємо її класом .win,
+   тоді перевірка check_fit знає, що обрізання тут навмисне. trans.js не чіпаємо — ним користується старий урок. */
+(function(){
+ W.trans65={
+  html:d=>W.trans.html(d).split('class="tw-stage"').join('class="tw-stage win"'),
+  mount:(root,d,api)=>W.trans.mount(root,d,api)};
 })();
 }
 {
