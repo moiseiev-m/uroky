@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="uk" data-topic="code">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Урок 24. Практичне завдання — Проєкти з розгалуженнями з використанням логічних виразів</title>
+<link rel="stylesheet" href="../../assets/fonts.css">
+<link rel="stylesheet" href="../../assets/praktychna.css">
+</head>
+<body>
+<svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" style="position:absolute" aria-hidden="true" id="bitSprite"><symbol id="b-sq-base"><rect class="b-foot" x="64" y="260" width="28" height="18"/><rect class="b-foot" x="148" y="260" width="28" height="18"/><rect class="b-body" x="20" y="60" width="200" height="200" rx="32"/></symbol><symbol id="b-sq-hi" viewBox="0 0 240 280"><use href="#b-sq-base"/><circle class="b-eye" cx="85" cy="140" r="28"/><circle class="b-eye" cx="155" cy="140" r="28"/><circle class="b-pupil" cx="90" cy="144" r="12"/><circle class="b-pupil" cx="160" cy="144" r="12"/><circle class="b-cheek" cx="58" cy="186" r="12"/><circle class="b-cheek" cx="182" cy="186" r="12"/><path class="b-mouth" d="M96 196Q120 216 144 196" stroke-width="8"/></symbol><symbol id="b-sq-think" viewBox="0 0 240 280"><use href="#b-sq-base"/><circle class="b-eye" cx="85" cy="140" r="28"/><circle class="b-eye" cx="155" cy="140" r="28"/><circle class="b-pupil" cx="96" cy="128" r="12"/><circle class="b-pupil" cx="166" cy="128" r="12"/><circle class="b-cheek" cx="58" cy="186" r="12"/><circle class="b-cheek" cx="182" cy="186" r="12"/><path class="b-stroke" d="M100 204L140 198" stroke-width="8"/></symbol><symbol id="b-sq-happy" viewBox="0 0 240 280"><use href="#b-sq-base"/><path class="b-stroke" d="M62 146Q85 116 108 146" stroke-width="9"/><path class="b-stroke" d="M132 146Q155 116 178 146" stroke-width="9"/><circle class="b-cheek" cx="58" cy="186" r="12"/><circle class="b-cheek" cx="182" cy="186" r="12"/><path class="b-mouth" d="M88 188Q120 236 152 188Z" stroke-width="6"/></symbol><symbol id="b-sq-oops" viewBox="0 0 240 280"><use href="#b-sq-base"/><circle class="b-eye" cx="85" cy="140" r="30"/><circle class="b-eye" cx="155" cy="140" r="30"/><circle class="b-pupil" cx="85" cy="140" r="8"/><circle class="b-pupil" cx="155" cy="140" r="8"/><circle class="b-cheek" cx="58" cy="186" r="12"/><circle class="b-cheek" cx="182" cy="186" r="12"/><circle class="b-stroke" cx="120" cy="204" r="14" stroke-width="8"/></symbol><symbol id="b-sq-g6" viewBox="0 0 240 280"><path class="b-band" d="M120 62V30" stroke-width="8"/><circle class="b-ball" cx="120" cy="22" r="18" stroke-width="4"/></symbol><symbol id="b-sq-g7" viewBox="0 0 240 280"><path class="b-band" d="M18 150V112Q18 26 120 26Q222 26 222 112V150" stroke-width="12"/><rect class="b-pad" x="2" y="118" width="34" height="72" rx="10" stroke-width="4"/><rect class="b-pad" x="204" y="118" width="34" height="72" rx="10" stroke-width="4"/></symbol><symbol id="b-sq-g8" viewBox="0 0 240 280"><path class="b-band" d="M120 62V30" stroke-width="8"/><circle class="b-ball" cx="120" cy="22" r="18" stroke-width="4"/><rect class="b-frame" x="52" y="106" width="68" height="68" rx="10" stroke-width="7"/><rect class="b-frame" x="122" y="106" width="68" height="68" rx="10" stroke-width="7"/></symbol><symbol id="b-sq-g9" viewBox="0 0 240 280"><rect class="b-ant" x="66" y="40" width="108" height="30"/><polygon class="b-ant" points="120,2 236,34 120,66 4,34"/><path class="b-tassel" d="M120 34L214 44L214 92" stroke-width="6"/><circle class="b-ball" cx="214" cy="100" r="11" stroke-width="4"/></symbol><symbol id="b-hd-base"><ellipse class="b-foot" cx="86" cy="266" rx="20" ry="10"/><ellipse class="b-foot" cx="154" cy="266" rx="20" ry="10"/><path class="b-body" stroke-width="6" stroke-linejoin="round" d="M42 66C80 58 160 58 200 64C214 66 220 76 220 92C222 136 222 190 218 232C216 248 206 256 190 257C150 260 92 260 52 257C34 256 24 246 22 230C18 188 18 132 22 92C24 76 30 68 42 66Z"/><path class="b-hatch" stroke-width="3" d="M178 238L202 214M162 248L206 204M150 252L208 194"/></symbol><symbol id="b-hd-hi" viewBox="0 0 240 280"><use href="#b-hd-base"/><ellipse class="b-pupil" cx="88" cy="140" rx="11" ry="14"/><ellipse class="b-pupil" cx="152" cy="140" rx="11" ry="14"/><circle class="b-shine" cx="92" cy="135" r="4"/><circle class="b-shine" cx="156" cy="135" r="4"/><circle class="b-cheek" cx="62" cy="182" r="12"/><circle class="b-cheek" cx="178" cy="182" r="12"/><path class="b-stroke" d="M100 190Q120 208 140 190" stroke-width="7"/></symbol><symbol id="b-hd-think" viewBox="0 0 240 280"><use href="#b-hd-base"/><ellipse class="b-pupil" cx="94" cy="132" rx="11" ry="14"/><ellipse class="b-pupil" cx="158" cy="132" rx="11" ry="14"/><circle class="b-shine" cx="98" cy="127" r="4"/><circle class="b-shine" cx="162" cy="127" r="4"/><circle class="b-cheek" cx="62" cy="182" r="12"/><circle class="b-cheek" cx="178" cy="182" r="12"/><path class="b-stroke" d="M104 198L138 192" stroke-width="7"/></symbol><symbol id="b-hd-happy" viewBox="0 0 240 280"><use href="#b-hd-base"/><path class="b-stroke" d="M74 146Q88 126 102 146" stroke-width="7"/><path class="b-stroke" d="M138 146Q152 126 166 146" stroke-width="7"/><circle class="b-cheek" cx="62" cy="182" r="12"/><circle class="b-cheek" cx="178" cy="182" r="12"/><path class="b-mouth" d="M96 182Q120 222 144 182Z" stroke-width="4"/></symbol><symbol id="b-hd-oops" viewBox="0 0 240 280"><use href="#b-hd-base"/><circle class="b-eye" cx="88" cy="140" r="20" stroke-width="5"/><circle class="b-eye" cx="152" cy="140" r="20" stroke-width="5"/><circle class="b-pupil" cx="88" cy="140" r="7"/><circle class="b-pupil" cx="152" cy="140" r="7"/><circle class="b-cheek" cx="62" cy="182" r="12"/><circle class="b-cheek" cx="178" cy="182" r="12"/><circle class="b-stroke" cx="120" cy="200" r="11" stroke-width="6"/></symbol><symbol id="b-hd-g6" viewBox="0 0 240 280"><path class="b-band" d="M120 60C114 48 126 42 120 32" stroke-width="6"/><circle class="b-ball" cx="120" cy="22" r="14" stroke-width="4"/></symbol><symbol id="b-hd-g7" viewBox="0 0 240 280"><path class="b-band" d="M20 150V114Q20 28 120 28Q220 28 220 114V150" stroke-width="10"/><rect class="b-pad" x="6" y="112" width="30" height="70" rx="12" stroke-width="4"/><rect class="b-pad" x="204" y="112" width="30" height="70" rx="12" stroke-width="4"/></symbol><symbol id="b-hd-g8" viewBox="0 0 240 280"><path class="b-band" d="M120 60C114 48 126 42 120 32" stroke-width="6"/><circle class="b-ball" cx="120" cy="22" r="14" stroke-width="4"/><circle class="b-frame" cx="88" cy="140" r="26" stroke-width="6"/><circle class="b-frame" cx="152" cy="140" r="26" stroke-width="6"/><path class="b-frame" d="M114 136Q120 130 126 136" stroke-width="6"/></symbol><symbol id="b-hd-g9" viewBox="0 0 240 280"><rect class="b-ant" x="70" y="44" width="100" height="26" rx="6"/><polygon class="b-ant" points="120,6 232,38 120,70 8,38"/><path class="b-tassel" d="M120 38L210 50L210 94" stroke-width="6"/><circle class="b-ball" cx="210" cy="102" r="11" stroke-width="4"/></symbol><symbol id="b-ab-base"><ellipse class="b-foot" cx="88" cy="264" rx="20" ry="11"/><ellipse class="b-foot" cx="152" cy="264" rx="20" ry="11"/><path class="b-body" stroke-width="6" d="M120 60C178 58 220 96 218 158C216 222 178 260 120 258C62 256 22 222 24 160C26 98 62 62 120 60Z"/></symbol><symbol id="b-ab-hi" viewBox="0 0 240 280"><use href="#b-ab-base"/><circle class="b-eye" cx="92" cy="146" r="24" stroke-width="5"/><circle class="b-eye" cx="148" cy="146" r="24" stroke-width="5"/><circle class="b-pupil" cx="96" cy="150" r="10"/><circle class="b-pupil" cx="152" cy="150" r="10"/><circle class="b-cheek" cx="60" cy="190" r="12"/><circle class="b-cheek" cx="180" cy="190" r="12"/><path class="b-stroke" d="M100 198Q120 216 140 198" stroke-width="7"/></symbol><symbol id="b-ab-think" viewBox="0 0 240 280"><use href="#b-ab-base"/><circle class="b-eye" cx="92" cy="146" r="24" stroke-width="5"/><circle class="b-eye" cx="148" cy="146" r="24" stroke-width="5"/><circle class="b-pupil" cx="102" cy="138" r="10"/><circle class="b-pupil" cx="158" cy="138" r="10"/><circle class="b-cheek" cx="60" cy="190" r="12"/><circle class="b-cheek" cx="180" cy="190" r="12"/><path class="b-stroke" d="M104 206L138 199" stroke-width="7"/></symbol><symbol id="b-ab-happy" viewBox="0 0 240 280"><use href="#b-ab-base"/><path class="b-stroke" d="M70 152Q92 124 114 152" stroke-width="8"/><path class="b-stroke" d="M126 152Q148 124 170 152" stroke-width="8"/><circle class="b-cheek" cx="60" cy="190" r="12"/><circle class="b-cheek" cx="180" cy="190" r="12"/><path class="b-mouth" d="M94 190Q120 234 146 190Z" stroke-width="5"/></symbol><symbol id="b-ab-oops" viewBox="0 0 240 280"><use href="#b-ab-base"/><circle class="b-eye" cx="92" cy="146" r="26" stroke-width="5"/><circle class="b-eye" cx="148" cy="146" r="26" stroke-width="5"/><circle class="b-pupil" cx="92" cy="146" r="7"/><circle class="b-pupil" cx="148" cy="146" r="7"/><circle class="b-cheek" cx="60" cy="190" r="12"/><circle class="b-cheek" cx="180" cy="190" r="12"/><circle class="b-stroke" cx="120" cy="208" r="13" stroke-width="7"/></symbol><symbol id="b-ab-g6" viewBox="0 0 240 280"><path class="b-band" d="M120 62C106 50 134 42 122 32" stroke-width="6"/><circle class="b-ball" cx="122" cy="22" r="14" stroke-width="4"/></symbol><symbol id="b-ab-g7" viewBox="0 0 240 280"><path class="b-band" d="M26 156V120Q26 30 120 30Q214 30 214 120V156" stroke-width="12"/><rect class="b-pad" x="8" y="118" width="34" height="74" rx="16" stroke-width="5"/><rect class="b-pad" x="198" y="118" width="34" height="74" rx="16" stroke-width="5"/></symbol><symbol id="b-ab-g8" viewBox="0 0 240 280"><path class="b-band" d="M120 62C106 50 134 42 122 32" stroke-width="6"/><circle class="b-ball" cx="122" cy="22" r="14" stroke-width="4"/><circle class="b-frame" cx="92" cy="146" r="31" stroke-width="7"/><circle class="b-frame" cx="148" cy="146" r="31" stroke-width="7"/></symbol><symbol id="b-ab-g9" viewBox="0 0 240 280"><rect class="b-ant" x="70" y="44" width="100" height="30" rx="8"/><polygon class="b-ant" points="120,8 232,38 120,68 8,38"/><path class="b-tassel" d="M120 38L210 48L210 94" stroke-width="6"/><circle class="b-ball" cx="210" cy="102" r="11" stroke-width="4"/></symbol><symbol id="b-pose-wave-back" viewBox="0 0 240 280" overflow="visible"><path class="b-arm" d="M30 176Q2 196 4 232"/><path class="b-arm-in" d="M30 176Q2 196 4 232"/><circle class="b-hand" cx="4" cy="236" r="11"/><path class="b-arm" d="M206 170Q252 150 246 100"/><path class="b-arm-in" d="M206 170Q252 150 246 100"/><circle class="b-hand" cx="246" cy="94" r="11"/></symbol><symbol id="b-pose-wave-front" viewBox="0 0 240 280" overflow="visible"><path class="b-motion" d="M262 74q8 10 2 22"/><path class="b-motion" d="M230 62q-6-10 2-20"/></symbol><symbol id="b-pose-point-back" viewBox="0 0 240 280" overflow="visible"><path class="b-arm" d="M34 170Q-2 162 -6 132"/><path class="b-arm-in" d="M34 170Q-2 162 -6 132"/><circle class="b-hand" cx="-6" cy="126" r="11"/><path class="b-finger" d="M-7 117L-11 101"/><path class="b-arm" d="M210 176Q238 196 236 232"/><path class="b-arm-in" d="M210 176Q238 196 236 232"/><circle class="b-hand" cx="236" cy="236" r="11"/></symbol><symbol id="b-pose-point-front" viewBox="0 0 240 280" overflow="visible"></symbol><symbol id="b-pose-think-back" viewBox="0 0 240 280" overflow="visible"><path class="b-arm" d="M210 176Q238 196 236 232"/><path class="b-arm-in" d="M210 176Q238 196 236 232"/><circle class="b-hand" cx="236" cy="236" r="11"/></symbol><symbol id="b-pose-think-front" viewBox="0 0 240 280" overflow="visible"><path class="b-arm" d="M30 188Q40 236 92 214"/><path class="b-arm-in" d="M30 188Q40 236 92 214"/><circle class="b-hand" cx="96" cy="212" r="11"/></symbol><symbol id="b-pose-cheer-back" viewBox="0 0 240 280" overflow="visible"><path class="b-arm" d="M34 168Q-8 136 2 92"/><path class="b-arm-in" d="M34 168Q-8 136 2 92"/><circle class="b-hand" cx="2" cy="86" r="11"/><path class="b-arm" d="M206 168Q248 136 238 92"/><path class="b-arm-in" d="M206 168Q248 136 238 92"/><circle class="b-hand" cx="238" cy="86" r="11"/></symbol><symbol id="b-pose-cheer-front" viewBox="0 0 240 280" overflow="visible"><path class="b-motion" d="M40 44l-12-12M200 44l12-12"/></symbol><symbol id="b-pose-pencil-back" viewBox="0 0 240 280" overflow="visible"><path class="b-arm" d="M30 176Q2 196 4 232"/><path class="b-arm-in" d="M30 176Q2 196 4 232"/><circle class="b-hand" cx="4" cy="236" r="11"/></symbol><symbol id="b-pose-pencil-front" viewBox="0 0 240 280" overflow="visible"><path class="b-prop" d="M162 248L218 186L230 198L174 260Z"/><path class="b-ant" d="M162 248L156 268L174 260Z"/><path class="b-prop2" d="M218 186L226 178L238 190L230 198Z"/><path class="b-arm" d="M206 178Q244 204 206 224"/><path class="b-arm-in" d="M206 178Q244 204 206 224"/><circle class="b-hand" cx="202" cy="224" r="11"/></symbol><symbol id="b-pose-laptop-back" viewBox="0 0 240 280" overflow="visible"></symbol><symbol id="b-pose-laptop-front" viewBox="0 0 240 280" overflow="visible"><path class="b-prop2" d="M66 204H174V240H66Z"/><circle class="b-prop" cx="120" cy="222" r="7"/><path class="b-prop2" d="M52 240H188L200 256H40Z"/><path class="b-arm" d="M28 180Q18 216 60 226"/><path class="b-arm-in" d="M28 180Q18 216 60 226"/><circle class="b-hand" cx="62" cy="226" r="11"/><path class="b-arm" d="M212 180Q222 216 180 226"/><path class="b-arm-in" d="M212 180Q222 216 180 226"/><circle class="b-hand" cx="178" cy="226" r="11"/></symbol><symbol id="b-pose-peek-back" viewBox="0 0 240 280" overflow="visible"></symbol><symbol id="b-pose-peek-front" viewBox="0 0 240 280" overflow="visible"><circle class="b-hand" cx="64" cy="196" r="13"/><circle class="b-hand" cx="176" cy="196" r="13"/></symbol></svg>
+<div class="sheet">
+<header class="hdr"><span class="hdr-l">Урок №24 · Практичне завдання</span><span class="logo">Інформатика · 8 клас</span></header>
+<div class="ttl"><div class="num"><b>24</b><i>урок</i></div><div class="plate"><p class="kick">Практичне завдання</p><h1>Проєкти з розгалуженнями з використанням логічних виразів</h1><p class="tp">Тема: Програмування</p></div></div>
+<nav class="var-sw" aria-label="Як виконувати"><button type="button" data-var="pc" aria-pressed="true"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="4" width="19" height="12" rx="1.5"/><path d="M8 20h8M12 16v4"/></svg><span>За комп’ютером</span></button><button type="button" data-var="tel" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6.5" y="2.5" width="11" height="19" rx="2.2"/><path d="M10.5 18.5h3"/></svg><span>З телефона</span></button></nav><p class="var-hint">Немає комп’ютера — виберіть «З телефона»: завдання на ту саму тему, їх можна виконати на телефоні.</p>
+<div class="var" data-var="pc">
+<div class="uvaga"><b aria-hidden="true">!</b><p><strong>Увага!</strong> Під час роботи з комп’ютером дотримуйтеся вимог безпеки життєдіяльності та санітарно-гігієнічних норм.</p></div>
+<main>
+<p>Працюємо в <b>ЄPython</b>. У кожному завданні є кнопка <b>▶ Відкрити заготовку в ЄPython</b> — код одразу з’явиться в редакторі.</p>
+<p>Обов’язкове — завдання <b>⭐</b>. Зробили й перевірили себе — переходьте до <b>⭐⭐</b>, далі <b>⭐⭐⭐</b>.</p>
+<div class="tip"><span class="av" aria-hidden="true"><svg viewBox="14 8 212 212"><use href="#b-hd-hi" width="240" height="280"/><use href="#b-hd-g8" width="240" height="280"/></svg></span><p>Після умови в <b>if</b>, <b>elif</b> і після <b>else</b> — двокрапка, команди гілки — з відступом. Порівняння — два знаки <b>==</b>. Спершу порахуйте відповідь самі, потім перевірте проєктом. Помилку в обробнику ЄPython показує внизу після клацання на кнопці (<b>Exception in Tkinter callback</b>). Тестуйте так, щоб <b>кожна гілка</b> виконалась хоча б раз.</p></div>
+<section class="zav">
+<h2><mark>Завдання 1 · рівень 1 ⭐ «Квадратне рівняння» (обов’язкове)</mark></h2>
+<p class="zt">Проєкт знаходить корені рівняння <b>ax² + bx + c = 0</b>. Кількість коренів залежить від дискримінанта <b>d = b · b − 4 · a · c</b>: d &gt; 0 — два корені, d = 0 — один, d &lt; 0 — коренів немає. У заготовці є поля для a і b та гілка для двох коренів.</p>
+<div class="kod"><a class="kod-b" href="https://yepython.pp.ua/?code=IyDQn9GA0LDQutGC0LjRh9C90LUg0LfQsNCy0LTQsNC90L3RjyA4LTI0LiDQl9Cw0LLQtNCw0L3QvdGPIDE6INC60LLQsNC00YDQsNGC0L3QtSDRgNGW0LLQvdGP0L3QvdGPCmZyb20gdGtpbnRlciBpbXBvcnQgKgpmcm9tIHRraW50ZXIubWVzc2FnZWJveCBpbXBvcnQgKgpmcm9tIG1hdGggaW1wb3J0ICoKZGVmIGNsaWNrKCk6CiAgICBhID0gZmxvYXQoZW5BLmdldCgpKQogICAgYiA9IGZsb2F0KGVuQi5nZXQoKSkKICAgIGMgPSBmbG9hdChlbkMuZ2V0KCkpCiAgICBkID0gYiAqIGIgLSA0ICogYSAqIGMKICAgIGlmIGQgPiAwOgogICAgICAgIHgxID0gKC1iICsgc3FydChkKSkgLyAoMiAqIGEpCiAgICAgICAgeDIgPSAoLWIgLSBzcXJ0KGQpKSAvICgyICogYSkKICAgICAgICBzID0gJ3gxID0gJyArIHN0cihyb3VuZCh4MSwgMikpICsgJywgeDIgPSAnICsgc3RyKHJvdW5kKHgyLCAyKSkKICAgICAgICBzaG93aW5mbygn0JTQstCwINC60L7RgNC10L3RlicsIHMpCnJvb3QgPSBUaygpCnJvb3QudGl0bGUoJ9Ca0LLQsNC00YDQsNGC0L3QtSDRgNGW0LLQvdGP0L3QvdGPJykKcm9vdC5nZW9tZXRyeSgnMzAweDMwMCcpCmxhYkEgPSBMYWJlbCh0ZXh0PSdhJykKbGFiQS5wYWNrKHBhZHk9NSkKZW5BID0gRW50cnkod2lkdGg9OCkKZW5BLnBhY2soKQpsYWJCID0gTGFiZWwodGV4dD0nYicpCmxhYkIucGFjayhwYWR5PTUpCmVuQiA9IEVudHJ5KHdpZHRoPTgpCmVuQi5wYWNrKCkKYnRuID0gQnV0dG9uKHRleHQ9J9CX0L3QsNC50YLQuCDQutC%2B0YDQtdC90ZYnLCBjb21tYW5kPWNsaWNrKQpidG4ucGFjayhwYWR5PTEwKQpyb290Lm1haW5sb29wKCkK" target="_blank" rel="noopener">▶ Відкрити заготовку в ЄPython</a><details><summary>Показати код заготовки</summary><pre># Практичне завдання 8-24. Завдання 1: квадратне рівняння
+from tkinter import *
+from tkinter.messagebox import *
+from math import *
+def click():
+    a = float(enA.get())
+    b = float(enB.get())
+    c = float(enC.get())
+    d = b * b - 4 * a * c
+    if d &gt; 0:
+        x1 = (-b + sqrt(d)) / (2 * a)
+        x2 = (-b - sqrt(d)) / (2 * a)
+        s = 'x1 = ' + str(round(x1, 2)) + ', x2 = ' + str(round(x2, 2))
+        showinfo('Два корені', s)
+root = Tk()
+root.title('Квадратне рівняння')
+root.geometry('300x300')
+labA = Label(text='a')
+labA.pack(pady=5)
+enA = Entry(width=8)
+enA.pack()
+labB = Label(text='b')
+labB.pack(pady=5)
+enB = Entry(width=8)
+enB.pack()
+btn = Button(text='Знайти корені', command=click)
+btn.pack(pady=10)
+root.mainloop()</pre></details></div>
+<ol class="kr"><li>Інтерфейс за зразком полів a і b: перед рядком <b>btn = Button(…)</b> додайте напис і поле для c — <b>labC = Label(text='c')</b>, <b>labC.pack(pady=5)</b>, <b>enC = Entry(width=8)</b>, <b>enC.pack()</b>.</li><li>Запустіть (<b>F5</b>), уведіть <b>1</b>, <b>-5</b>, <b>6</b> і клацніть <b>Знайти корені</b>. Порахуйте самі: (−5) · (−5) − 4 · 1 · 6 = 1 &gt; 0 — два корені. Збігається?</li><li>Перевірте <b>1</b>, <b>-4</b>, <b>4</b>. Що сталося? Тепер під гілкою if, на одному рівні з <b>if</b>, допишіть <b>elif d == 0:</b>, а нижче з відступом — <b>x = -b / (2 * a)</b> і <b>showinfo('Один корінь', 'x = ' + str(round(x, 2)))</b>.</li><li>Допишіть останню гілку: <b>else:</b> і з відступом <b>showinfo('Коренів немає', 'Рівняння коренів не має')</b>.</li><li>Доберіть набори a, b, c, щоб рівняння мало <b>два корені</b>, <b>один корінь</b> і <b>не мало коренів</b> (підказка: 1, −4, 4 і 1, 1, 1). Під першим рядком допишіть коментар <b># Тестували …</b> зі своїми наборами. Збережіть: <b>⋮</b> → <b>Файли</b> → <b>Зберегти</b>, ім’я <b>практична24_1</b>.</li></ol>
+<p>Встигли? Уведіть <b>0</b>, <b>2</b>, <b>1</b> і подивіться на повідомлення внизу. Якщо a = 0, рівняння вже не квадратне. Додайте першою гілку <b>if a == 0:</b> з відступом <b>showinfo('Помилка', 'a не може дорівнювати 0')</b>, а <b>if d &gt; 0:</b> замініть на <b>elif d &gt; 0:</b>.</p>
+<figure class="rez"><figcaption>Як має вийти</figcaption><button type="button" class="rez-b" aria-label="Збільшити зразок"><img src="img/8-24-1.webp" alt="Зразок: як має виглядати результат" draggable="false" loading="lazy"></button></figure>
+<div class="chk"><p class="chk-h">Перевірте себе</p><p class="chk-t">Без поля c — помилка <b>NameError: name 'enC' is not defined</b>. 1, −5, 6 — «Два корені», <b>x1 = 3.0, x2 = 2.0</b>; 1, −4, 4 — «Один корінь», <b>x = 2.0</b>; 1, 1, 1 — «Коренів немає». Ваші набори можуть бути іншими: два корені — коли d &gt; 0 (наприклад, 2, 3, −2 — 0.5 і −2.0), один — коли d = 0, жодного — коли d &lt; 0. Розгалуження з трьома гілками — <b>багатоальтернативне</b>. «Встигли?»: без перевірки 0, 2, 1 дає <b>ZeroDivisionError</b> (ділення на 2 · a = 0), з гілкою — повідомлення «Помилка».</p></div>
+</section>
+<section class="zav">
+<h2><mark>Завдання 2 · рівень 2 ⭐⭐ «Чи буде трикутник?»</mark></h2>
+<p class="zt">Вправа 13 до § 4.6: з трьох відрізків можна скласти трикутник, якщо <b>кожна сума двох</b> довжин більша за третю. Проєкт готовий, але в умові перевіряється лише одна сума. Знайдіть помилку тестами й виправте її.</p>
+<div class="kod"><a class="kod-b" href="https://yepython.pp.ua/?code=IyDQn9GA0LDQutGC0LjRh9C90LUg0LfQsNCy0LTQsNC90L3RjyA4LTI0LiDQl9Cw0LLQtNCw0L3QvdGPIDI6INGH0Lgg0LHRg9C00LUg0YLRgNC40LrRg9GC0L3QuNC6PyAo0LLQv9GA0LDQstCwIDQuNi4xMykKZnJvbSB0a2ludGVyIGltcG9ydCAqCmRlZiBjbGljaygpOgogICAgYSA9IGZsb2F0KGVudDEuZ2V0KCkpCiAgICBiID0gZmxvYXQoZW50Mi5nZXQoKSkKICAgIGMgPSBmbG9hdChlbnQzLmdldCgpKQogICAgaWYgYSArIGIgPiBjOgogICAgICAgIGxiWyd0ZXh0J10gPSAn0KLRgNC40LrRg9GC0L3QuNC6INCx0YPQtNC1JwogICAgZWxzZToKICAgICAgICBsYlsndGV4dCddID0gJ9Ci0YDQuNC60YPRgtC90LjQutCwINC90LUg0LHRg9C00LUnCnJvb3QgPSBUaygpCnJvb3QudGl0bGUoJ9Ci0YDQuNC60YPRgtC90LjQuicpCnJvb3QuZ2VvbWV0cnkoJzMwMHgzMDAnKQpsYjAgPSBMYWJlbCh0ZXh0PSfQlNC%2B0LLQttC40L3QuCDRgtGA0YzQvtGFINCy0ZbQtNGA0ZbQt9C60ZbQsicpCmxiMC5wYWNrKHBhZHk9NSkKZW50MSA9IEVudHJ5KHdpZHRoPTgpCmVudDEucGFjayhwYWR5PTUpCmVudDIgPSBFbnRyeSh3aWR0aD04KQplbnQyLnBhY2socGFkeT01KQplbnQzID0gRW50cnkod2lkdGg9OCkKZW50My5wYWNrKHBhZHk9NSkKYnQgPSBCdXR0b24odGV4dD0n0J%2FQtdGA0LXQstGW0YDQuNGC0LgnLCBjb21tYW5kPWNsaWNrKQpidC5wYWNrKHBhZHk9MTApCmxiID0gTGFiZWwoZm9udD0nQXJpYWwgMTQnLCBmZz0nYmx1ZScpCmxiLnBhY2soKQpyb290Lm1haW5sb29wKCkK" target="_blank" rel="noopener">▶ Відкрити заготовку в ЄPython</a><details><summary>Показати код заготовки</summary><pre># Практичне завдання 8-24. Завдання 2: чи буде трикутник? (вправа 4.6.13)
+from tkinter import *
+def click():
+    a = float(ent1.get())
+    b = float(ent2.get())
+    c = float(ent3.get())
+    if a + b &gt; c:
+        lb['text'] = 'Трикутник буде'
+    else:
+        lb['text'] = 'Трикутника не буде'
+root = Tk()
+root.title('Трикутник')
+root.geometry('300x300')
+lb0 = Label(text='Довжини трьох відрізків')
+lb0.pack(pady=5)
+ent1 = Entry(width=8)
+ent1.pack(pady=5)
+ent2 = Entry(width=8)
+ent2.pack(pady=5)
+ent3 = Entry(width=8)
+ent3.pack(pady=5)
+bt = Button(text='Перевірити', command=click)
+bt.pack(pady=10)
+lb = Label(font='Arial 14', fg='blue')
+lb.pack()
+root.mainloop()</pre></details></div>
+<ol class="kr"><li>Запустіть і перевірте відрізки <b>3</b>, <b>4</b>, <b>5</b> і <b>2</b>, <b>2</b>, <b>10</b>. Відповіді правильні?</li><li>Тепер <b>10</b>, <b>2</b>, <b>2</b>. Чи можна скласти трикутник з відрізків 10, 2 і 2? Що показав проєкт? Подивіться на умову в <b>if</b>: яку суму вона не перевіряє?</li><li>Допишіть в умову ще дві перевірки через <b>and</b>: <b>if a + b &gt; c and a + c &gt; b and b + c &gt; a:</b>. Перевірте 10, 2, 2 знову.</li><li>Перевірте межу <b>1</b>, <b>2</b>, <b>3</b> (1 + 2 дорівнює 3) і <b>5</b>, <b>5</b>, <b>5</b>. Під першим рядком допишіть коментар <b># Тестували …</b> — які набори й чому. Збережіть з іменем <b>практична24_2</b>.</li></ol>
+<p>Встигли? Коли трикутник буде, перевірте, чи він рівнобедрений: у гілці if замість одного рядка напишіть вкладене розгалуження <b>if a == b or b == c or a == c:</b> — напис <b>Рівнобедрений</b>, <b>else:</b> — напис <b>Трикутник буде</b>. Протестуйте 5, 5, 8 і 3, 4, 5.</p>
+<figure class="rez"><figcaption>Як має вийти</figcaption><button type="button" class="rez-b" aria-label="Збільшити зразок"><img src="img/8-24-2.webp" alt="Зразок: як має виглядати результат" draggable="false" loading="lazy"></button></figure>
+<div class="chk"><p class="chk-h">Перевірте себе</p><p class="chk-t">З однією сумою 10, 2, 2 — «Трикутник буде», а це неправильно: 2 + 2 менше за 10. З трьома умовами через <b>and</b>: 3, 4, 5 і 5, 5, 5 — <b>Трикутник буде</b>; 2, 2, 10, 10, 2, 2 і 1, 2, 3 — <b>Трикутника не буде</b> (1 + 2 = 3, а не більше — відрізки лягають в одну лінію). and дає True, лише коли <b>всі</b> умови True. «Встигли?»: 5, 5, 8 і 5, 5, 5 — Рівнобедрений, 3, 4, 5 — Трикутник буде.</p></div>
+</section>
+<section class="zav">
+<h2><mark>Завдання 3 · рівень 3 ⭐⭐⭐ «Скільки це бітів?»</mark></h2>
+<p class="zt">Повторюємо кодування: 1 Б = 8 бітів, 1 кБ = 1024 Б, 1 МБ = 1024 кБ. Проєкт отримує число й одиницю (<b>Б</b>, <b>кБ</b> або <b>МБ</b>) і показує, скільки це бітів. Поки що він знає лише байти.</p>
+<div class="kod"><a class="kod-b" href="https://yepython.pp.ua/?code=IyDQn9GA0LDQutGC0LjRh9C90LUg0LfQsNCy0LTQsNC90L3RjyA4LTI0LiDQl9Cw0LLQtNCw0L3QvdGPIDM6INGB0LrRltC70YzQutC4INGG0LUg0LHRltGC0ZbQsj8KZnJvbSB0a2ludGVyIGltcG9ydCAqCmRlZiBjbGljaygpOgogICAgbiA9IGZsb2F0KGVudDEuZ2V0KCkpCiAgICB1ID0gZW50Mi5nZXQoKQogICAgaWYgdSA9PSAn0JEnOgogICAgICAgIGJpdHMgPSBuICogOAogICAgZWxzZToKICAgICAgICBiaXRzID0gJ9Cd0LXQstGW0LTQvtC80LAg0L7QtNC40L3QuNGG0Y8nCiAgICBsYlsndGV4dCddID0gc3RyKGJpdHMpCnJvb3QgPSBUaygpCnJvb3QudGl0bGUoJ9Ch0LrRltC70YzQutC4INGG0LUg0LHRltGC0ZbQsj8nKQpyb290Lmdlb21ldHJ5KCczMDB4MzAwJykKbGIxID0gTGFiZWwodGV4dD0n0KfQuNGB0LvQvicpCmxiMS5wYWNrKHBhZHk9NSkKZW50MSA9IEVudHJ5KHdpZHRoPTEwKQplbnQxLnBhY2soKQpsYjIgPSBMYWJlbCh0ZXh0PSfQntC00LjQvdC40YbRjzog0JEsINC60JEg0LDQsdC%2BINCc0JEnKQpsYjIucGFjayhwYWR5PTUpCmVudDIgPSBFbnRyeSh3aWR0aD0xMCkKZW50Mi5wYWNrKCkKYnQgPSBCdXR0b24odGV4dD0n0KHQutGW0LvRjNC60Lgg0LHRltGC0ZbQsj8nLCBjb21tYW5kPWNsaWNrKQpidC5wYWNrKHBhZHk9MTApCmxiID0gTGFiZWwoZm9udD0nQXJpYWwgMTQnLCBmZz0nYmx1ZScpCmxiLnBhY2soKQpyb290Lm1haW5sb29wKCkK" target="_blank" rel="noopener">▶ Відкрити заготовку в ЄPython</a><details><summary>Показати код заготовки</summary><pre># Практичне завдання 8-24. Завдання 3: скільки це бітів?
+from tkinter import *
+def click():
+    n = float(ent1.get())
+    u = ent2.get()
+    if u == 'Б':
+        bits = n * 8
+    else:
+        bits = 'Невідома одиниця'
+    lb['text'] = str(bits)
+root = Tk()
+root.title('Скільки це бітів?')
+root.geometry('300x300')
+lb1 = Label(text='Число')
+lb1.pack(pady=5)
+ent1 = Entry(width=10)
+ent1.pack()
+lb2 = Label(text='Одиниця: Б, кБ або МБ')
+lb2.pack(pady=5)
+ent2 = Entry(width=10)
+ent2.pack()
+bt = Button(text='Скільки бітів?', command=click)
+bt.pack(pady=10)
+lb = Label(font='Arial 14', fg='blue')
+lb.pack()
+root.mainloop()</pre></details></div>
+<ol class="kr"><li>Запустіть і перевірте: <b>1</b> і <b>Б</b>, потім <b>1</b> і <b>кБ</b>. Що показав проєкт?</li><li>Після гілки для <b>Б</b> допишіть <b>elif u == 'кБ':</b> і з відступом <b>bits = n * 8 * 1024</b>. Перевірте 1 кБ і 0.5 кБ — спершу порахуйте самі.</li><li>Так само допишіть гілку для <b>МБ</b>: <b>bits = n * 8 * 1024 * 1024</b>. Перевірте 2 МБ.</li><li>Уведіть <b>1</b> і <b>кб</b> (мала «б»). Що показав проєкт і чому? Збережіть з іменем <b>практична24_3</b>.</li></ol>
+<p>Встигли? Додайте гілку для <b>ГБ</b> (ще раз помножити на 1024) і змініть текст напису <b>lb2</b> на «Одиниця: Б, кБ, МБ або ГБ». Скільки бітів в 1 ГБ?</p>
+<figure class="rez"><figcaption>Як має вийти</figcaption><button type="button" class="rez-b" aria-label="Збільшити зразок"><img src="img/8-24-3.webp" alt="Зразок: як має виглядати результат" draggable="false" loading="lazy"></button></figure>
+<div class="chk"><p class="chk-h">Перевірте себе</p><p class="chk-t">Заготовка: 1 Б — <b>8.0</b>, 1 кБ — «Невідома одиниця» (такої гілки ще немає). Після змін: 1 кБ — <b>8192.0</b>, 0.5 кБ — <b>4096.0</b>, 2 МБ — <b>16777216.0</b>. «кб» — <b>Невідома одиниця</b>: Python порівнює рядки точно, і мала «б» — інша літера. «Встигли?»: 1 ГБ — <b>8589934592.0</b> бітів.</p></div>
+</section>
+<p class="end">Перевірте, що в папці <b>Завантаження</b> є <b>практична24_1.py</b> (і <b>практична24_2.py</b>, <b>практична24_3.py</b>, якщо робили). Закрийте вкладку браузера й повідомте вчителя про завершення роботи.</p>
+</main>
+</div>
+<div class="var" data-var="tel" hidden>
+<div class="uvaga"><b aria-hidden="true">!</b><p><strong>Увага!</strong> Працюйте з телефоном сидячи, тримайте екран на відстані 30–40 см від очей і кожні 15–20 хвилин робіть перерву: подивіться вдалину.</p></div>
+<main>
+<p>Працюємо в <b>ЄPython</b> у браузері телефона (Chrome або Safari) — нічого встановлювати не треба. Кнопка <b>▶ Відкрити заготовку в ЄPython</b> відкриває код завдання.</p>
+<p>Запуск — зелена кнопка <b>▶</b> унизу праворуч. Вікно програми відкривається <b>на весь екран</b>: щоб увести число, торкніться поля — з’явиться клавіатура; кнопки торкають пальцем. Чорний хрестик <b>×</b> угорі закриває вікно програми, червоний <b>×</b> — повертає до коду.</p>
+<p>Обов’язкове — завдання <b>⭐</b>. Зробили й перевірили себе — переходьте до <b>⭐⭐</b>, далі <b>⭐⭐⭐</b>.</p>
+<div class="tip"><span class="av" aria-hidden="true"><svg viewBox="14 8 212 212"><use href="#b-hd-hi" width="240" height="280"/><use href="#b-hd-g8" width="240" height="280"/></svg></span><p>Код пишеться англійськими літерами — перемкніть мову клавіатури (для «МБ» — українську). Знаки <b>=</b>, <b>-</b>, <b>#</b>, дужки й лапки шукайте на клавіатурі символів (кнопка <b>?123</b> або <b>123</b>). Якщо після дотику до кнопки нічого не змінилося, закрийте вікно програми чорним <b>×</b> — під ним буде повідомлення про помилку.</p></div>
+<section class="zav">
+<h2><mark>Завдання 1 · рівень 1 ⭐ «Квадратне рівняння» (обов’язкове)</mark></h2>
+<p class="zt">Проєкт знаходить корені рівняння <b>ax² + bx + c = 0</b>: d &gt; 0 — два корені, d = 0 — один, d &lt; 0 — коренів немає (d = b · b − 4 · a · c). Програму набрано, але гілки для одного кореня й для «коренів немає» вимкнено знаком <b>#</b>.</p>
+<div class="kod"><a class="kod-b" href="https://yepython.pp.ua/?code=IyDQmtCy0LDQtNGA0LDRgtC90LUg0YDRltCy0L3Rj9C90L3Rjwpmcm9tIHRraW50ZXIgaW1wb3J0ICoKZnJvbSB0a2ludGVyLm1lc3NhZ2Vib3ggaW1wb3J0ICoKZnJvbSBtYXRoIGltcG9ydCAqCmRlZiBjbGljaygpOgogICAgYSA9IGZsb2F0KGVuQS5nZXQoKSkKICAgIGIgPSBmbG9hdChlbkIuZ2V0KCkpCiAgICBjID0gZmxvYXQoZW5DLmdldCgpKQogICAgZCA9IGIgKiBiIC0gNCAqIGEgKiBjCiAgICBpZiBkID4gMDoKICAgICAgICB4MSA9ICgtYiArIHNxcnQoZCkpIC8gKDIgKiBhKQogICAgICAgIHgyID0gKC1iIC0gc3FydChkKSkgLyAoMiAqIGEpCiAgICAgICAgcyA9ICd4MSA9ICcgKyBzdHIocm91bmQoeDEsIDIpKSArICcsIHgyID0gJyArIHN0cihyb3VuZCh4MiwgMikpCiAgICAgICAgc2hvd2luZm8oJ9CU0LLQsCDQutC%2B0YDQtdC90ZYnLCBzKQogICAgI2VsaWYgZCA9PSAwOgogICAgICAgICN4ID0gLWIgLyAoMiAqIGEpCiAgICAgICAgI3Nob3dpbmZvKCfQntC00LjQvSDQutC%2B0YDRltC90YwnLCAneCA9ICcgKyBzdHIocm91bmQoeCwgMikpKQogICAgI2Vsc2U6CiAgICAgICAgI3Nob3dpbmZvKCfQmtC%2B0YDQtdC90ZbQsiDQvdC10LzQsNGUJywgJ9Cg0ZbQstC90Y%2FQvdC90Y8g0LrQvtGA0LXQvdGW0LIg0L3QtSDQvNCw0ZQnKQpyb290ID0gVGsoKQpyb290LnRpdGxlKCfQmtCy0LDQtNGA0LDRgtC90LUg0YDRltCy0L3Rj9C90L3RjycpCnJvb3QuZ2VvbWV0cnkoJzMwMHgzMDAnKQpsYWJBID0gTGFiZWwodGV4dD0nYScpCmxhYkEucGFjayhwYWR5PTUpCmVuQSA9IEVudHJ5KHdpZHRoPTgpCmVuQS5wYWNrKCkKbGFiQiA9IExhYmVsKHRleHQ9J2InKQpsYWJCLnBhY2socGFkeT01KQplbkIgPSBFbnRyeSh3aWR0aD04KQplbkIucGFjaygpCmxhYkMgPSBMYWJlbCh0ZXh0PSdjJykKbGFiQy5wYWNrKHBhZHk9NSkKZW5DID0gRW50cnkod2lkdGg9OCkKZW5DLnBhY2soKQpidG4gPSBCdXR0b24odGV4dD0n0JfQvdCw0LnRgtC4INC60L7RgNC10L3RlicsIGNvbW1hbmQ9Y2xpY2spCmJ0bi5wYWNrKHBhZHk9MTApCnJvb3QubWFpbmxvb3AoKQo%3D" target="_blank" rel="noopener">▶ Відкрити заготовку в ЄPython</a><details><summary>Показати код заготовки</summary><pre># Квадратне рівняння
+from tkinter import *
+from tkinter.messagebox import *
+from math import *
+def click():
+    a = float(enA.get())
+    b = float(enB.get())
+    c = float(enC.get())
+    d = b * b - 4 * a * c
+    if d &gt; 0:
+        x1 = (-b + sqrt(d)) / (2 * a)
+        x2 = (-b - sqrt(d)) / (2 * a)
+        s = 'x1 = ' + str(round(x1, 2)) + ', x2 = ' + str(round(x2, 2))
+        showinfo('Два корені', s)
+    #elif d == 0:
+        #x = -b / (2 * a)
+        #showinfo('Один корінь', 'x = ' + str(round(x, 2)))
+    #else:
+        #showinfo('Коренів немає', 'Рівняння коренів не має')
+root = Tk()
+root.title('Квадратне рівняння')
+root.geometry('300x300')
+labA = Label(text='a')
+labA.pack(pady=5)
+enA = Entry(width=8)
+enA.pack()
+labB = Label(text='b')
+labB.pack(pady=5)
+enB = Entry(width=8)
+enB.pack()
+labC = Label(text='c')
+labC.pack(pady=5)
+enC = Entry(width=8)
+enC.pack()
+btn = Button(text='Знайти корені', command=click)
+btn.pack(pady=10)
+root.mainloop()</pre></details></div>
+<ol class="kr"><li>Відкрийте заготовку й запустіть <b>▶</b>. Уведіть <b>1</b>, <b>-5</b>, <b>6</b> і торкніться <b>Знайти корені</b>. Потім <b>1</b>, <b>-4</b>, <b>4</b> — що сталося?</li><li>Червоний <b>×</b> — назад до коду. Приберіть <b>#</b> на початку п’яти рядків — від <b>#elif d == 0:</b> до останнього <b>showinfo</b>. Запустіть ще раз.</li><li>Перевірте <b>1</b>, <b>-4</b>, <b>4</b>, потім <b>1</b>, <b>1</b>, <b>1</b>. Доберіть свій набір, щоб коренів було два, — наприклад, змініть одне число в 1, −5, 6.</li></ol>
+<figure class="rez"><figcaption>Як має вийти</figcaption><button type="button" class="rez-b" aria-label="Збільшити зразок"><img src="img/8-24-t1.webp" alt="Зразок: як має виглядати результат" draggable="false" loading="lazy"></button></figure>
+<div class="chk"><p class="chk-h">Перевірте себе</p><p class="chk-t">1, −5, 6 — «Два корені», <b>x1 = 3.0, x2 = 2.0</b>. Поки гілки вимкнено, для 1, −4, 4 нічого не відбувається: d = 0, а гілки для цього випадку немає. Після змін: 1, −4, 4 — «Один корінь», <b>x = 2.0</b>; 1, 1, 1 — «Коренів немає». Ваш набір може бути іншим — головне, щоб d було більше за 0 (наприклад, 2, 3, −2 — 0.5 і −2.0).</p></div>
+</section>
+<section class="zav">
+<h2><mark>Завдання 2 · рівень 2 ⭐⭐ «Чи буде трикутник?»</mark></h2>
+<p class="zt">Вправа 13 до § 4.6: з трьох відрізків можна скласти трикутник, якщо кожна сума двох довжин більша за третю. Програму набрано, але в умові помилка — знайдіть її тестами.</p>
+<div class="kod"><a class="kod-b" href="https://yepython.pp.ua/?code=IyDQp9C4INCx0YPQtNC1INGC0YDQuNC60YPRgtC90LjQuj8KZnJvbSB0a2ludGVyIGltcG9ydCAqCmRlZiBjbGljaygpOgogICAgYSA9IGZsb2F0KGVudDEuZ2V0KCkpCiAgICBiID0gZmxvYXQoZW50Mi5nZXQoKSkKICAgIGMgPSBmbG9hdChlbnQzLmdldCgpKQogICAgaWYgYSArIGIgPiBjIG9yIGEgKyBjID4gYiBvciBiICsgYyA%2BIGE6CiAgICAgICAgbGJbJ3RleHQnXSA9ICfQotGA0LjQutGD0YLQvdC40Log0LHRg9C00LUnCiAgICBlbHNlOgogICAgICAgIGxiWyd0ZXh0J10gPSAn0KLRgNC40LrRg9GC0L3QuNC60LAg0L3QtSDQsdGD0LTQtScKcm9vdCA9IFRrKCkKcm9vdC50aXRsZSgn0KLRgNC40LrRg9GC0L3QuNC6JykKcm9vdC5nZW9tZXRyeSgnMzAweDMwMCcpCmxiMCA9IExhYmVsKHRleHQ9J9CU0L7QstC20LjQvdC4INGC0YDRjNC%2B0YUg0LLRltC00YDRltC30LrRltCyJykKbGIwLnBhY2socGFkeT01KQplbnQxID0gRW50cnkod2lkdGg9OCkKZW50MS5wYWNrKHBhZHk9NSkKZW50MiA9IEVudHJ5KHdpZHRoPTgpCmVudDIucGFjayhwYWR5PTUpCmVudDMgPSBFbnRyeSh3aWR0aD04KQplbnQzLnBhY2socGFkeT01KQpidCA9IEJ1dHRvbih0ZXh0PSfQn9C10YDQtdCy0ZbRgNC40YLQuCcsIGNvbW1hbmQ9Y2xpY2spCmJ0LnBhY2socGFkeT0xMCkKbGIgPSBMYWJlbChmb250PSdBcmlhbCAxNCcsIGZnPSdibHVlJykKbGIucGFjaygpCnJvb3QubWFpbmxvb3AoKQo%3D" target="_blank" rel="noopener">▶ Відкрити заготовку в ЄPython</a><details><summary>Показати код заготовки</summary><pre># Чи буде трикутник?
+from tkinter import *
+def click():
+    a = float(ent1.get())
+    b = float(ent2.get())
+    c = float(ent3.get())
+    if a + b &gt; c or a + c &gt; b or b + c &gt; a:
+        lb['text'] = 'Трикутник буде'
+    else:
+        lb['text'] = 'Трикутника не буде'
+root = Tk()
+root.title('Трикутник')
+root.geometry('300x300')
+lb0 = Label(text='Довжини трьох відрізків')
+lb0.pack(pady=5)
+ent1 = Entry(width=8)
+ent1.pack(pady=5)
+ent2 = Entry(width=8)
+ent2.pack(pady=5)
+ent3 = Entry(width=8)
+ent3.pack(pady=5)
+bt = Button(text='Перевірити', command=click)
+bt.pack(pady=10)
+lb = Label(font='Arial 14', fg='blue')
+lb.pack()
+root.mainloop()</pre></details></div>
+<ol class="kr"><li>Запустіть і перевірте відрізки <b>3</b>, <b>4</b>, <b>5</b>. Потім <b>2</b>, <b>2</b>, <b>10</b> — чи можна скласти з них трикутник? Що показав проєкт?</li><li>Поверніться до коду. В умові <b>if</b> замініть обидва <b>or</b> на <b>and</b> — так мають справджуватися всі три умови.</li><li>Перевірте ще раз <b>2</b>, <b>2</b>, <b>10</b>, потім межу <b>1</b>, <b>2</b>, <b>3</b> і <b>3</b>, <b>4</b>, <b>5</b>.</li></ol>
+<figure class="rez"><figcaption>Як має вийти</figcaption><button type="button" class="rez-b" aria-label="Збільшити зразок"><img src="img/8-24-t2.webp" alt="Зразок: як має виглядати результат" draggable="false" loading="lazy"></button></figure>
+<div class="chk"><p class="chk-h">Перевірте себе</p><p class="chk-t">З <b>or</b> проєкт для 3, 4, 5, 2, 2, 10 і навіть 1, 2, 3 каже «Трикутник буде»: для or досить однієї правильної суми. З <b>and</b>: 3, 4, 5 — <b>Трикутник буде</b>; 2, 2, 10 і 1, 2, 3 — <b>Трикутника не буде</b> (1 + 2 = 3, а не більше).</p></div>
+</section>
+<section class="zav">
+<h2><mark>Завдання 3 · рівень 3 ⭐⭐⭐ «Скільки це бітів?»</mark></h2>
+<p class="zt">Повторюємо кодування: 1 Б = 8 бітів, 1 кБ = 1024 Б, 1 МБ = 1024 кБ. Проєкт отримує число й одиницю і показує, скільки це бітів. Байти й кілобайти він уже знає.</p>
+<div class="kod"><a class="kod-b" href="https://yepython.pp.ua/?code=IyDQodC60ZbQu9GM0LrQuCDRhtC1INCx0ZbRgtGW0LI%2FCmZyb20gdGtpbnRlciBpbXBvcnQgKgpkZWYgY2xpY2soKToKICAgIG4gPSBmbG9hdChlbnQxLmdldCgpKQogICAgdSA9IGVudDIuZ2V0KCkKICAgIGlmIHUgPT0gJ9CRJzoKICAgICAgICBiaXRzID0gbiAqIDgKICAgIGVsaWYgdSA9PSAn0LrQkSc6CiAgICAgICAgYml0cyA9IG4gKiA4ICogMTAyNAogICAgZWxzZToKICAgICAgICBiaXRzID0gJ9Cd0LXQstGW0LTQvtC80LAg0L7QtNC40L3QuNGG0Y8nCiAgICBsYlsndGV4dCddID0gc3RyKGJpdHMpCnJvb3QgPSBUaygpCnJvb3QudGl0bGUoJ9Ch0LrRltC70YzQutC4INGG0LUg0LHRltGC0ZbQsj8nKQpyb290Lmdlb21ldHJ5KCczMDB4MzAwJykKbGIxID0gTGFiZWwodGV4dD0n0KfQuNGB0LvQvicpCmxiMS5wYWNrKHBhZHk9NSkKZW50MSA9IEVudHJ5KHdpZHRoPTEwKQplbnQxLnBhY2soKQpsYjIgPSBMYWJlbCh0ZXh0PSfQntC00LjQvdC40YbRjzog0JEsINC60JEg0LDQsdC%2BINCc0JEnKQpsYjIucGFjayhwYWR5PTUpCmVudDIgPSBFbnRyeSh3aWR0aD0xMCkKZW50Mi5wYWNrKCkKYnQgPSBCdXR0b24odGV4dD0n0KHQutGW0LvRjNC60Lgg0LHRltGC0ZbQsj8nLCBjb21tYW5kPWNsaWNrKQpidC5wYWNrKHBhZHk9MTApCmxiID0gTGFiZWwoZm9udD0nQXJpYWwgMTQnLCBmZz0nYmx1ZScpCmxiLnBhY2soKQpyb290Lm1haW5sb29wKCkK" target="_blank" rel="noopener">▶ Відкрити заготовку в ЄPython</a><details><summary>Показати код заготовки</summary><pre># Скільки це бітів?
+from tkinter import *
+def click():
+    n = float(ent1.get())
+    u = ent2.get()
+    if u == 'Б':
+        bits = n * 8
+    elif u == 'кБ':
+        bits = n * 8 * 1024
+    else:
+        bits = 'Невідома одиниця'
+    lb['text'] = str(bits)
+root = Tk()
+root.title('Скільки це бітів?')
+root.geometry('300x300')
+lb1 = Label(text='Число')
+lb1.pack(pady=5)
+ent1 = Entry(width=10)
+ent1.pack()
+lb2 = Label(text='Одиниця: Б, кБ або МБ')
+lb2.pack(pady=5)
+ent2 = Entry(width=10)
+ent2.pack()
+bt = Button(text='Скільки бітів?', command=click)
+bt.pack(pady=10)
+lb = Label(font='Arial 14', fg='blue')
+lb.pack()
+root.mainloop()</pre></details></div>
+<ol class="kr"><li>Запустіть і перевірте <b>1</b> і <b>кБ</b>, потім <b>2</b> і <b>МБ</b>. Що показав проєкт?</li><li>Поверніться до коду. Перед рядком <b>else:</b> допишіть <b>elif u == 'МБ':</b> і нижче з відступом <b>bits = n * 8 * 1024 * 1024</b>.</li><li>Перевірте <b>2</b> і <b>МБ</b>, потім <b>1</b> і <b>мб</b> (малими літерами).</li></ol>
+<figure class="rez"><figcaption>Як має вийти</figcaption><button type="button" class="rez-b" aria-label="Збільшити зразок"><img src="img/8-24-t3.webp" alt="Зразок: як має виглядати результат" draggable="false" loading="lazy"></button></figure>
+<div class="chk"><p class="chk-h">Перевірте себе</p><p class="chk-t">1 кБ — <b>8192.0</b>. До змін 2 МБ — «Невідома одиниця», після — <b>16777216.0</b> бітів. «мб» — <b>Невідома одиниця</b>: Python порівнює рядки точно, малі й великі літери — різні.</p></div>
+</section>
+<p class="end">Для кожного зробленого завдання зробіть два знімки екрана — код і результат (на більшості телефонів — одночасно кнопка живлення й гучність униз). У Google Classroom відкрийте це завдання, у блоці <b>Ваша робота</b> натисніть <b>Додати</b> → <b>Файл</b>, виберіть знімки й натисніть <b>Здати</b>.</p>
+</main>
+</div>
+</div>
+<script>document.addEventListener("click",function(e){var f=e.target.closest(".rez.big");if(f){f.classList.remove("big");return;}var b=e.target.closest(".rez-b");if(b){b.parentNode.classList.add("big");}});document.addEventListener("keydown",function(e){if(e.key==="Escape"){document.querySelectorAll(".rez.big").forEach(function(f){f.classList.remove("big");});}});document.addEventListener("contextmenu",function(e){if(e.target.closest(".rez"))e.preventDefault();});</script>
+<script>(function(){var bs=document.querySelectorAll(".var-sw button"),vs=document.querySelectorAll(".var");function show(k,save){var i;for(i=0;i<vs.length;i++)vs[i].hidden=vs[i].getAttribute("data-var")!==k;for(i=0;i<bs.length;i++)bs[i].setAttribute("aria-pressed",bs[i].getAttribute("data-var")===k?"true":"false");if(save){try{localStorage.setItem("praktychna-var",k);}catch(e){}try{history.replaceState(null,"",k==="tel"?"#telefon":"#komp");}catch(e){}}}function fromHash(){return location.hash==="#telefon"?"tel":location.hash==="#komp"?"pc":null;}var k=fromHash();if(!k){try{k=localStorage.getItem("praktychna-var");}catch(e){}}show(k==="tel"?"tel":"pc",false);for(var i=0;i<bs.length;i++)bs[i].addEventListener("click",function(){show(this.getAttribute("data-var"),true);});window.addEventListener("hashchange",function(){var h=fromHash();if(h)show(h,false);});})();</script>
+</body>
+</html>

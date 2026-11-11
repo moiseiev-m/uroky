@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="uk" data-topic="code">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Урок 22. Практичне завдання — Логічні операції. Логічні вирази в розгалуженнях</title>
+<link rel="stylesheet" href="../../assets/fonts.css">
+<link rel="stylesheet" href="../../assets/praktychna.css">
+</head>
+<body>
+<svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" style="position:absolute" aria-hidden="true" id="bitSprite"><symbol id="b-sq-base"><rect class="b-foot" x="64" y="260" width="28" height="18"/><rect class="b-foot" x="148" y="260" width="28" height="18"/><rect class="b-body" x="20" y="60" width="200" height="200" rx="32"/></symbol><symbol id="b-sq-hi" viewBox="0 0 240 280"><use href="#b-sq-base"/><circle class="b-eye" cx="85" cy="140" r="28"/><circle class="b-eye" cx="155" cy="140" r="28"/><circle class="b-pupil" cx="90" cy="144" r="12"/><circle class="b-pupil" cx="160" cy="144" r="12"/><circle class="b-cheek" cx="58" cy="186" r="12"/><circle class="b-cheek" cx="182" cy="186" r="12"/><path class="b-mouth" d="M96 196Q120 216 144 196" stroke-width="8"/></symbol><symbol id="b-sq-think" viewBox="0 0 240 280"><use href="#b-sq-base"/><circle class="b-eye" cx="85" cy="140" r="28"/><circle class="b-eye" cx="155" cy="140" r="28"/><circle class="b-pupil" cx="96" cy="128" r="12"/><circle class="b-pupil" cx="166" cy="128" r="12"/><circle class="b-cheek" cx="58" cy="186" r="12"/><circle class="b-cheek" cx="182" cy="186" r="12"/><path class="b-stroke" d="M100 204L140 198" stroke-width="8"/></symbol><symbol id="b-sq-happy" viewBox="0 0 240 280"><use href="#b-sq-base"/><path class="b-stroke" d="M62 146Q85 116 108 146" stroke-width="9"/><path class="b-stroke" d="M132 146Q155 116 178 146" stroke-width="9"/><circle class="b-cheek" cx="58" cy="186" r="12"/><circle class="b-cheek" cx="182" cy="186" r="12"/><path class="b-mouth" d="M88 188Q120 236 152 188Z" stroke-width="6"/></symbol><symbol id="b-sq-oops" viewBox="0 0 240 280"><use href="#b-sq-base"/><circle class="b-eye" cx="85" cy="140" r="30"/><circle class="b-eye" cx="155" cy="140" r="30"/><circle class="b-pupil" cx="85" cy="140" r="8"/><circle class="b-pupil" cx="155" cy="140" r="8"/><circle class="b-cheek" cx="58" cy="186" r="12"/><circle class="b-cheek" cx="182" cy="186" r="12"/><circle class="b-stroke" cx="120" cy="204" r="14" stroke-width="8"/></symbol><symbol id="b-sq-g6" viewBox="0 0 240 280"><path class="b-band" d="M120 62V30" stroke-width="8"/><circle class="b-ball" cx="120" cy="22" r="18" stroke-width="4"/></symbol><symbol id="b-sq-g7" viewBox="0 0 240 280"><path class="b-band" d="M18 150V112Q18 26 120 26Q222 26 222 112V150" stroke-width="12"/><rect class="b-pad" x="2" y="118" width="34" height="72" rx="10" stroke-width="4"/><rect class="b-pad" x="204" y="118" width="34" height="72" rx="10" stroke-width="4"/></symbol><symbol id="b-sq-g8" viewBox="0 0 240 280"><path class="b-band" d="M120 62V30" stroke-width="8"/><circle class="b-ball" cx="120" cy="22" r="18" stroke-width="4"/><rect class="b-frame" x="52" y="106" width="68" height="68" rx="10" stroke-width="7"/><rect class="b-frame" x="122" y="106" width="68" height="68" rx="10" stroke-width="7"/></symbol><symbol id="b-sq-g9" viewBox="0 0 240 280"><rect class="b-ant" x="66" y="40" width="108" height="30"/><polygon class="b-ant" points="120,2 236,34 120,66 4,34"/><path class="b-tassel" d="M120 34L214 44L214 92" stroke-width="6"/><circle class="b-ball" cx="214" cy="100" r="11" stroke-width="4"/></symbol><symbol id="b-hd-base"><ellipse class="b-foot" cx="86" cy="266" rx="20" ry="10"/><ellipse class="b-foot" cx="154" cy="266" rx="20" ry="10"/><path class="b-body" stroke-width="6" stroke-linejoin="round" d="M42 66C80 58 160 58 200 64C214 66 220 76 220 92C222 136 222 190 218 232C216 248 206 256 190 257C150 260 92 260 52 257C34 256 24 246 22 230C18 188 18 132 22 92C24 76 30 68 42 66Z"/><path class="b-hatch" stroke-width="3" d="M178 238L202 214M162 248L206 204M150 252L208 194"/></symbol><symbol id="b-hd-hi" viewBox="0 0 240 280"><use href="#b-hd-base"/><ellipse class="b-pupil" cx="88" cy="140" rx="11" ry="14"/><ellipse class="b-pupil" cx="152" cy="140" rx="11" ry="14"/><circle class="b-shine" cx="92" cy="135" r="4"/><circle class="b-shine" cx="156" cy="135" r="4"/><circle class="b-cheek" cx="62" cy="182" r="12"/><circle class="b-cheek" cx="178" cy="182" r="12"/><path class="b-stroke" d="M100 190Q120 208 140 190" stroke-width="7"/></symbol><symbol id="b-hd-think" viewBox="0 0 240 280"><use href="#b-hd-base"/><ellipse class="b-pupil" cx="94" cy="132" rx="11" ry="14"/><ellipse class="b-pupil" cx="158" cy="132" rx="11" ry="14"/><circle class="b-shine" cx="98" cy="127" r="4"/><circle class="b-shine" cx="162" cy="127" r="4"/><circle class="b-cheek" cx="62" cy="182" r="12"/><circle class="b-cheek" cx="178" cy="182" r="12"/><path class="b-stroke" d="M104 198L138 192" stroke-width="7"/></symbol><symbol id="b-hd-happy" viewBox="0 0 240 280"><use href="#b-hd-base"/><path class="b-stroke" d="M74 146Q88 126 102 146" stroke-width="7"/><path class="b-stroke" d="M138 146Q152 126 166 146" stroke-width="7"/><circle class="b-cheek" cx="62" cy="182" r="12"/><circle class="b-cheek" cx="178" cy="182" r="12"/><path class="b-mouth" d="M96 182Q120 222 144 182Z" stroke-width="4"/></symbol><symbol id="b-hd-oops" viewBox="0 0 240 280"><use href="#b-hd-base"/><circle class="b-eye" cx="88" cy="140" r="20" stroke-width="5"/><circle class="b-eye" cx="152" cy="140" r="20" stroke-width="5"/><circle class="b-pupil" cx="88" cy="140" r="7"/><circle class="b-pupil" cx="152" cy="140" r="7"/><circle class="b-cheek" cx="62" cy="182" r="12"/><circle class="b-cheek" cx="178" cy="182" r="12"/><circle class="b-stroke" cx="120" cy="200" r="11" stroke-width="6"/></symbol><symbol id="b-hd-g6" viewBox="0 0 240 280"><path class="b-band" d="M120 60C114 48 126 42 120 32" stroke-width="6"/><circle class="b-ball" cx="120" cy="22" r="14" stroke-width="4"/></symbol><symbol id="b-hd-g7" viewBox="0 0 240 280"><path class="b-band" d="M20 150V114Q20 28 120 28Q220 28 220 114V150" stroke-width="10"/><rect class="b-pad" x="6" y="112" width="30" height="70" rx="12" stroke-width="4"/><rect class="b-pad" x="204" y="112" width="30" height="70" rx="12" stroke-width="4"/></symbol><symbol id="b-hd-g8" viewBox="0 0 240 280"><path class="b-band" d="M120 60C114 48 126 42 120 32" stroke-width="6"/><circle class="b-ball" cx="120" cy="22" r="14" stroke-width="4"/><circle class="b-frame" cx="88" cy="140" r="26" stroke-width="6"/><circle class="b-frame" cx="152" cy="140" r="26" stroke-width="6"/><path class="b-frame" d="M114 136Q120 130 126 136" stroke-width="6"/></symbol><symbol id="b-hd-g9" viewBox="0 0 240 280"><rect class="b-ant" x="70" y="44" width="100" height="26" rx="6"/><polygon class="b-ant" points="120,6 232,38 120,70 8,38"/><path class="b-tassel" d="M120 38L210 50L210 94" stroke-width="6"/><circle class="b-ball" cx="210" cy="102" r="11" stroke-width="4"/></symbol><symbol id="b-ab-base"><ellipse class="b-foot" cx="88" cy="264" rx="20" ry="11"/><ellipse class="b-foot" cx="152" cy="264" rx="20" ry="11"/><path class="b-body" stroke-width="6" d="M120 60C178 58 220 96 218 158C216 222 178 260 120 258C62 256 22 222 24 160C26 98 62 62 120 60Z"/></symbol><symbol id="b-ab-hi" viewBox="0 0 240 280"><use href="#b-ab-base"/><circle class="b-eye" cx="92" cy="146" r="24" stroke-width="5"/><circle class="b-eye" cx="148" cy="146" r="24" stroke-width="5"/><circle class="b-pupil" cx="96" cy="150" r="10"/><circle class="b-pupil" cx="152" cy="150" r="10"/><circle class="b-cheek" cx="60" cy="190" r="12"/><circle class="b-cheek" cx="180" cy="190" r="12"/><path class="b-stroke" d="M100 198Q120 216 140 198" stroke-width="7"/></symbol><symbol id="b-ab-think" viewBox="0 0 240 280"><use href="#b-ab-base"/><circle class="b-eye" cx="92" cy="146" r="24" stroke-width="5"/><circle class="b-eye" cx="148" cy="146" r="24" stroke-width="5"/><circle class="b-pupil" cx="102" cy="138" r="10"/><circle class="b-pupil" cx="158" cy="138" r="10"/><circle class="b-cheek" cx="60" cy="190" r="12"/><circle class="b-cheek" cx="180" cy="190" r="12"/><path class="b-stroke" d="M104 206L138 199" stroke-width="7"/></symbol><symbol id="b-ab-happy" viewBox="0 0 240 280"><use href="#b-ab-base"/><path class="b-stroke" d="M70 152Q92 124 114 152" stroke-width="8"/><path class="b-stroke" d="M126 152Q148 124 170 152" stroke-width="8"/><circle class="b-cheek" cx="60" cy="190" r="12"/><circle class="b-cheek" cx="180" cy="190" r="12"/><path class="b-mouth" d="M94 190Q120 234 146 190Z" stroke-width="5"/></symbol><symbol id="b-ab-oops" viewBox="0 0 240 280"><use href="#b-ab-base"/><circle class="b-eye" cx="92" cy="146" r="26" stroke-width="5"/><circle class="b-eye" cx="148" cy="146" r="26" stroke-width="5"/><circle class="b-pupil" cx="92" cy="146" r="7"/><circle class="b-pupil" cx="148" cy="146" r="7"/><circle class="b-cheek" cx="60" cy="190" r="12"/><circle class="b-cheek" cx="180" cy="190" r="12"/><circle class="b-stroke" cx="120" cy="208" r="13" stroke-width="7"/></symbol><symbol id="b-ab-g6" viewBox="0 0 240 280"><path class="b-band" d="M120 62C106 50 134 42 122 32" stroke-width="6"/><circle class="b-ball" cx="122" cy="22" r="14" stroke-width="4"/></symbol><symbol id="b-ab-g7" viewBox="0 0 240 280"><path class="b-band" d="M26 156V120Q26 30 120 30Q214 30 214 120V156" stroke-width="12"/><rect class="b-pad" x="8" y="118" width="34" height="74" rx="16" stroke-width="5"/><rect class="b-pad" x="198" y="118" width="34" height="74" rx="16" stroke-width="5"/></symbol><symbol id="b-ab-g8" viewBox="0 0 240 280"><path class="b-band" d="M120 62C106 50 134 42 122 32" stroke-width="6"/><circle class="b-ball" cx="122" cy="22" r="14" stroke-width="4"/><circle class="b-frame" cx="92" cy="146" r="31" stroke-width="7"/><circle class="b-frame" cx="148" cy="146" r="31" stroke-width="7"/></symbol><symbol id="b-ab-g9" viewBox="0 0 240 280"><rect class="b-ant" x="70" y="44" width="100" height="30" rx="8"/><polygon class="b-ant" points="120,8 232,38 120,68 8,38"/><path class="b-tassel" d="M120 38L210 48L210 94" stroke-width="6"/><circle class="b-ball" cx="210" cy="102" r="11" stroke-width="4"/></symbol><symbol id="b-pose-wave-back" viewBox="0 0 240 280" overflow="visible"><path class="b-arm" d="M30 176Q2 196 4 232"/><path class="b-arm-in" d="M30 176Q2 196 4 232"/><circle class="b-hand" cx="4" cy="236" r="11"/><path class="b-arm" d="M206 170Q252 150 246 100"/><path class="b-arm-in" d="M206 170Q252 150 246 100"/><circle class="b-hand" cx="246" cy="94" r="11"/></symbol><symbol id="b-pose-wave-front" viewBox="0 0 240 280" overflow="visible"><path class="b-motion" d="M262 74q8 10 2 22"/><path class="b-motion" d="M230 62q-6-10 2-20"/></symbol><symbol id="b-pose-point-back" viewBox="0 0 240 280" overflow="visible"><path class="b-arm" d="M34 170Q-2 162 -6 132"/><path class="b-arm-in" d="M34 170Q-2 162 -6 132"/><circle class="b-hand" cx="-6" cy="126" r="11"/><path class="b-finger" d="M-7 117L-11 101"/><path class="b-arm" d="M210 176Q238 196 236 232"/><path class="b-arm-in" d="M210 176Q238 196 236 232"/><circle class="b-hand" cx="236" cy="236" r="11"/></symbol><symbol id="b-pose-point-front" viewBox="0 0 240 280" overflow="visible"></symbol><symbol id="b-pose-think-back" viewBox="0 0 240 280" overflow="visible"><path class="b-arm" d="M210 176Q238 196 236 232"/><path class="b-arm-in" d="M210 176Q238 196 236 232"/><circle class="b-hand" cx="236" cy="236" r="11"/></symbol><symbol id="b-pose-think-front" viewBox="0 0 240 280" overflow="visible"><path class="b-arm" d="M30 188Q40 236 92 214"/><path class="b-arm-in" d="M30 188Q40 236 92 214"/><circle class="b-hand" cx="96" cy="212" r="11"/></symbol><symbol id="b-pose-cheer-back" viewBox="0 0 240 280" overflow="visible"><path class="b-arm" d="M34 168Q-8 136 2 92"/><path class="b-arm-in" d="M34 168Q-8 136 2 92"/><circle class="b-hand" cx="2" cy="86" r="11"/><path class="b-arm" d="M206 168Q248 136 238 92"/><path class="b-arm-in" d="M206 168Q248 136 238 92"/><circle class="b-hand" cx="238" cy="86" r="11"/></symbol><symbol id="b-pose-cheer-front" viewBox="0 0 240 280" overflow="visible"><path class="b-motion" d="M40 44l-12-12M200 44l12-12"/></symbol><symbol id="b-pose-pencil-back" viewBox="0 0 240 280" overflow="visible"><path class="b-arm" d="M30 176Q2 196 4 232"/><path class="b-arm-in" d="M30 176Q2 196 4 232"/><circle class="b-hand" cx="4" cy="236" r="11"/></symbol><symbol id="b-pose-pencil-front" viewBox="0 0 240 280" overflow="visible"><path class="b-prop" d="M162 248L218 186L230 198L174 260Z"/><path class="b-ant" d="M162 248L156 268L174 260Z"/><path class="b-prop2" d="M218 186L226 178L238 190L230 198Z"/><path class="b-arm" d="M206 178Q244 204 206 224"/><path class="b-arm-in" d="M206 178Q244 204 206 224"/><circle class="b-hand" cx="202" cy="224" r="11"/></symbol><symbol id="b-pose-laptop-back" viewBox="0 0 240 280" overflow="visible"></symbol><symbol id="b-pose-laptop-front" viewBox="0 0 240 280" overflow="visible"><path class="b-prop2" d="M66 204H174V240H66Z"/><circle class="b-prop" cx="120" cy="222" r="7"/><path class="b-prop2" d="M52 240H188L200 256H40Z"/><path class="b-arm" d="M28 180Q18 216 60 226"/><path class="b-arm-in" d="M28 180Q18 216 60 226"/><circle class="b-hand" cx="62" cy="226" r="11"/><path class="b-arm" d="M212 180Q222 216 180 226"/><path class="b-arm-in" d="M212 180Q222 216 180 226"/><circle class="b-hand" cx="178" cy="226" r="11"/></symbol><symbol id="b-pose-peek-back" viewBox="0 0 240 280" overflow="visible"></symbol><symbol id="b-pose-peek-front" viewBox="0 0 240 280" overflow="visible"><circle class="b-hand" cx="64" cy="196" r="13"/><circle class="b-hand" cx="176" cy="196" r="13"/></symbol></svg>
+<div class="sheet">
+<header class="hdr"><span class="hdr-l">Урок №22 · Практичне завдання</span><span class="logo">Інформатика · 8 клас</span></header>
+<div class="ttl"><div class="num"><b>22</b><i>урок</i></div><div class="plate"><p class="kick">Практичне завдання</p><h1>Логічні операції. Логічні вирази в розгалуженнях</h1><p class="tp">Тема: Програмування</p></div></div>
+<nav class="var-sw" aria-label="Як виконувати"><button type="button" data-var="pc" aria-pressed="true"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="4" width="19" height="12" rx="1.5"/><path d="M8 20h8M12 16v4"/></svg><span>За комп’ютером</span></button><button type="button" data-var="tel" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6.5" y="2.5" width="11" height="19" rx="2.2"/><path d="M10.5 18.5h3"/></svg><span>З телефона</span></button></nav><p class="var-hint">Немає комп’ютера — виберіть «З телефона»: завдання на ту саму тему, їх можна виконати на телефоні.</p>
+<div class="var" data-var="pc">
+<div class="uvaga"><b aria-hidden="true">!</b><p><strong>Увага!</strong> Під час роботи з комп’ютером дотримуйтеся вимог безпеки життєдіяльності та санітарно-гігієнічних норм.</p></div>
+<main>
+<p>Працюємо в <b>ЄPython</b>. У кожному завданні є кнопка <b>▶ Відкрити заготовку в ЄPython</b> — код одразу з’явиться в редакторі.</p>
+<p>Обов’язкове — завдання <b>⭐</b>. Зробили й перевірили себе — переходьте до <b>⭐⭐</b>, далі <b>⭐⭐⭐</b>.</p>
+<div class="tip"><span class="av" aria-hidden="true"><svg viewBox="14 8 212 212"><use href="#b-hd-hi" width="240" height="280"/><use href="#b-hd-g8" width="240" height="280"/></svg></span><p>Логічні операції пишуть малими англійськими словами: <b>not</b> (не), <b>and</b> (і), <b>or</b> (або). Порядок: спершу порівняння, потім <b>not</b>, <b>and</b>, <b>or</b>; дужки — першими. Після умови в <b>if</b>, <b>elif</b> і після <b>else</b> — двокрапка, команди гілки — з відступом. Імена змінних — лише англійськими літерами: українська <b>у</b> й англійська <b>y</b> для Python різні змінні.</p></div>
+<section class="zav">
+<h2><mark>Завдання 1 · рівень 1 ⭐ «Обчисли й перевір» (обов’язкове)</mark></h2>
+<p class="zt">Python обчислює логічний вираз з трьох порівнянь і двох операцій. Спершу передбачте відповідь самі, потім перевірте. Наприкінці складете таблицю істинності для <b>and</b>, <b>or</b> і <b>not</b>.</p>
+<div class="kod"><a class="kod-b" href="https://yepython.pp.ua/?code=IyDQn9GA0LDQutGC0LjRh9C90LUg0LfQsNCy0LTQsNC90L3RjyA4LTIyLiDQl9Cw0LLQtNCw0L3QvdGPIDE6INC%2B0LHRh9C40YHQu9C4INC5INC%2F0LXRgNC10LLRltGACiMg0KHQv9C10YDRiNGDINC%2F0LXRgNC10LTQsdCw0YfRgtC1OiBUcnVlINGH0LggRmFsc2U%2FINCf0L7RgtGW0Lwg0LfQsNC%2F0YPRgdGC0ZbRgtGMIChGNSkuCnggPSAzCnkgPSA1CnogPSAtMgp0ID0geCA%2BIDAgYW5kIHkgPiAwIG9yIHogPCAwCnByaW50KHQpCg%3D%3D" target="_blank" rel="noopener">▶ Відкрити заготовку в ЄPython</a><details><summary>Показати код заготовки</summary><pre># Практичне завдання 8-22. Завдання 1: обчисли й перевір
+# Спершу передбачте: True чи False? Потім запустіть (F5).
+x = 3
+y = 5
+z = -2
+t = x &gt; 0 and y &gt; 0 or z &lt; 0
+print(t)</pre></details></div>
+<ol class="kr"><li>Не запускаючи, порахуйте: спершу три порівняння, потім <b>and</b>, потім <b>or</b>. Запустіть (<b>F5</b>) і порівняйте зі своєю відповіддю.</li><li>Змініть числа на другий набір: <b>x = 4</b>, <b>y = -6</b>, <b>z = -5</b>. Передбачте й запустіть. Потім так само третій набір — <b>9</b>, <b>-5</b>, <b>0</b> і четвертий — <b>-5</b>, <b>-7</b>, <b>2</b>.</li><li>Допишіть у кінці три рядки: <b>a = True</b>, <b>b = False</b> і <b>print(a, b, a and b, a or b, not a)</b>. Запустіть: останній рядок результату — це рядок таблиці істинності.</li><li>Змініть значення <b>a</b> і <b>b</b> ще тричі так, щоб отримати всі чотири рядки таблиці: <b>True True</b>, <b>True False</b>, <b>False True</b>, <b>False False</b>.</li><li>Збережіть: <b>⋮</b> → <b>Файли</b> → <b>Зберегти</b>, ім’я <b>практична22_1</b>.</li></ol>
+<p>Встигли? Допишіть <b>print(not 5 &gt; 3, True or False and False, (True or False) and False)</b>. Спершу передбачте три значення, потім запустіть.</p>
+<figure class="rez"><figcaption>Як має вийти</figcaption><button type="button" class="rez-b" aria-label="Збільшити зразок"><img src="img/8-22-1.webp" alt="Зразок: як має виглядати результат" draggable="false" loading="lazy"></button></figure>
+<div class="chk"><p class="chk-h">Перевірте себе</p><p class="chk-t">Чотири набори: <b>True</b> (3 і 5 додатні), <b>True</b> (z = −5 від’ємне, а or досить однієї умови), <b>False</b>, <b>False</b>. Таблиця: True True — <b>True True True True False</b>; True False — <b>True False False True False</b>; False True — <b>False True False True True</b>; False False — <b>False False False False True</b>. «Встигли?» — <b>False True False</b>: not 5 &gt; 3 — це not True; без дужок спершу and; з дужками спершу or.</p></div>
+</section>
+<section class="zav">
+<h2><mark>Завдання 2 · рівень 2 ⭐⭐ «Вправа 4.5»</mark></h2>
+<p class="zt">Проєкт з е-додатка: у вікні три поля для <b>x</b>, <b>y</b>, <b>z</b>, кнопка <b>Обчислити</b> й поле <b>Результат</b> — значення логічного виразу <b>t = x &gt; 0 and (y &gt; 0 or z &lt; 0)</b>. Вікно вже створено, бракує обробника.</p>
+<div class="kod"><a class="kod-b" href="https://yepython.pp.ua/?code=IyDQn9GA0LDQutGC0LjRh9C90LUg0LfQsNCy0LTQsNC90L3RjyA4LTIyLiDQl9Cw0LLQtNCw0L3QvdGPIDI6INCy0L%2FRgNCw0LLQsCA0LjUKZnJvbSB0a2ludGVyIGltcG9ydCAqCmRlZiBjbGljaygpOgogICAgcGFzcwp3aW4gPSBUaygpCndpbi50aXRsZSgn0JLQv9GA0LDQstCwIDQuNScpCndpbi5nZW9tZXRyeSgnMzAweDQwMCcpCmxiMSA9IExhYmVsKHRleHQ9J9CX0L3QsNGH0LXQvdC90Y8g0LfQvNGW0L3QvdC%2B0ZcgeCcpCmxiMS5wYWNrKHBhZHk9NSkKZW50MSA9IEVudHJ5KCkKZW50MS5wYWNrKHBhZHk9NSkKbGIyID0gTGFiZWwodGV4dD0n0JfQvdCw0YfQtdC90L3RjyDQt9C80ZbQvdC90L7RlyB5JykKbGIyLnBhY2socGFkeT01KQplbnQyID0gRW50cnkoKQplbnQyLnBhY2socGFkeT01KQpsYjMgPSBMYWJlbCh0ZXh0PSfQl9C90LDRh9C10L3QvdGPINC30LzRltC90L3QvtGXIHonKQpsYjMucGFjayhwYWR5PTUpCmVudDMgPSBFbnRyeSgpCmVudDMucGFjayhwYWR5PTUpCmJ0ID0gQnV0dG9uKHRleHQ9J9Ce0LHRh9C40YHQu9C40YLQuCcsIGNvbW1hbmQ9Y2xpY2spCmJ0LnBhY2socGFkeT01KQpsYjQgPSBMYWJlbCh0ZXh0PSfQoNC10LfRg9C70YzRgtCw0YInKQpsYjQucGFjayhwYWR5PTUpCmVudDQgPSBFbnRyeSgpCmVudDQucGFjayhwYWR5PTUpCndpbi5tYWlubG9vcCgpCg%3D%3D" target="_blank" rel="noopener">▶ Відкрити заготовку в ЄPython</a><details><summary>Показати код заготовки</summary><pre># Практичне завдання 8-22. Завдання 2: вправа 4.5
+from tkinter import *
+def click():
+    pass
+win = Tk()
+win.title('Вправа 4.5')
+win.geometry('300x400')
+lb1 = Label(text='Значення змінної x')
+lb1.pack(pady=5)
+ent1 = Entry()
+ent1.pack(pady=5)
+lb2 = Label(text='Значення змінної y')
+lb2.pack(pady=5)
+ent2 = Entry()
+ent2.pack(pady=5)
+lb3 = Label(text='Значення змінної z')
+lb3.pack(pady=5)
+ent3 = Entry()
+ent3.pack(pady=5)
+bt = Button(text='Обчислити', command=click)
+bt.pack(pady=5)
+lb4 = Label(text='Результат')
+lb4.pack(pady=5)
+ent4 = Entry()
+ent4.pack(pady=5)
+win.mainloop()</pre></details></div>
+<ol class="kr"><li>Обробник: замість <b>pass</b> наберіть з відступом <b>x = float(ent1.get())</b>, <b>y = float(ent2.get())</b>, <b>z = float(ent3.get())</b> і <b>t = x &gt; 0 and (y &gt; 0 or z &lt; 0)</b>.</li><li>Допишіть у обробник виведення в поле: <b>ent4.delete(0, END)</b> і <b>ent4.insert(0, str(t))</b>.</li><li>Запустіть і перевірте чотири набори: <b>5, 8, -2</b>; <b>5, -8, 3</b>; <b>-5, 8, -4</b>; <b>-5, -8, 5</b>. Перед кожним клацанням на <b>Обчислити</b> передбачте відповідь.</li><li>Збережіть з іменем <b>практична22_2</b>.</li></ol>
+<p>Встигли? Приберіть дужки: <b>t = x &gt; 0 and y &gt; 0 or z &lt; 0</b>. Перевірте набір <b>-5, 8, -4</b> — чому відповідь змінилася? Поверніть дужки.</p>
+<figure class="rez"><figcaption>Як має вийти</figcaption><button type="button" class="rez-b" aria-label="Збільшити зразок"><img src="img/8-22-2.webp" alt="Зразок: як має виглядати результат" draggable="false" loading="lazy"></button></figure>
+<div class="chk"><p class="chk-h">Перевірте себе</p><p class="chk-t">Набори: <b>True</b> (5 &gt; 0 і 8 &gt; 0), <b>False</b> (−8 &gt; 0 і 3 &lt; 0 — обидві умови в дужках хибні), <b>False</b> і <b>False</b> (x від’ємне — and дає False). Без дужок набір −5, 8, −4 дає <b>True</b>: спершу виконується and (False), а потім or з z &lt; 0 (True). Якщо після клацання поле <b>Результат</b> порожнє, а внизу помилка <b>NameError</b> — якусь змінну набрано українською літерою.</p></div>
+</section>
+<section class="zav">
+<h2><mark>Завдання 3 · рівень 3 ⭐⭐⭐ «Чи можна Михайлові грати?»</mark></h2>
+<p class="zt">Михайлові дозволяють грати на комп’ютері, якщо він виконав домашнє завдання <b>або</b> навів лад у кімнаті <b>і</b> його старша сестра завершила роботу за комп’ютером. Проєкт «Розумного» будинку: у три поля вводять <b>так</b> або <b>ні</b>, а напис відповідає, чи можна грати. Вікно з полями й кнопкою вже є.</p>
+<div class="kod"><a class="kod-b" href="https://yepython.pp.ua/?code=IyDQn9GA0LDQutGC0LjRh9C90LUg0LfQsNCy0LTQsNC90L3RjyA4LTIyLiDQl9Cw0LLQtNCw0L3QvdGPIDM6INGH0Lgg0LzQvtC20L3QsCDQnNC40YXQsNC50LvQvtCy0ZYg0LPRgNCw0YLQuD8KIyBkIOKAlCDQtNC%2B0LzQsNGI0L3RlCDQstC40LrQvtC90LDQvdC%2BLCBsIOKAlCDQu9Cw0LQg0L3QsNCy0LXQtNC10L3QviwgcyDigJQg0YHQtdGB0YLRgNCwINC30LDQstC10YDRiNC40LvQsCDRgNC%2B0LHQvtGC0YMKZnJvbSB0a2ludGVyIGltcG9ydCAqCmRlZiBjbGljaygpOgogICAgcGFzcwpyb290ID0gVGsoKQpyb290LnRpdGxlKCfQoNC%2B0LfRg9C80L3QuNC5INCx0YPQtNC40L3QvtC6JykKcm9vdC5nZW9tZXRyeSgnMzAweDMwMCcpCmxiMSA9IExhYmVsKHRleHQ9J9CU0L7QvNCw0YjQvdGUINCy0LjQutC%2B0L3QsNC90L4%2FICjRgtCw0Lov0L3RliknKQpsYjEucGFjayhwYWR5PTUpCmVudDEgPSBFbnRyeSgpCmVudDEucGFjaygpCmxiMiA9IExhYmVsKHRleHQ9J9Cb0LDQtCDRgyDQutGW0LzQvdCw0YLRlj8gKNGC0LDQui%2FQvdGWKScpCmxiMi5wYWNrKHBhZHk9NSkKZW50MiA9IEVudHJ5KCkKZW50Mi5wYWNrKCkKbGIzID0gTGFiZWwodGV4dD0n0KHQtdGB0YLRgNCwINC30LDQstC10YDRiNC40LvQsD8gKNGC0LDQui%2FQvdGWKScpCmxiMy5wYWNrKHBhZHk9NSkKZW50MyA9IEVudHJ5KCkKZW50My5wYWNrKCkKYnQgPSBCdXR0b24odGV4dD0n0J%2FQtdGA0LXQstGW0YDQuNGC0LgnLCBjb21tYW5kPWNsaWNrKQpidC5wYWNrKHBhZHk9MTApCmxiID0gTGFiZWwoZm9udD0nQXJpYWwgMTQnLCBmZz0nYmx1ZScpCmxiLnBhY2soKQpyb290Lm1haW5sb29wKCkK" target="_blank" rel="noopener">▶ Відкрити заготовку в ЄPython</a><details><summary>Показати код заготовки</summary><pre># Практичне завдання 8-22. Завдання 3: чи можна Михайлові грати?
+# d — домашнє виконано, l — лад наведено, s — сестра завершила роботу
+from tkinter import *
+def click():
+    pass
+root = Tk()
+root.title('Розумний будинок')
+root.geometry('300x300')
+lb1 = Label(text='Домашнє виконано? (так/ні)')
+lb1.pack(pady=5)
+ent1 = Entry()
+ent1.pack()
+lb2 = Label(text='Лад у кімнаті? (так/ні)')
+lb2.pack(pady=5)
+ent2 = Entry()
+ent2.pack()
+lb3 = Label(text='Сестра завершила? (так/ні)')
+lb3.pack(pady=5)
+ent3 = Entry()
+ent3.pack()
+bt = Button(text='Перевірити', command=click)
+bt.pack(pady=10)
+lb = Label(font='Arial 14', fg='blue')
+lb.pack()
+root.mainloop()</pre></details></div>
+<ol class="kr"><li>Обробник: замість <b>pass</b> наберіть з відступом <b>d = ent1.get() == 'так'</b>, <b>l = ent2.get() == 'так'</b> і <b>s = ent3.get() == 'так'</b>. Кожна змінна отримає <b>True</b> або <b>False</b>.</li><li>Нижче в обробнику — розгалуження: <b>if (d or l) and s:</b>, з відступом <b>lb['text'] = 'Можна грати!'</b>, потім <b>else:</b> і з відступом <b>lb['text'] = 'Ще не можна'</b>.</li><li>Запустіть і перевірте чотири випадки (поля по черзі): <b>так, ні, так</b>; <b>ні, так, так</b>; <b>так, так, ні</b>; <b>ні, ні, так</b>. Спершу вирішіть самі.</li><li>Приберіть дужки: <b>if d or l and s:</b>. Перевірте <b>так, ні, ні</b> — чому тепер відповідь неправильна? Поверніть дужки.</li><li>Збережіть з іменем <b>практична22_3</b>.</li></ol>
+<p>Встигли? Перед <b>else:</b> додайте гілку <b>elif s:</b> з відступом <b>lb['text'] = 'Спершу домашнє або лад!'</b>. Для яких відповідей вона виконується?</p>
+<figure class="rez"><figcaption>Як має вийти</figcaption><button type="button" class="rez-b" aria-label="Збільшити зразок"><img src="img/8-22-3.webp" alt="Зразок: як має виглядати результат" draggable="false" loading="lazy"></button></figure>
+<div class="chk"><p class="chk-h">Перевірте себе</p><p class="chk-t">так, ні, так — <b>Можна грати!</b>; ні, так, так — <b>Можна грати!</b>; так, так, ні — <b>Ще не можна</b> (сестра ще працює); ні, ні, так — <b>Ще не можна</b>. Без дужок «так, ні, ні» дає <b>Можна грати!</b>: and виконується раніше за or, і вийшло d or (l and s). Гілка <b>elif s</b> виконується, коли сестра завершила, а ні домашнього, ні ладу немає: ні, ні, так — <b>Спершу домашнє або лад!</b>. Слово <b>так</b> вводьте малими літерами: <b>Так</b> — це вже інший текст, і d буде False.</p></div>
+</section>
+<p class="end">Перевірте, що в папці <b>Завантаження</b> є <b>практична22_1.py</b> (і <b>практична22_2.py</b>, <b>практична22_3.py</b>, якщо робили). Закрийте вкладку браузера й повідомте вчителя про завершення роботи.</p>
+</main>
+</div>
+<div class="var" data-var="tel" hidden>
+<div class="uvaga"><b aria-hidden="true">!</b><p><strong>Увага!</strong> Працюйте з телефоном сидячи, тримайте екран на відстані 30–40 см від очей і кожні 15–20 хвилин робіть перерву: подивіться вдалину.</p></div>
+<main>
+<p>Працюємо в <b>ЄPython</b> у браузері телефона (Chrome або Safari) — нічого встановлювати не треба. Кнопка <b>▶ Відкрити заготовку в ЄPython</b> відкриває код завдання.</p>
+<p>Запуск — зелена кнопка <b>▶</b> унизу праворуч. Результат і вікно програми відкриваються <b>на весь екран</b>: щоб увести число чи слово в поле програми, торкніться поля — з’явиться клавіатура; кнопки торкають пальцем. Чорний хрестик <b>×</b> угорі закриває вікно програми, червоний <b>×</b> — повертає до коду.</p>
+<p>Обов’язкове — завдання <b>⭐</b>. Зробили й перевірили себе — переходьте до <b>⭐⭐</b>, далі <b>⭐⭐⭐</b>.</p>
+<div class="tip"><span class="av" aria-hidden="true"><svg viewBox="14 8 212 212"><use href="#b-hd-hi" width="240" height="280"/><use href="#b-hd-g8" width="240" height="280"/></svg></span><p>Код пишеться англійськими літерами — перемкніть мову клавіатури. Знаки <b>&lt;</b>, <b>&gt;</b>, <b>=</b>, <b>-</b>, дужки й <b>#</b> шукайте на клавіатурі символів (кнопка <b>?123</b> або <b>123</b>). <b>not</b>, <b>and</b>, <b>or</b> — малими літерами, <b>True</b> і <b>False</b> — з великої.</p></div>
+<section class="zav">
+<h2><mark>Завдання 1 · рівень 1 ⭐ «Обчисли й перевір» (обов’язкове)</mark></h2>
+<p class="zt">Python обчислює логічний вираз з трьох порівнянь і двох операцій. Спершу передбачте відповідь самі, потім перевірте. Наприкінці складете таблицю істинності для <b>and</b>, <b>or</b> і <b>not</b>.</p>
+<div class="kod"><a class="kod-b" href="https://yepython.pp.ua/?code=eCA9IDMKeSA9IDUKeiA9IC0yCnQgPSB4ID4gMCBhbmQgeSA%2BIDAgb3IgeiA8IDAKcHJpbnQodCkKI2EgPSBUcnVlCiNiID0gRmFsc2UKI3ByaW50KGEsIGIsIGEgYW5kIGIsIGEgb3IgYiwgbm90IGEpCg%3D%3D" target="_blank" rel="noopener">▶ Відкрити заготовку в ЄPython</a><details><summary>Показати код заготовки</summary><pre>x = 3
+y = 5
+z = -2
+t = x &gt; 0 and y &gt; 0 or z &lt; 0
+print(t)
+#a = True
+#b = False
+#print(a, b, a and b, a or b, not a)</pre></details></div>
+<ol class="kr"><li>Відкрийте заготовку. Не запускаючи, порахуйте: спершу три порівняння, потім <b>and</b>, потім <b>or</b>. Запустіть <b>▶</b> і порівняйте. Червоний <b>×</b> — назад до коду.</li><li>Змініть числа на <b>x = 4</b>, <b>y = -6</b>, <b>z = -5</b>, передбачте й запустіть. Потім так само <b>9</b>, <b>-5</b>, <b>0</b> і <b>-5</b>, <b>-7</b>, <b>2</b>.</li><li>Приберіть <b>#</b> перед трьома останніми рядками й запустіть: останній рядок результату — рядок таблиці істинності.</li><li>Змініть <b>True</b> і <b>False</b> у рядках з <b>a</b> і <b>b</b> ще тричі, щоб отримати всі чотири рядки таблиці: <b>True True</b>, <b>True False</b>, <b>False True</b>, <b>False False</b>.</li></ol>
+<figure class="rez"><figcaption>Як має вийти</figcaption><button type="button" class="rez-b" aria-label="Збільшити зразок"><img src="img/8-22-t1.webp" alt="Зразок: як має виглядати результат" draggable="false" loading="lazy"></button></figure>
+<div class="chk"><p class="chk-h">Перевірте себе</p><p class="chk-t">Чотири набори: <b>True</b>, <b>True</b>, <b>False</b>, <b>False</b>. Таблиця: True True — <b>True True True True False</b>; True False — <b>True False False True False</b>; False True — <b>False True False True True</b>; False False — <b>False False False False True</b>.</p></div>
+</section>
+<section class="zav">
+<h2><mark>Завдання 2 · рівень 2 ⭐⭐ «Вправа 4.5»</mark></h2>
+<p class="zt">Проєкт з е-додатка: у вікні три поля для <b>x</b>, <b>y</b>, <b>z</b>, кнопка <b>Обчислити</b> й поле <b>Результат</b> — значення виразу <b>t = x &gt; 0 and (y &gt; 0 or z &lt; 0)</b>. Програму вже набрано.</p>
+<div class="kod"><a class="kod-b" href="https://yepython.pp.ua/?code=IyDQktC%2F0YDQsNCy0LAgNC41CmZyb20gdGtpbnRlciBpbXBvcnQgKgpkZWYgY2xpY2soKToKICAgIHggPSBmbG9hdChlbnQxLmdldCgpKQogICAgeSA9IGZsb2F0KGVudDIuZ2V0KCkpCiAgICB6ID0gZmxvYXQoZW50My5nZXQoKSkKICAgIHQgPSB4ID4gMCBhbmQgKHkgPiAwIG9yIHogPCAwKQogICAgZW50NC5kZWxldGUoMCwgRU5EKQogICAgZW50NC5pbnNlcnQoMCwgc3RyKHQpKQp3aW4gPSBUaygpCndpbi50aXRsZSgn0JLQv9GA0LDQstCwIDQuNScpCmxiMSA9IExhYmVsKHRleHQ9J9CX0L3QsNGH0LXQvdC90Y8g0LfQvNGW0L3QvdC%2B0ZcgeCcpCmxiMS5wYWNrKHBhZHk9NSkKZW50MSA9IEVudHJ5KCkKZW50MS5wYWNrKHBhZHk9NSkKbGIyID0gTGFiZWwodGV4dD0n0JfQvdCw0YfQtdC90L3RjyDQt9C80ZbQvdC90L7RlyB5JykKbGIyLnBhY2socGFkeT01KQplbnQyID0gRW50cnkoKQplbnQyLnBhY2socGFkeT01KQpsYjMgPSBMYWJlbCh0ZXh0PSfQl9C90LDRh9C10L3QvdGPINC30LzRltC90L3QvtGXIHonKQpsYjMucGFjayhwYWR5PTUpCmVudDMgPSBFbnRyeSgpCmVudDMucGFjayhwYWR5PTUpCmJ0ID0gQnV0dG9uKHRleHQ9J9Ce0LHRh9C40YHQu9C40YLQuCcsIGNvbW1hbmQ9Y2xpY2spCmJ0LnBhY2socGFkeT01KQpsYjQgPSBMYWJlbCh0ZXh0PSfQoNC10LfRg9C70YzRgtCw0YInKQpsYjQucGFjayhwYWR5PTUpCmVudDQgPSBFbnRyeSgpCmVudDQucGFjayhwYWR5PTUpCndpbi5tYWlubG9vcCgpCg%3D%3D" target="_blank" rel="noopener">▶ Відкрити заготовку в ЄPython</a><details><summary>Показати код заготовки</summary><pre># Вправа 4.5
+from tkinter import *
+def click():
+    x = float(ent1.get())
+    y = float(ent2.get())
+    z = float(ent3.get())
+    t = x &gt; 0 and (y &gt; 0 or z &lt; 0)
+    ent4.delete(0, END)
+    ent4.insert(0, str(t))
+win = Tk()
+win.title('Вправа 4.5')
+lb1 = Label(text='Значення змінної x')
+lb1.pack(pady=5)
+ent1 = Entry()
+ent1.pack(pady=5)
+lb2 = Label(text='Значення змінної y')
+lb2.pack(pady=5)
+ent2 = Entry()
+ent2.pack(pady=5)
+lb3 = Label(text='Значення змінної z')
+lb3.pack(pady=5)
+ent3 = Entry()
+ent3.pack(pady=5)
+bt = Button(text='Обчислити', command=click)
+bt.pack(pady=5)
+lb4 = Label(text='Результат')
+lb4.pack(pady=5)
+ent4 = Entry()
+ent4.pack(pady=5)
+win.mainloop()</pre></details></div>
+<ol class="kr"><li>Відкрийте заготовку й запустіть. Уведіть у поля <b>5</b>, <b>8</b>, <b>-2</b> і торкніться <b>Обчислити</b>. Перед дотиком передбачте відповідь.</li><li>Не закриваючи вікна, перевірте ще три набори: <b>5, -8, 3</b>; <b>-5, 8, -4</b>; <b>-5, -8, 5</b>.</li><li>Поверніться до коду (червоний <b>×</b>). У рядку з <b>t</b> приберіть дужки: <b>t = x &gt; 0 and y &gt; 0 or z &lt; 0</b>. Запустіть і перевірте <b>-5, 8, -4</b> — чому відповідь змінилася?</li></ol>
+<figure class="rez"><figcaption>Як має вийти</figcaption><button type="button" class="rez-b" aria-label="Збільшити зразок"><img src="img/8-22-t2.webp" alt="Зразок: як має виглядати результат" draggable="false" loading="lazy"></button></figure>
+<div class="chk"><p class="chk-h">Перевірте себе</p><p class="chk-t">Набори: <b>True</b>, <b>False</b> (обидві умови в дужках хибні), <b>False</b>, <b>False</b> (x від’ємне — and дає False). Без дужок −5, 8, −4 дає <b>True</b>: спершу and (False), потім or з z &lt; 0 (True).</p></div>
+</section>
+<section class="zav">
+<h2><mark>Завдання 3 · рівень 3 ⭐⭐⭐ «Чи можна Михайлові грати?»</mark></h2>
+<p class="zt">Михайлові дозволяють грати, якщо він виконав домашнє <b>або</b> навів лад у кімнаті <b>і</b> сестра завершила роботу за комп’ютером. У поля вводять <b>так</b> або <b>ні</b>. Програму набрано, але в умові є помилка — знайдіть її.</p>
+<div class="kod"><a class="kod-b" href="https://yepython.pp.ua/?code=IyDQp9C4INC80L7QttC90LAg0JzQuNGF0LDQudC70L7QstGWINCz0YDQsNGC0Lg%2FCmZyb20gdGtpbnRlciBpbXBvcnQgKgpkZWYgY2xpY2soKToKICAgIGQgPSBlbnQxLmdldCgpID09ICfRgtCw0LonCiAgICBsID0gZW50Mi5nZXQoKSA9PSAn0YLQsNC6JwogICAgcyA9IGVudDMuZ2V0KCkgPT0gJ9GC0LDQuicKICAgIGlmIGQgb3IgbCBhbmQgczoKICAgICAgICBsYlsndGV4dCddID0gJ9Cc0L7QttC90LAg0LPRgNCw0YLQuCEnCiAgICAjZWxpZiBzOgogICAgIyAgICBsYlsndGV4dCddID0gJ9Ch0L%2FQtdGA0YjRgyDQtNC%2B0LzQsNGI0L3RlCDQsNCx0L4g0LvQsNC0IScKICAgIGVsc2U6CiAgICAgICAgbGJbJ3RleHQnXSA9ICfQqdC1INC90LUg0LzQvtC20L3QsCcKcm9vdCA9IFRrKCkKcm9vdC50aXRsZSgn0KDQvtC30YPQvNC90LjQuSDQsdGD0LTQuNC90L7QuicpCmxiMSA9IExhYmVsKHRleHQ9J9CU0L7QvNCw0YjQvdGUINCy0LjQutC%2B0L3QsNC90L4%2FICjRgtCw0Lov0L3RliknKQpsYjEucGFjayhwYWR5PTUpCmVudDEgPSBFbnRyeSgpCmVudDEucGFjaygpCmxiMiA9IExhYmVsKHRleHQ9J9Cb0LDQtCDRgyDQutGW0LzQvdCw0YLRlj8gKNGC0LDQui%2FQvdGWKScpCmxiMi5wYWNrKHBhZHk9NSkKZW50MiA9IEVudHJ5KCkKZW50Mi5wYWNrKCkKbGIzID0gTGFiZWwodGV4dD0n0KHQtdGB0YLRgNCwINC30LDQstC10YDRiNC40LvQsD8gKNGC0LDQui%2FQvdGWKScpCmxiMy5wYWNrKHBhZHk9NSkKZW50MyA9IEVudHJ5KCkKZW50My5wYWNrKCkKYnQgPSBCdXR0b24odGV4dD0n0J%2FQtdGA0LXQstGW0YDQuNGC0LgnLCBjb21tYW5kPWNsaWNrKQpidC5wYWNrKHBhZHk9MTApCmxiID0gTGFiZWwoZm9udD0nQXJpYWwgMTQnLCBmZz0nYmx1ZScpCmxiLnBhY2soKQpyb290Lm1haW5sb29wKCkK" target="_blank" rel="noopener">▶ Відкрити заготовку в ЄPython</a><details><summary>Показати код заготовки</summary><pre># Чи можна Михайлові грати?
+from tkinter import *
+def click():
+    d = ent1.get() == 'так'
+    l = ent2.get() == 'так'
+    s = ent3.get() == 'так'
+    if d or l and s:
+        lb['text'] = 'Можна грати!'
+    #elif s:
+    #    lb['text'] = 'Спершу домашнє або лад!'
+    else:
+        lb['text'] = 'Ще не можна'
+root = Tk()
+root.title('Розумний будинок')
+lb1 = Label(text='Домашнє виконано? (так/ні)')
+lb1.pack(pady=5)
+ent1 = Entry()
+ent1.pack()
+lb2 = Label(text='Лад у кімнаті? (так/ні)')
+lb2.pack(pady=5)
+ent2 = Entry()
+ent2.pack()
+lb3 = Label(text='Сестра завершила? (так/ні)')
+lb3.pack(pady=5)
+ent3 = Entry()
+ent3.pack()
+bt = Button(text='Перевірити', command=click)
+bt.pack(pady=10)
+lb = Label(font='Arial 14', fg='blue')
+lb.pack()
+root.mainloop()</pre></details></div>
+<ol class="kr"><li>Відкрийте заготовку й запустіть. Уведіть <b>так</b>, <b>ні</b>, <b>ні</b> (малими літерами) і торкніться <b>Перевірити</b>. Сестра ще працює — чому програма дозволяє грати?</li><li>Поверніться до коду. Додайте дужки в умову: <b>if (d or l) and s:</b>. Запустіть і знову перевірте <b>так, ні, ні</b>, потім <b>так, ні, так</b>.</li><li>Приберіть <b>#</b> перед двома рядками з <b>elif</b>. Запустіть і перевірте <b>ні, ні, так</b>.</li></ol>
+<figure class="rez"><figcaption>Як має вийти</figcaption><button type="button" class="rez-b" aria-label="Збільшити зразок"><img src="img/8-22-t3.webp" alt="Зразок: як має виглядати результат" draggable="false" loading="lazy"></button></figure>
+<div class="chk"><p class="chk-h">Перевірте себе</p><p class="chk-t">Без дужок «так, ні, ні» дає <b>Можна грати!</b>: and виконується раніше за or, і вийшло d or (l and s). З дужками — <b>Ще не можна</b>, а «так, ні, так» — <b>Можна грати!</b>. Гілка elif: «ні, ні, так» — <b>Спершу домашнє або лад!</b>.</p></div>
+</section>
+<p class="end">Для кожного зробленого завдання зробіть два знімки екрана — код і результат (на більшості телефонів — одночасно кнопка живлення й гучність униз). У Google Classroom відкрийте це завдання, у блоці <b>Ваша робота</b> натисніть <b>Додати</b> → <b>Файл</b>, виберіть знімки й натисніть <b>Здати</b>.</p>
+</main>
+</div>
+</div>
+<script>document.addEventListener("click",function(e){var f=e.target.closest(".rez.big");if(f){f.classList.remove("big");return;}var b=e.target.closest(".rez-b");if(b){b.parentNode.classList.add("big");}});document.addEventListener("keydown",function(e){if(e.key==="Escape"){document.querySelectorAll(".rez.big").forEach(function(f){f.classList.remove("big");});}});document.addEventListener("contextmenu",function(e){if(e.target.closest(".rez"))e.preventDefault();});</script>
+<script>(function(){var bs=document.querySelectorAll(".var-sw button"),vs=document.querySelectorAll(".var");function show(k,save){var i;for(i=0;i<vs.length;i++)vs[i].hidden=vs[i].getAttribute("data-var")!==k;for(i=0;i<bs.length;i++)bs[i].setAttribute("aria-pressed",bs[i].getAttribute("data-var")===k?"true":"false");if(save){try{localStorage.setItem("praktychna-var",k);}catch(e){}try{history.replaceState(null,"",k==="tel"?"#telefon":"#komp");}catch(e){}}}function fromHash(){return location.hash==="#telefon"?"tel":location.hash==="#komp"?"pc":null;}var k=fromHash();if(!k){try{k=localStorage.getItem("praktychna-var");}catch(e){}}show(k==="tel"?"tel":"pc",false);for(var i=0;i<bs.length;i++)bs[i].addEventListener("click",function(){show(this.getAttribute("data-var"),true);});window.addEventListener("hashchange",function(){var h=fromHash();if(h)show(h,false);});})();</script>
+</body>
+</html>
