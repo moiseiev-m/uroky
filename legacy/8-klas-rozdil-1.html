@@ -996,6 +996,111 @@ W.symcodes={html:()=>'<input class="field sc-i" style="width:100%;font-size:30px
   const upd=()=>{O.innerHTML=[...I.value].slice(0,10).map(ch=>{const u=ch.codePointAt(0),w=w1251(ch);return '<div style="border:2px solid var(--line);border-radius:14px;padding:8px 12px;min-width:190px;background:var(--paper)"><div style="font-size:40px;text-align:center;line-height:1.3">'+(ch===' '?'␣':ch.replace(/[<&]/g,''))+'</div>'+row('ASCII',u<128?u:null,'var(--vio)')+row('Win-1251',w,'var(--pink)')+row('Юнікод',u,'var(--mint)')+'</div>'}).join('')};
   I.oninput=upd;return{count:ex.length-1,step(i){I.value=ex[i];upd()}}}};
 
+/* ===== Кодування та декодування повідомлень (8 клас, урок 1) =====
+   W.polib81 — квадрат Полібія: пробіл/клік декодує наступну пару цифр (перша — стовпець, друга — рядок).
+   YAML: w: polib81, code: "24 14 43 13 21 13 62", done: "текст після останньої літери" (необов'язково).
+   Таблиця — як у підручнику (мал. 1.5): Й у 2-му рядку, І та Ї — на початку 3-го. Класи з префіксом pb81-.
+   W.cezar81 — шифр Цезаря: пробіл/клік — наступна літера; повзунок змінює зсув. YAML: word, shift (типово 4), dir (1 — кодування,
+   -1 — декодування). Пари «літера над її заміною» переносяться, тож вміщається і в стрічці на телефоні. Класи cz81-. */
+(function(){
+document.head.insertAdjacentHTML('beforeend','<style>'+
+'.cz81{display:flex;flex-direction:column;gap:22px;flex:1;min-height:0}'+
+'.cz81-top{display:flex;flex-wrap:wrap;align-items:center;gap:12px 18px;font:600 25px var(--body)}'+
+'.cz81-top input{width:220px;accent-color:var(--accent);height:30px}.cz81-top b{font:800 32px var(--mono);color:var(--accent)}'+
+'.cz81-top span.cz81-d{border:2px solid var(--line);border-radius:999px;padding:4px 14px;background:var(--paper)}'+
+'.cz81-ab{display:flex;flex-wrap:wrap;gap:4px;justify-content:center}'+
+'.cz81-ab i{font-style:normal;width:31px;display:flex;flex-direction:column;border-radius:8px;overflow:hidden;box-shadow:inset 0 0 0 2px var(--line);background:var(--paper)}'+
+'.cz81-ab i b{font:700 22px/1.45 var(--mono);text-align:center;color:var(--ink)}'+
+'.cz81-ab i b+b{background:var(--sun-soft)}'+
+'.cz81-ab i.cz81-on{box-shadow:inset 0 0 0 3px var(--coral)}.cz81-ab i.cz81-on b{background:var(--coral);color:var(--paper)}'+
+'.cz81-w{display:flex;flex-wrap:wrap;gap:14px 26px;align-items:center;justify-content:center}'+
+'.cz81-row{display:flex;gap:8px}.cz81-arr{font:800 42px var(--body);color:var(--muted)}'+
+'.cz81-row span{width:56px;height:66px;display:flex;align-items:center;justify-content:center;border-radius:12px;border:3px solid var(--line);'+
+ 'background:var(--paper);font:800 36px var(--mono);color:var(--ink);transition:background .3s}'+
+'.cz81-row span.cz81-ok{background:var(--mint-soft)}.cz81-row span.cz81-cur{border-color:var(--coral)}'+
+'</style>');
+const ABC='абвгґдеєжзиіїйклмнопрстуфхцчшщьюя'.split('');
+W.cezar81={
+ html:d=>{const w=String(d.word||'').split(''),k=d.shift||4,dir=d.dir===-1?-1:1;
+  return '<div class="cz81"><div class="cz81-top"><span>Зсув:</span><input type="range" min="1" max="10" value="'+k+'" aria-label="Зсув">'+
+   '<b class="cz81-k">'+k+'</b><span class="cz81-d">'+(dir>0?'кодування: праворуч':'декодування: ліворуч')+'</span></div>'+
+   '<div class="cz81-ab">'+ABC.map(()=>'<i><b></b><b></b></i>').join('')+'</div>'+
+   '<div class="cz81-w"><div class="cz81-row cz81-in">'+w.map(x=>'<span>'+x+'</span>').join('')+'</div><span class="cz81-arr">→</span>'+
+   '<div class="cz81-row cz81-out">'+w.map(()=>'<span></span>').join('')+'</div></div></div>'},
+ mount(root,d){const w=String(d.word||'').split(''),dir=d.dir===-1?-1:1;let k=d.shift||4,cur=0;
+  const R=root.querySelector('.cz81-top input'),K=root.querySelector('.cz81-k'),cells=[...root.querySelectorAll('.cz81-ab i')],
+   inp=[...root.querySelectorAll('.cz81-in span')],out=[...root.querySelectorAll('.cz81-out span')];
+  const enc=c=>{const i=ABC.indexOf(c);return i<0?c:ABC[(i+dir*k+33*10)%33]};
+  function draw(){K.textContent=k;const c=cur>0?w[cur-1]:null;
+   cells.forEach((x,i)=>{x.children[0].textContent=ABC[i];x.children[1].textContent=enc(ABC[i]);x.classList.toggle('cz81-on',ABC[i]===c)});
+   inp.forEach((x,i)=>x.classList.toggle('cz81-cur',i===cur-1));
+   out.forEach((x,i)=>{x.textContent=i<cur?enc(w[i]):'';x.classList.toggle('cz81-ok',i<cur);x.classList.toggle('cz81-cur',i===cur-1)})}
+  R.oninput=()=>{k=+R.value;draw()};
+  draw();
+  return{count:w.length,step(i){cur=i;draw()}}}
+};
+document.head.insertAdjacentHTML('beforeend','<style>'+
+'.pb81{display:flex;flex-wrap:wrap;gap:22px 34px;align-items:flex-start;justify-content:center;flex:1;min-height:0}'+
+'.pb81-tb{display:grid;grid-template-columns:repeat(7,56px);grid-auto-rows:56px;gap:4px;flex:none}'+
+'.pb81-tb i{font-style:normal;display:flex;align-items:center;justify-content:center;border-radius:10px;font:800 28px var(--mono);'+
+ 'background:var(--paper);box-shadow:inset 0 0 0 2px var(--line);color:var(--ink);transition:background .3s,color .3s,box-shadow .3s}'+
+'.pb81-tb i.pb81-h{background:var(--accent-soft);box-shadow:none;color:var(--accent-ink,var(--ink))}'+
+'.pb81-tb i.pb81-0{background:none;box-shadow:none}'+
+'.pb81-tb i.pb81-line{background:var(--sun-soft)}'+
+'.pb81-tb i.pb81-hh{background:var(--accent);color:var(--on-accent,var(--paper))}'+
+'.pb81-tb i.pb81-x{background:var(--coral);color:var(--paper);box-shadow:none;transform:scale(1.08)}'+
+'.pb81-side{flex:1 1 380px;max-width:600px;display:flex;flex-direction:column;gap:18px;min-width:0}'+
+'.pb81-cap{border:3px solid var(--line);border-radius:14px;background:var(--paper);padding:12px 18px;font:500 26px/1.35 var(--body);min-height:112px}'+
+'.pb81-cap p{margin:0}.pb81-cap b{color:var(--accent)}'+
+'.pb81-code,.pb81-out{display:flex;flex-wrap:wrap;gap:10px}'+
+'.pb81-code span{font:800 30px var(--mono);padding:6px 12px;border-radius:12px;border:3px solid var(--line);background:var(--paper);color:var(--muted);transition:all .3s}'+
+'.pb81-code span.pb81-on{border-color:var(--coral);color:var(--ink)}.pb81-code span.pb81-ok{color:var(--ink);background:var(--mint-soft)}'+
+'.pb81-out span{width:56px;height:66px;display:flex;align-items:center;justify-content:center;border-radius:12px;border:3px solid var(--line);'+
+ 'background:var(--paper);font:800 36px var(--mono);color:var(--ink);transition:background .3s}'+
+'.pb81-out span.pb81-ok{background:var(--mint-soft)}.pb81-out span.pb81-on{border-color:var(--coral)}'+
+'</style>');
+
+const ROWS=['АБВГҐД','ЕЄЖЗИЙ','ІЇКЛМН','ОПРСТУ','ФХЦЧШЩ','ЬЮЯ'];
+
+W.polib81={
+ html:d=>{
+  let t='<i class="pb81-0"></i>';
+  for(let c=1;c<=6;c++)t+='<i class="pb81-h" data-c="'+c+'">'+c+'</i>';
+  for(let r=1;r<=6;r++){
+   t+='<i class="pb81-h" data-r="'+r+'">'+r+'</i>';
+   for(let c=1;c<=6;c++){const L=ROWS[r-1][c-1];t+=L?'<i data-cr="'+c+r+'">'+L+'</i>':'<i class="pb81-0"></i>'}
+  }
+  const pairs=String(d.code||'').trim().split(/\s+/);
+  return '<div class="pb81"><div class="pb81-tb">'+t+'</div><div class="pb81-side">'+
+   '<div class="pb81-cap"></div>'+
+   '<div class="pb81-code">'+pairs.map(p=>'<span>'+p+'</span>').join('')+'</div>'+
+   '<div class="pb81-out">'+pairs.map(()=>'<span></span>').join('')+'</div></div></div>';
+ },
+ mount(root,d){
+  const pairs=String(d.code||'').trim().split(/\s+/);
+  const cells=[...root.querySelectorAll('.pb81-tb i')],code=[...root.querySelectorAll('.pb81-code span')],
+   out=[...root.querySelectorAll('.pb81-out span')],cap=root.querySelector('.pb81-cap');
+  const letter=p=>{const c=+p[0],r=+p[1];return (ROWS[r-1]||'')[c-1]||'?'};
+  function draw(n){
+   cells.forEach(x=>x.classList.remove('pb81-line','pb81-hh','pb81-x'));
+   code.forEach((x,i)=>{x.classList.toggle('pb81-ok',i<n-1||(n===pairs.length&&i<n));x.classList.toggle('pb81-on',i===n-1&&n<pairs.length)});
+   out.forEach((x,i)=>{x.textContent=i<n?letter(pairs[i]):'';x.classList.toggle('pb81-ok',i<n);x.classList.toggle('pb81-on',i===n-1&&n<pairs.length)});
+   if(n===0){cap.innerHTML='<p>Кожна літера — <b>дві цифри</b>: перша — номер <b>стовпця</b>, друга — номер <b>рядка</b>.</p>';return}
+   const p=pairs[n-1],c=p[0],r=p[1];
+   cells.forEach(x=>{
+    if(x.dataset.c===c||x.dataset.r===r)x.classList.add('pb81-hh');
+    const cr=x.dataset.cr;if(!cr)return;
+    if(cr===c+r)x.classList.add('pb81-x');else if(cr[0]===c||cr[1]===r)x.classList.add('pb81-line');
+   });
+   cap.innerHTML=n===pairs.length&&d.done?'<p>'+d.done+'</p>':
+    '<p><b>'+p+'</b>: стовпець '+c+', рядок '+r+' → <b>'+letter(p)+'</b></p>';
+  }
+  draw(0);
+  return{count:pairs.length,step(i){draw(i)}};
+ }
+};
+})();
+
 /* ===== Кодування графічних і мультимедійних даних (8 клас, урок 3) =====
    W.pix83  — растровий малюнок → числа: пікселі, домовленість про коди кольорів, малюнок як 80 чисел і назад.
    W.rgb83  — змішування світла RGB: три кола на чорному (екран), повзунки 0–255; «Передбачте!» перед змішаними кольорами.
@@ -1208,6 +1313,114 @@ W.zvuk83={html:()=>'<div class="k83z"><svg viewBox="0 0 '+ZW+' '+ZH+'" aria-hidd
    V.textContent=i===4?samples(14,2,80).map(s=>String(Math.round(s[1])).replace('-','−')).join('  '):i===6?'42 числа замість 14':'';
    cap.innerHTML=b(ZS[i])}
   return{count:7,step}}};
+})();
+
+/* ===== Кодування текстових даних. Таблиці кодів символів (8 клас, урок 2) =====
+   W.kody82  — одне слово в трьох таблицях: під кожним символом його коди в ASCII, Windows-1251 і Юнікоді («—» — символу в таблиці немає).
+               YAML: w: kody82, items: [{w: "Cat", t: "підпис"}, …]. Пробіл/клік — наступне слово. Класи k82-.
+   W.krak82  — звідки беруться «кракозябри»: слово зберегли за однією таблицею (числа), відкрили за іншою.
+               YAML: w: krak82, word: "Привіт", cases: [[зберегли, відкрили], …]; таблиці: "1251", "koi8", "utf8", "ascii".
+               Крок 0 — лише числа першого випадку, далі — по випадку на крок. Класи kr82-.
+   W.alt82   — символи Юнікоду за кодом: «Alt + цифри» → який символ з'явиться. YAML: w: alt82, rows: [[символ, назва, код], …].
+               Крок — наступний символ. Класи al82-.
+   Таблиці Windows-1251 і КОІ8-U (коди 128–255) вшито рядками нижче — однакові в усіх браузерах. */
+(function(){
+document.head.insertAdjacentHTML('beforeend','<style>'+
+'.k82{display:flex;flex-direction:column;gap:22px;flex:1;min-height:0;justify-content:center}'+
+'.k82-w{display:flex;flex-wrap:wrap;gap:16px;justify-content:center}'+
+'.k82-c{width:196px;box-sizing:border-box;border:3px solid var(--line);border-radius:18px;background:var(--paper);padding:8px 14px 12px;display:flex;flex-direction:column;gap:4px}'+
+'.k82-g{font:800 62px/1.2 var(--body);text-align:center;color:var(--ink);min-height:74px}'+
+'.k82-c span{display:flex;justify-content:space-between;align-items:baseline;gap:6px;font:600 21px var(--body);color:var(--muted)}'+
+'.k82-c em{font:800 27px var(--mono);font-style:normal;color:var(--accent)}.k82-c em.k82-no{color:var(--coral)}'+
+'.k82-t{font:600 26px/1.35 var(--body);text-align:center;margin:0;min-height:1.4em;color:var(--ink)}'+
+'.kr82{display:flex;flex-direction:column;gap:16px;flex:1;min-height:0;justify-content:center}'+
+'.kr82-r{display:flex;align-items:center;gap:10px 18px;flex-wrap:wrap}'+
+'.kr82-l{width:250px;flex:none;font:600 22px/1.25 var(--body);color:var(--muted)}.kr82-l b{display:block;font:800 25px var(--body);color:var(--ink)}'+
+'.kr82-q{display:flex;flex-wrap:wrap;gap:8px;flex:1;min-width:0}'+
+'.kr82-q span{min-width:54px;height:62px;padding:0 6px;box-sizing:border-box;display:flex;align-items:center;justify-content:center;border-radius:12px;'+
+ 'border:3px solid var(--line);background:var(--paper);font:800 34px var(--mono);color:var(--ink)}'+
+'.kr82-q.kr82-n span{font-size:24px;min-width:64px;height:48px}.kr82-q.kr82-n span.kr82-a{background:var(--sky-soft)}.kr82-q.kr82-n span.kr82-b{background:var(--sun-soft)}'+
+'.kr82-q.kr82-ok span{background:var(--mint-soft);border-color:var(--mint)}.kr82-q.kr82-bad span{background:var(--pink-soft);border-color:var(--coral)}'+
+'.kr82-v{margin:0;font:700 26px/1.35 var(--body);color:var(--ink);min-height:1.4em}.kr82-v.kr82-bad{color:var(--coral)}'+
+'.al82{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;flex:1;min-height:0;align-content:center}'+
+'.al82-c{border:3px solid var(--line);border-radius:18px;background:var(--paper);padding:12px 14px;display:flex;flex-direction:column;align-items:center;gap:6px;min-width:0}'+
+'.al82-k{display:flex;flex-wrap:wrap;gap:5px;justify-content:center;align-items:center}'+
+'.al82-k kbd{min-width:30px;height:38px;padding:0 6px;box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;border-radius:8px;'+
+ 'border:2px solid var(--line);border-bottom-width:4px;background:var(--paper);font:700 22px var(--mono);color:var(--ink)}'+
+'.al82-k kbd.al82-alt{background:var(--sun-soft)}.al82-k i{font:700 22px var(--body);font-style:normal;color:var(--muted)}'+
+'.al82-s{font:400 64px/1.15 "Segoe UI Symbol","Segoe UI Historic","Noto Sans Symbols","Noto Sans Symbols 2","Noto Sans Linear B",var(--body);color:var(--ink);min-height:76px}'+
+'.al82-c.al82-q .al82-s{color:var(--muted)}.al82-c.al82-on{border-color:var(--accent)}'+
+'.al82-n{font:600 21px/1.25 var(--body);color:var(--muted);text-align:center;min-height:1.3em}'+
+'</style>');
+const T1251="ЂЃ‚ѓ„…†‡€‰Љ‹ЊЌЋЏђ‘’“”•–—�™љ›њќћџ ЎўЈ¤Ґ¦§Ё©Є«¬­®Ї°±Ііґµ¶·ё№є»јЅѕїАБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдежзийклмнопрстуфхцчшщъыьэюя";
+const TKOI="─│┌┐└┘├┤┬┴┼▀▄█▌▐░▒▓⌠■∙√≈≤≥ ⌡°²·÷═║╒ёє╔ії╗╘╙╚╛ґ╝╞╟╠╡ЁЄ╣ІЇ╦╧╨╩╪Ґ╬©юабцдефгхийклмнопярстужвьызшэщчъЮАБЦДЕФГХИЙКЛМНОПЯРСТУЖВЬЫЗШЭЩЧЪ";
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const shown=ch=>ch===' '?'␣':ch===' '?'␣':esc(ch);
+/* код символу в 8-бітній таблиці (null — символу там немає) */
+const code8=(T,ch)=>{const u=ch.codePointAt(0);if(u<128)return u;const k=T.indexOf(ch);return k<0||ch==='�'?null:128+k};
+const utf8=ch=>{const u=ch.codePointAt(0);
+  if(u<0x80)return[u];if(u<0x800)return[0xC0|u>>6,0x80|u&63];
+  if(u<0x10000)return[0xE0|u>>12,0x80|u>>6&63,0x80|u&63];return[0xF0|u>>18,0x80|u>>12&63,0x80|u>>6&63,0x80|u&63]};
+const ENC={'1251':ch=>{const c=code8(T1251,ch);return[c===null?63:c]},'koi8':ch=>{const c=code8(TKOI,ch);return[c===null?63:c]},
+  'utf8':utf8,'ascii':ch=>{const u=ch.codePointAt(0);return[u<128?u:63]}};
+function dec(t,b){
+  if(t==='1251')return b.map(x=>x<128?String.fromCharCode(x):T1251[x-128]);
+  if(t==='koi8')return b.map(x=>x<128?String.fromCharCode(x):TKOI[x-128]);
+  if(t==='ascii')return b.map(x=>x<128?String.fromCharCode(x):'�');
+  const out=[];let i=0;                       /* UTF-8: неправильна послідовність — «�» на кожен байт */
+  while(i<b.length){const x=b[i];const n=x<0x80?1:x>=0xF0&&x<0xF8?4:x>=0xE0?3:x>=0xC2&&x<0xE0?2:0;
+    let ok=n>0&&i+n<=b.length;for(let k=1;ok&&k<n;k++)ok=(b[i+k]&0xC0)===0x80;
+    if(!ok){out.push('�');i++;continue}
+    let u=n===1?x:n===2?x&31:n===3?x&15:x&7;for(let k=1;k<n;k++)u=u<<6|b[i+k]&63;out.push(String.fromCodePoint(u));i+=n}
+  return out}
+const NAME={'1251':'Windows-1251','koi8':'КОІ8-U','utf8':'Юнікод (UTF-8)','ascii':'ASCII'};
+
+W.kody82={
+ html:()=>'<div class="k82"><div class="k82-w"></div><p class="k82-t"></p></div>',
+ mount(root,d){const it=(d.items||[]).map(x=>typeof x==='string'?{w:x}:x);if(!it.length)it.push({w:'Cat'});
+  const box=root.querySelector('.k82-w'),T=root.querySelector('.k82-t');
+  const row=(l,v)=>'<span>'+l+(v===null?'<em class="k82-no">—</em>':'<em>'+v+'</em>')+'</span>';
+  function draw(i){const x=it[Math.max(0,Math.min(it.length-1,i))];
+   box.innerHTML=[...String(x.w)].map(ch=>{const u=ch.codePointAt(0);
+    return '<div class="k82-c"><b class="k82-g">'+shown(ch)+'</b>'+row('ASCII',u<128?u:null)+row('Win-1251',code8(T1251,ch))+row('Юнікод',u)+'</div>'}).join('');
+   T.textContent=x.t||''}
+  draw(0);
+  return{count:it.length-1,step(i){draw(i)}}}
+};
+
+W.krak82={
+ html:()=>'<div class="kr82">'+
+  '<div class="kr82-r"><span class="kr82-l">Текст<b>набрали</b></span><div class="kr82-q kr82-w"></div></div>'+
+  '<div class="kr82-r"><span class="kr82-l">Зберегли за таблицею<b class="kr82-s"></b></span><div class="kr82-q kr82-n"></div></div>'+
+  '<div class="kr82-r"><span class="kr82-l">Відкрили за таблицею<b class="kr82-o"></b></span><div class="kr82-q kr82-res"></div></div>'+
+  '<p class="kr82-v"></p></div>',
+ mount(root,d){const word=[...String(d.word||'Привіт')],cases=(d.cases&&d.cases.length?d.cases:[['1251','1251'],['1251','koi8'],['utf8','1251'],['utf8','utf8']]);
+  const $=s=>root.querySelector(s),Wd=$('.kr82-w'),N=$('.kr82-n'),R=$('.kr82-res'),S=$('.kr82-s'),O=$('.kr82-o'),V=$('.kr82-v');
+  Wd.innerHTML=word.map(ch=>'<span>'+shown(ch)+'</span>').join('');
+  function draw(i){const c=cases[Math.max(0,Math.min(cases.length-1,i===0?0:i-1))],sv=String(c[0]),op=String(c[1]);
+   const per=word.map(ch=>ENC[sv]?ENC[sv](ch):[ch.codePointAt(0)]),bytes=[].concat(...per);
+   S.textContent=NAME[sv]||sv;
+   N.innerHTML=per.map((g,k)=>g.map(b=>'<span class="'+(sv==='utf8'?(k%2?'kr82-b':'kr82-a'):'')+'">'+b+'</span>').join('')).join('');
+   if(i===0){O.textContent='?';R.innerHTML='';R.className='kr82-q kr82-res';V.className='kr82-v';V.textContent='Пробіл або клік — відкриємо файл';return}
+   const out=dec(op,bytes),ok=out.join('')===word.join('');
+   O.textContent=NAME[op]||op;
+   R.innerHTML=out.map(ch=>'<span>'+shown(ch)+'</span>').join('');
+   R.className='kr82-q kr82-res '+(ok?'kr82-ok':'kr82-bad');
+   V.className='kr82-v'+(ok?'':' kr82-bad');
+   V.textContent=ok?'✓ Та сама таблиця — текст правильний':(op==='ascii'||out.indexOf('�')>=0?'✗ У цій таблиці немає таких кодів — замість літер «�»':'✗ Не та таблиця — «кракозябри». А числа ті самі!')}
+  draw(0);
+  return{count:cases.length,step(i){draw(i)}}}
+};
+
+W.alt82={
+ html:d=>'<div class="al82">'+(d.rows||[]).map(r=>'<div class="al82-c al82-q"><div class="al82-k"><kbd class="al82-alt">Alt</kbd><i>+</i>'+
+   String(r[2]).split('').map(x=>'<kbd>'+esc(x)+'</kbd>').join('')+'</div><div class="al82-s">?</div><div class="al82-n"></div></div>').join('')+'</div>',
+ mount(root,d){const rows=d.rows||[],cards=[...root.querySelectorAll('.al82-c')];
+  function draw(n){cards.forEach((c,k)=>{const on=k<n;c.classList.toggle('al82-q',!on);c.classList.toggle('al82-on',k===n-1);
+   c.querySelector('.al82-s').textContent=on?String(rows[k][0]):'?';c.querySelector('.al82-n').textContent=on?String(rows[k][1]):''})}
+  draw(0);
+  return{count:rows.length,step(i){draw(i)}}}
+};
 })();
 
 /* ===== Тема «Уроки Swiss» (дизайн-система вчителя) поверх рушія: класи 7, 8 і 9. =====

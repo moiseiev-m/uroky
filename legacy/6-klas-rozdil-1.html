@@ -1382,7 +1382,17 @@ W.klas6={html:()=>'<div class="cy6k"><div class="cy6kq"><span class="cy6tag" id=
       $(r,'#kl6C').innerHTML=b2h(i?KD[i-1][2]:'Куди віднести пристрій? Що він робить **найбільше**: передає, опрацьовує чи зберігає?')}}}};
 
 /* ---------- W.dim6: «розумний» будинок ---------- */
-const DN={hub:[300,200],smoke:[95,80],lamp:[505,80],robot:[95,320],phone:[505,320]};
+const DN={hub:[300,200],smoke:[102,80],lamp:[505,80],robot:[102,320],phone:[505,320]};
+/* плашка-повідомлення: ліворуч від смартфона, між роботом і смартфоном (там немає ні вузлів, ні ліній);
+   ширина — за самим написом, бо шрифт у кожної теми свій (у «Абстракті» найширший) */
+const DMR=432,DMPAD=12,DMMAX=260;   // правий край плашки (смартфон — від 443), відступ тексту, найбільша ширина (робот — до 164)
+function dmFit(r){const t=$(r,'#dm6Mt'),b=$(r,'#dm6Mb');if(!t||!t.textContent)return;
+  t.removeAttribute('textLength');t.removeAttribute('lengthAdjust');
+  const m=t.getComputedTextLength();   // 0 — слайд ще схований: ширину оцінюємо, точно переміряємо при показі
+  let w=m||t.textContent.length*12.5;
+  if(m&&w>DMMAX-2*DMPAD){w=DMMAX-2*DMPAD;t.setAttribute('textLength',w);t.setAttribute('lengthAdjust','spacingAndGlyphs')}
+  const bw=Math.ceil(Math.min(w,DMMAX-2*DMPAD))+2*DMPAD;
+  b.setAttribute('x',DMR-bw);b.setAttribute('width',bw);t.setAttribute('x',DMR-bw/2)}
 const DS=[
  {t:'Хаб — центр будинку',c:'Усі «розумні» пристрої з’єднано з **хабом** дротами або через Wi‑Fi.',ln:[],on:['hub']},
  {t:'Датчик помітив дим',c:'**Датчик диму** надсилає сигнал хабу.',ln:['smoke'],on:['smoke'],smoke:1},
@@ -1391,27 +1401,29 @@ const DS=[
  {t:'За розкладом',c:'О 10:00 **робот-пилосос** почав прибирання сам — розклад у його пам’яті.',ln:['robot','phone'],on:['robot'],lamp:1,msg:'Прибирання почалося'},
  {t:'А якщо мережі немає?',c:'Немає **Wi‑Fi** чи **живлення** — пристрої не можуть обмінюватися даними.',ln:[],off:1,on:[]}];
 function dnode(id,x,y,label,inner){return '<g id="dm6'+id+'"><rect class="cy6box" x="'+(x-62)+'" y="'+(y-48)+'" width="124" height="96" rx="16"/>'+inner+
-  '<text class="cy6t" x="'+x+'" y="'+(y+(id==='hub'?6:76))+'">'+label+'</text></g>'}
-W.dim6={html:()=>'<div class="cy6"><svg class="cy6svg" viewBox="0 0 600 400">'+
+  '<text class="cy6t" x="'+x+'" y="'+(y+(id==='hub'?6:74))+'">'+label+'</text></g>'}
+W.dim6={html:()=>{const sx=DN.smoke[0],rx=DN.robot[0];return '<div class="cy6"><svg class="cy6svg" viewBox="0 0 600 400">'+
   ['smoke','lamp','robot','phone'].map(k=>'<line id="dm6L'+k+'" class="cy6ln" x1="'+DN.hub[0]+'" y1="'+DN.hub[1]+'" x2="'+DN[k][0]+'" y2="'+DN[k][1]+'"/>').join('')+
   dnode('hub',300,200,'Хаб','')+
-  dnode('smoke',95,80,'Датчик диму','<circle cx="95" cy="80" r="26" style="fill:var(--paper);stroke:var(--ink);stroke-width:3"/><circle cx="95" cy="80" r="6" style="fill:var(--ink)"/>'+
-    '<g id="dm6Sm" class="cy6f cy6hide" style="fill:var(--muted)"><circle cx="70" cy="38" r="10"/><circle cx="88" cy="32" r="13"/><circle cx="110" cy="38" r="10"/></g>')+
+  dnode('smoke',sx,80,'Датчик диму','<circle cx="'+sx+'" cy="80" r="26" style="fill:var(--paper);stroke:var(--ink);stroke-width:3"/><circle cx="'+sx+'" cy="80" r="6" style="fill:var(--ink)"/>'+
+    '<g id="dm6Sm" class="cy6f cy6hide" style="fill:var(--muted)"><circle cx="'+(sx-25)+'" cy="38" r="10"/><circle cx="'+(sx-7)+'" cy="32" r="13"/><circle cx="'+(sx+15)+'" cy="38" r="10"/></g>')+
   dnode('lamp',505,80,'Лампочка','<circle id="dm6Lb" cx="505" cy="72" r="22" style="fill:var(--paper);stroke:var(--ink);stroke-width:3;transition:fill .4s"/><rect x="495" y="94" width="20" height="12" style="fill:var(--ink)"/>')+
-  dnode('robot',95,320,'Робот-пилосос','<circle cx="95" cy="320" r="30" style="fill:var(--paper);stroke:var(--ink);stroke-width:3"/><circle cx="95" cy="320" r="9" style="fill:var(--coral)"/>')+
+  dnode('robot',rx,320,'Робот-пилосос','<circle cx="'+rx+'" cy="320" r="30" style="fill:var(--paper);stroke:var(--ink);stroke-width:3"/><circle cx="'+rx+'" cy="320" r="9" style="fill:var(--coral)"/>')+
   dnode('phone',505,320,'Смартфон','<rect x="485" y="282" width="40" height="76" rx="7" style="fill:var(--ink)"/><rect x="489" y="290" width="32" height="58" rx="3" style="fill:var(--sky-soft)"/>')+
-  '<g id="dm6Mg" class="cy6f cy6hide"><rect x="345" y="236" width="200" height="40" rx="10" style="fill:var(--sun);stroke:var(--ink);stroke-width:2"/>'+
-  '<text id="dm6Mt" x="445" y="263" style="font:700 19px var(--display);text-anchor:middle"></text></g>'+
+  '<g id="dm6Mg" class="cy6f cy6hide"><rect id="dm6Mb" x="'+(DMR-200)+'" y="300" width="200" height="40" rx="10" style="fill:var(--sun);stroke:var(--ink);stroke-width:2"/>'+
+  '<text id="dm6Mt" x="'+(DMR-100)+'" y="327" style="font:700 19px var(--display);text-anchor:middle"></text></g>'+
   '<g id="dm6X" class="cy6f cy6hide"><line x1="270" y1="170" x2="330" y2="230" style="stroke:var(--coral);stroke-width:8"/><line x1="330" y1="170" x2="270" y2="230" style="stroke:var(--coral);stroke-width:8"/></g>'+
   '</svg><div class="cy6s"><span class="cy6tag" id="dm6T"></span><p class="cy6cap" id="dm6C"></p>'+
-  chips('dm6B','Що відбувається',['Датчик → хаб','Хаб → смартфон','Смартфон → пристрій','Розклад'])+'</div></div>',
-  mount(r){
-    return{count:DS.length-1,step(i){const s=DS[i];
+  chips('dm6B','Що відбувається',['Датчик → хаб','Хаб → смартфон','Смартфон → пристрій','Розклад'])+'</div></div>'},
+  mount(r){const fit=()=>dmFit(r);
+    // шрифт теми довантажується пізніше або змінюється клавішею T — тоді ширину плашки міряємо знову
+    if(document.fonts){if(document.fonts.ready)document.fonts.ready.then(fit);if(document.fonts.addEventListener)document.fonts.addEventListener('loadingdone',fit)}
+    return{count:DS.length-1,relayout:fit,step(i){const s=DS[i];
       ['smoke','lamp','robot','phone'].forEach(k=>{const l=$(r,'#dm6L'+k);l.classList.toggle('on',s.ln.includes(k));l.classList.toggle('off',!!s.off)});
       ['hub','smoke','lamp','robot','phone'].forEach(k=>$(r,'#dm6'+k).classList.toggle('cy6on',s.on.includes(k)));
       $(r,'#dm6Sm').classList.toggle('cy6hide',!s.smoke);$(r,'#dm6X').classList.toggle('cy6hide',!s.off);
       $(r,'#dm6Lb').style.fill=s.lamp?'var(--sun)':'var(--paper)';
-      $(r,'#dm6Mg').classList.toggle('cy6hide',!s.msg);$(r,'#dm6Mt').textContent=s.msg||'';
+      $(r,'#dm6Mg').classList.toggle('cy6hide',!s.msg);if(s.msg){$(r,'#dm6Mt').textContent=s.msg;fit()}
       $(r,'#dm6T').textContent=s.t;$(r,'#dm6C').innerHTML=b2h(s.c);
       mark(r,'#dm6B',[[],[0],[1],[2],[3],[]][i])}}}};
 

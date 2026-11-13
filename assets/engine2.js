@@ -153,7 +153,8 @@ function updPos(){const s=S[cur];if(!s)return;
 /* ===== Автопідгонка =====
    Зміст, що не вміщається на слайді, рівномірно зменшується (CSS zoom через --fit) кроками по 5 %, до 75 %.
    Межа — поле слайда без відступів теми. Шапку, Біта й лупу (.inner) не рахуємо; рамки з прокруткою
-   рахуємо як одне ціле. Титул: заголовок не має налазити на картинки. Не вмістилось і на 75 % —
+   рахуємо як одне ціле. Титул: заголовок не має налазити на картинки. Біт у куті не закриває текст
+   і рамки (плашки, картки, таблиці, картинки — framesOf). Не вмістилось і на 75 % —
    це ловить перевірка збірки (check_fit.py), текст треба скоротити. Розмір — у s.fit і data-fit. */
 const FIT_MIN=.75,FIT_STEP=.05,FIT_GAP=10;   // FIT_GAP — найменший проміжок між текстом і картинкою титулу / Бітом, px
 const FIT_SKIP='.slide-top,.bit:not([data-pos="home"]),.deco,.stickers,.inner,.t-head,.hud';
@@ -161,7 +162,47 @@ const FIT_SKIP='.slide-top,.bit:not([data-pos="home"]),.deco,.stickers,.inner,.t
 const hitH=(a,b)=>Math.min(a.right,b.right)-Math.max(a.left,b.left)>2?Math.max(0,Math.min(a.bottom,b.bottom)-Math.max(a.top,b.top)):0;
 /* прямокутники самого тексту (по рядках), а не рамки блоку: рядок на всю ширину з коротким текстом не «налазить» */
 function textRects(e){const rg=document.createRange();rg.selectNodeContents(e);return [...rg.getClientRects()].filter(q=>q.width>1&&q.height>1)}
-const TEXT_SEL='h2,h3,p,li,dt,dd,td,th,b,button',BOX_SEL='.card,img';
+const TEXT_SEL='h2,h3,p,li,dt,dd,td,th,b,button';
+/* Рамки й лінії слайда (check_fit.py викликає цю саму функцію зі сторінки). Рамка — картинка, картка, усе з фоном,
+   рамка з трьох-чотирьох боків або з обох боків (ліворуч і праворуч): плашки, картки сітки, таблиці, кнопки віджетів.
+   Лише риска зверху / знизу (рядки reveal, список і таблиця у «Швейцарській») — лінія-розділювач: смужка самої риски.
+   Видимі межі: вміст рамки з прокруткою чи обрізанням — лише в її межах. Шапку, Біта, наліпки титулу й лупу не рахуємо. */
+const FRAME_SKIP='.slide-top,.bit,.stickers,.inner,.deco,.hud,.qnav';
+const alphaOf=c=>{if(!c||c==='transparent')return 0;let m=/rgba?\(([^)]*)\)/.exec(c);
+  if(m){const p=m[1].split(/[\s,\/]+/).filter(Boolean);return p.length>3?parseFloat(p[3])/(/%$/.test(p[3])?100:1):1}
+  m=/\/\s*([\d.]+)(%?)\s*\)\s*$/.exec(c);return m?parseFloat(m[1])/(m[2]?100:1):1};
+function framesOf(s){const boxes=[],lines=[],SIDES=['Top','Right','Bottom','Left'],k=s.getBoundingClientRect().width/1280||1;
+  let bgc='';for(let n=s;n&&!bgc;n=n.parentElement){const c=getComputedStyle(n).backgroundColor;if(alphaOf(c)>0)bgc=c}
+  const cut=(q,c)=>{const r={left:Math.max(q.left,c.left),top:Math.max(q.top,c.top),right:Math.min(q.right,c.right),bottom:Math.min(q.bottom,c.bottom)};
+    return r.right-r.left>1&&r.bottom-r.top>1?r:null};
+  const walk=(n,clip)=>{for(const c of n.children){if(c.matches(FRAME_SKIP))continue;const st=getComputedStyle(c);
+    if(st.display==='none'||st.visibility==='hidden'||(st.opacity==='0'&&!c.classList.contains('f')))continue;   // .f — ще не з'явився, місце вже зайняв
+    const bw=SIDES.map(x=>{const w=parseFloat(st['border'+x+'Width'])||0;
+      return w>0&&!/none|hidden/.test(st['border'+x+'Style'])&&alphaOf(st['border'+x+'Color'])>0?w:0});
+    const sides=bw.filter(Boolean).length;
+    const box=c.matches('img,.card')||(alphaOf(st.backgroundColor)>.05&&st.backgroundColor!==bgc)||st.backgroundImage!=='none'||
+      sides>=3||(bw[1]&&bw[3]);
+    if(box||sides){
+      (st.display==='inline'?[...c.getClientRects()]:[c.getBoundingClientRect()]).forEach(q0=>{const q=cut(q0,clip);if(!q)return;
+        if(box){boxes.push({e:c,q});return}
+        const t=j=>Math.max(2,bw[j])*k;   // товщина смужки риски (на екрані), щонайменше 2 px
+        if(bw[0])lines.push({e:c,q:{left:q.left,right:q.right,top:q0.top,bottom:q0.top+t(0)}});
+        if(bw[2])lines.push({e:c,q:{left:q.left,right:q.right,top:q0.bottom-t(2),bottom:q0.bottom}});
+        if(bw[3])lines.push({e:c,q:{left:q0.left,right:q0.left+t(3),top:q.top,bottom:q.bottom}});
+        if(bw[1])lines.push({e:c,q:{left:q0.right-t(1),right:q0.right,top:q.top,bottom:q.bottom}})})}
+    let inner=clip;
+    if(!/^(visible\s*)+$/.test(st.overflowX+' '+st.overflowY)){inner=cut(c.getBoundingClientRect(),clip);if(!inner)continue}
+    walk(c,inner)}};
+  walk(s,s.getBoundingClientRect());return{boxes,lines}}
+/* Лінія-розділювач — помилка, лише коли перетинає бульбашку Біта (глибше за 6 px: по рамці бульбашки впритул можна).
+   Риска позаду малюнка Біта (ноги, тіло, антена) — не помилка: Біт стоїть перед рискою, як на аркуші в лінію.
+   Лінії рахує лише check_fit.py, автопідгонка — ні: зменшення лише підіймає під бульбашку наступну риску списку
+   (слайд стискався б до 80 %); лінію крізь бульбашку виправляють у YAML (коротша репліка bit: або в note). */
+function lineZones(bits,k){return bits.filter(b=>b.classList.contains('bubble')).map(b=>{const q=b.getBoundingClientRect(),m=6*k;
+  return{left:q.left+m,right:q.right-m,top:q.top+m,bottom:q.bottom-m}})}
+/* довжина спільної частини риски й бульбашки, px екрана (0 — не перетинаються) */
+const lineHit=(q,b)=>{const w=Math.min(q.right,b.right)-Math.max(q.left,b.left),h=Math.min(q.bottom,b.bottom)-Math.max(q.top,b.top);
+  return w>0&&h>0?Math.max(w,h):0};
 function overflowOf(e){const r=e.getBoundingClientRect();if(!r.width)return 0;const k=r.width/1280,cs=getComputedStyle(e);
   const lim={right:r.right-parseFloat(cs.paddingRight)*k,bottom:r.bottom-parseFloat(cs.paddingBottom)*k,left:r.left,top:r.top};
   let over=0;
@@ -173,14 +214,16 @@ function overflowOf(e){const r=e.getBoundingClientRect();if(!r.width)return 0;co
     visit(c)}};
   visit(e);
   // перешкоди: картинки титулу, Біт у куті — текст не має під них залазити
-  const blocks=[...e.querySelectorAll('.stickers li,.bit:not([data-pos="home"]) .bubble,.bit:not([data-pos="home"]) .bot')]
-    .filter(b=>getComputedStyle(b).display!=='none').map(b=>{const q=b.getBoundingClientRect(),m=FIT_GAP*k;   // + проміжок, щоб не впритул
+  const bits=[...e.querySelectorAll('.bit:not([data-pos="home"]) .bubble,.bit:not([data-pos="home"]) .bot')].filter(b=>getComputedStyle(b).display!=='none');
+  const blocks=[...e.querySelectorAll('.stickers li')].filter(b=>getComputedStyle(b).display!=='none').concat(bits)
+    .map(b=>{const q=b.getBoundingClientRect(),m=FIT_GAP*k;   // + проміжок, щоб не впритул
       return{left:q.left-m,right:q.right+m,top:q.top-m,bottom:q.bottom+m}});
-  if(blocks.length)e.querySelectorAll(TEXT_SEL+',.sub,.t-meta,.kicker').forEach(t=>{if(t.closest('.bit,.slide-top,.stickers'))return;
+  if(!blocks.length)return over;
+  e.querySelectorAll(TEXT_SEL+',.sub,.t-meta,.kicker').forEach(t=>{if(t.closest('.bit,.slide-top,.stickers'))return;
     textRects(t).forEach(q=>blocks.forEach(b=>{over=Math.max(over,hitH(q,b)/k)}))});
-  // рамки карток і картинки — цілим прямокутником: Біт не налазить і на край рамки
-  if(blocks.length)e.querySelectorAll(BOX_SEL).forEach(t=>{if(t.closest('.bit,.slide-top,.stickers,.inner'))return;
-    const q=t.getBoundingClientRect();if(q.width&&q.height)blocks.forEach(b=>{over=Math.max(over,hitH(q,b)/k)})});
+  // рамки (плашки, картки, таблиці, картинки) — цілим прямокутником: Біт не налазить і на край рамки
+  // (лінії-розділювачі тут не рахуємо — див. lineZones)
+  framesOf(e).boxes.forEach(({q})=>blocks.forEach(b=>{over=Math.max(over,hitH(q,b)/k)}));
   return over}
 function fitSlide(i,keep){const s=S[i];if(!s||FEED)return;const e=s.el;if(!e.classList.contains('on'))return;
   // вкладки й тест на дошці: розмір один на всі кроки — за найбільшим станом
@@ -532,8 +575,9 @@ V.reveal=d=>({html:head(d)+'<div'+cls('split',d.img?'has-img':'')+'><dl'+cls('rv
   (d.items||[]).map(it=>'<div class="item"><dt class="q">'+txt(it[0])+'</dt><dd class="a f">'+yn(txt(it[1]))+'</dd></div>').join('')+
   '</dl>'+ill(d.img)+'</div>'});
 
-V.steps=d=>({html:head(d)+intro(d)+'<ol class="steps">'+(d.steps||[]).map(s=>'<li class="f">'+txt(s)+'</li>').join('')+'</ol>'+
-  (d.answer?'<div class="box answer f" data-tone="mint"><p><b>Відповідь:</b> '+txt(d.answer)+'</p></div>':'')});
+V.steps=d=>{const ol='<ol class="steps">'+(d.steps||[]).map(s=>'<li class="f">'+txt(s)+'</li>').join('')+'</ol>';
+ return {html:head(d)+intro(d)+(d.img?'<div class="split has-img img-left">'+ill(d.img)+ol+'</div>':ol)+
+  (d.answer?'<div class="box answer f" data-tone="mint"><p><b>Відповідь:</b> '+txt(d.answer)+'</p></div>':'')}};
 
 V.table=d=>({html:head(d)+intro(d)+'<table class="t"><thead><tr>'+(d.head||[]).map(h=>'<th>'+txt(h)+'</th>').join('')+'</tr></thead><tbody>'+
   (d.rows||[]).map(r=>'<tr'+cls(d.frag?'f':'')+'>'+r.map((c,i)=>'<td'+cls(i===0&&d.leftFirst?'l':'')+'>'+yn(txt(c))+'</td>').join('')+'</tr>').join('')+
@@ -583,21 +627,18 @@ V.widget=d=>{const w=W[d.w];
   return{html:head(d)+intro(d)+'<div class="wbox">'+w.html(d)+'</div>',
     mount:(r,_,api)=>w.mount(r.querySelector('.wbox'),d,api)}};
 
-/* «Домашнє»: тест (QR) і практична (QR + кнопка) стоять поруч; без них — картинка слайда */
-V.home=d=>{const qr=(typeof QR!=='undefined'&&QR[LESSON.id])||'';const items=d.items||[];
-  // практична — лише кнопкою «Практична» вгорі (QR практичної на «Домашньому» прибрано на прохання вчителя 19.10.2026)
-  const pUrl=CFG.praktychnaUrl||'';
-  const cards=qr?'<div class="qr"><div class="qrimg">'+qr+'</div><b><span class="ic" data-icon="test" aria-hidden="true"></span>Тест до уроку</b>'+
-       '<span>Скануйте камерою телефона</span></div>':'';
-  const nQr=qr?1:0;
-  const bt=qr&&pUrl?'Успіхів! Тест — за QR-кодом, практична — кнопкою вгорі.':
-    pUrl?'Успіхів! Практична — кнопкою «Практична» вгорі.':
-    qr?'Успіхів! Тест — 12 питань, по балу за кожне.':'Успіхів! До зустрічі на наступному уроці.';
+/* «Домашнє»: картки завдань і картинка слайда. QR тесту прибрано зовсім (учитель 11.11.2026: тест не щороку,
+   QR заважав, а відео живе роками) — тест лише кнопкою «Тест» угорі; QR практичної прибрано ще 19.10.2026. */
+V.home=d=>{const items=d.items||[];
+  // у відео (сторінка з ?video — так відкриває vcap.py) кнопок угорі немає, тож Біт про них не каже
+  const vid=/[?&]video\b/.test(location.search);
+  const pUrl=vid?'':(CFG.praktychnaUrl||'');
+  const bt=pUrl?'Успіхів! Практична — кнопкою «Практична» вгорі.':'Успіхів! До зустрічі на наступному уроці.';
   return{html:'<h2>Домашнє завдання</h2><div class="homewrap"'+vars({'--n':items.length})+'>'+
    '<ul class="home">'+items.map((it,i)=>'<li class="hw"'+at('data-icon',iconOf(it[0]))+'>'+
      '<span class="num" aria-hidden="true">'+pad2(i+1)+'</span><h3>'+plain(it[0])+'</h3>'+
      '<p class="main">'+txt(it[1])+'</p>'+(it[2]?'<p class="small">'+txt(it[2])+'</p>':'')+'</li>').join('')+'</ul>'+
-   (nQr?'<div class="qrs"'+at('data-n',nQr)+'>'+cards+'</div>':(d.img?img(d.img,'ill'):''))+'</div>'+
+   (d.img?img(d.img,'ill'):'')+'</div>'+
    '<div class="homefoot"><p class="fin">Успіхів у навчанні!</p>'+
    bit(d.bit||bt,'home',pUrl?'laptop':'wave')+'</div>'}};
 
@@ -1010,7 +1051,17 @@ W.klas6={html:()=>'<div class="cy6k"><div class="cy6kq"><span class="cy6tag" id=
       $(r,'#kl6C').innerHTML=b2h(i?KD[i-1][2]:'Куди віднести пристрій? Що він робить **найбільше**: передає, опрацьовує чи зберігає?')}}}};
 
 /* ---------- W.dim6: «розумний» будинок ---------- */
-const DN={hub:[300,200],smoke:[95,80],lamp:[505,80],robot:[95,320],phone:[505,320]};
+const DN={hub:[300,200],smoke:[102,80],lamp:[505,80],robot:[102,320],phone:[505,320]};
+/* плашка-повідомлення: ліворуч від смартфона, між роботом і смартфоном (там немає ні вузлів, ні ліній);
+   ширина — за самим написом, бо шрифт у кожної теми свій (у «Абстракті» найширший) */
+const DMR=432,DMPAD=12,DMMAX=260;   // правий край плашки (смартфон — від 443), відступ тексту, найбільша ширина (робот — до 164)
+function dmFit(r){const t=$(r,'#dm6Mt'),b=$(r,'#dm6Mb');if(!t||!t.textContent)return;
+  t.removeAttribute('textLength');t.removeAttribute('lengthAdjust');
+  const m=t.getComputedTextLength();   // 0 — слайд ще схований: ширину оцінюємо, точно переміряємо при показі
+  let w=m||t.textContent.length*12.5;
+  if(m&&w>DMMAX-2*DMPAD){w=DMMAX-2*DMPAD;t.setAttribute('textLength',w);t.setAttribute('lengthAdjust','spacingAndGlyphs')}
+  const bw=Math.ceil(Math.min(w,DMMAX-2*DMPAD))+2*DMPAD;
+  b.setAttribute('x',DMR-bw);b.setAttribute('width',bw);t.setAttribute('x',DMR-bw/2)}
 const DS=[
  {t:'Хаб — центр будинку',c:'Усі «розумні» пристрої з’єднано з **хабом** дротами або через Wi‑Fi.',ln:[],on:['hub']},
  {t:'Датчик помітив дим',c:'**Датчик диму** надсилає сигнал хабу.',ln:['smoke'],on:['smoke'],smoke:1},
@@ -1019,27 +1070,29 @@ const DS=[
  {t:'За розкладом',c:'О 10:00 **робот-пилосос** почав прибирання сам — розклад у його пам’яті.',ln:['robot','phone'],on:['robot'],lamp:1,msg:'Прибирання почалося'},
  {t:'А якщо мережі немає?',c:'Немає **Wi‑Fi** чи **живлення** — пристрої не можуть обмінюватися даними.',ln:[],off:1,on:[]}];
 function dnode(id,x,y,label,inner){return '<g id="dm6'+id+'"><rect class="cy6box" x="'+(x-62)+'" y="'+(y-48)+'" width="124" height="96" rx="16"/>'+inner+
-  '<text class="cy6t" x="'+x+'" y="'+(y+(id==='hub'?6:76))+'">'+label+'</text></g>'}
-W.dim6={html:()=>'<div class="cy6"><svg class="cy6svg" viewBox="0 0 600 400">'+
+  '<text class="cy6t" x="'+x+'" y="'+(y+(id==='hub'?6:74))+'">'+label+'</text></g>'}
+W.dim6={html:()=>{const sx=DN.smoke[0],rx=DN.robot[0];return '<div class="cy6"><svg class="cy6svg" viewBox="0 0 600 400">'+
   ['smoke','lamp','robot','phone'].map(k=>'<line id="dm6L'+k+'" class="cy6ln" x1="'+DN.hub[0]+'" y1="'+DN.hub[1]+'" x2="'+DN[k][0]+'" y2="'+DN[k][1]+'"/>').join('')+
   dnode('hub',300,200,'Хаб','')+
-  dnode('smoke',95,80,'Датчик диму','<circle cx="95" cy="80" r="26" style="fill:var(--paper);stroke:var(--ink);stroke-width:3"/><circle cx="95" cy="80" r="6" style="fill:var(--ink)"/>'+
-    '<g id="dm6Sm" class="cy6f cy6hide" style="fill:var(--muted)"><circle cx="70" cy="38" r="10"/><circle cx="88" cy="32" r="13"/><circle cx="110" cy="38" r="10"/></g>')+
+  dnode('smoke',sx,80,'Датчик диму','<circle cx="'+sx+'" cy="80" r="26" style="fill:var(--paper);stroke:var(--ink);stroke-width:3"/><circle cx="'+sx+'" cy="80" r="6" style="fill:var(--ink)"/>'+
+    '<g id="dm6Sm" class="cy6f cy6hide" style="fill:var(--muted)"><circle cx="'+(sx-25)+'" cy="38" r="10"/><circle cx="'+(sx-7)+'" cy="32" r="13"/><circle cx="'+(sx+15)+'" cy="38" r="10"/></g>')+
   dnode('lamp',505,80,'Лампочка','<circle id="dm6Lb" cx="505" cy="72" r="22" style="fill:var(--paper);stroke:var(--ink);stroke-width:3;transition:fill .4s"/><rect x="495" y="94" width="20" height="12" style="fill:var(--ink)"/>')+
-  dnode('robot',95,320,'Робот-пилосос','<circle cx="95" cy="320" r="30" style="fill:var(--paper);stroke:var(--ink);stroke-width:3"/><circle cx="95" cy="320" r="9" style="fill:var(--coral)"/>')+
+  dnode('robot',rx,320,'Робот-пилосос','<circle cx="'+rx+'" cy="320" r="30" style="fill:var(--paper);stroke:var(--ink);stroke-width:3"/><circle cx="'+rx+'" cy="320" r="9" style="fill:var(--coral)"/>')+
   dnode('phone',505,320,'Смартфон','<rect x="485" y="282" width="40" height="76" rx="7" style="fill:var(--ink)"/><rect x="489" y="290" width="32" height="58" rx="3" style="fill:var(--sky-soft)"/>')+
-  '<g id="dm6Mg" class="cy6f cy6hide"><rect x="345" y="236" width="200" height="40" rx="10" style="fill:var(--sun);stroke:var(--ink);stroke-width:2"/>'+
-  '<text id="dm6Mt" x="445" y="263" style="font:700 19px var(--display);text-anchor:middle"></text></g>'+
+  '<g id="dm6Mg" class="cy6f cy6hide"><rect id="dm6Mb" x="'+(DMR-200)+'" y="300" width="200" height="40" rx="10" style="fill:var(--sun);stroke:var(--ink);stroke-width:2"/>'+
+  '<text id="dm6Mt" x="'+(DMR-100)+'" y="327" style="font:700 19px var(--display);text-anchor:middle"></text></g>'+
   '<g id="dm6X" class="cy6f cy6hide"><line x1="270" y1="170" x2="330" y2="230" style="stroke:var(--coral);stroke-width:8"/><line x1="330" y1="170" x2="270" y2="230" style="stroke:var(--coral);stroke-width:8"/></g>'+
   '</svg><div class="cy6s"><span class="cy6tag" id="dm6T"></span><p class="cy6cap" id="dm6C"></p>'+
-  chips('dm6B','Що відбувається',['Датчик → хаб','Хаб → смартфон','Смартфон → пристрій','Розклад'])+'</div></div>',
-  mount(r){
-    return{count:DS.length-1,step(i){const s=DS[i];
+  chips('dm6B','Що відбувається',['Датчик → хаб','Хаб → смартфон','Смартфон → пристрій','Розклад'])+'</div></div>'},
+  mount(r){const fit=()=>dmFit(r);
+    // шрифт теми довантажується пізніше або змінюється клавішею T — тоді ширину плашки міряємо знову
+    if(document.fonts){if(document.fonts.ready)document.fonts.ready.then(fit);if(document.fonts.addEventListener)document.fonts.addEventListener('loadingdone',fit)}
+    return{count:DS.length-1,relayout:fit,step(i){const s=DS[i];
       ['smoke','lamp','robot','phone'].forEach(k=>{const l=$(r,'#dm6L'+k);l.classList.toggle('on',s.ln.includes(k));l.classList.toggle('off',!!s.off)});
       ['hub','smoke','lamp','robot','phone'].forEach(k=>$(r,'#dm6'+k).classList.toggle('cy6on',s.on.includes(k)));
       $(r,'#dm6Sm').classList.toggle('cy6hide',!s.smoke);$(r,'#dm6X').classList.toggle('cy6hide',!s.off);
       $(r,'#dm6Lb').style.fill=s.lamp?'var(--sun)':'var(--paper)';
-      $(r,'#dm6Mg').classList.toggle('cy6hide',!s.msg);$(r,'#dm6Mt').textContent=s.msg||'';
+      $(r,'#dm6Mg').classList.toggle('cy6hide',!s.msg);if(s.msg){$(r,'#dm6Mt').textContent=s.msg;fit()}
       $(r,'#dm6T').textContent=s.t;$(r,'#dm6C').innerHTML=b2h(s.c);
       mark(r,'#dm6B',[[],[0],[1],[2],[3],[]][i])}}}};
 
@@ -2365,6 +2418,130 @@ W.kont6={html:()=>'<div class="kn6"><svg class="kn6svg" id="kn6S" viewBox="0 0 5
 })();
 }
 {
+/* sections/7-r1/widgets/bezpeka4.js */
+/* ===== Етикет і безпека електронного спілкування (урок 7-4) =====
+   W.lyst74 — «Що не так з цим листом?» (етикет) і W.fish74 — «Ознаки фішингу»: той самий лист-розбір.
+     mail: {label?, vid?, komu?, tema?, text: [абзаци], files?: [імена]}; fixed?: те саме — виправлений лист;
+     у рядках позначки [[N|фрагмент]] або [[N|фрагмент|підказка під ним]] (N — номер ознаки);
+     side?: заголовок списку праворуч; steps: [{k, say, n?: номер у списку, hl?: [номери позначок], ask?, fix?: true}].
+   W.parol74 — «Скільки варіантів перебрати?»: паролі по одному зі смугою «наскільки довго підбирати».
+     speed: підпис угорі; rows: [{p, x, v, t, w: ширина смуги 0–100, bad?, good?}];
+     steps: [{k, say, show: скільки рядків видно, hl?: номер рядка з 0, ask?}].
+   Класи — з префіксом ml74-/pw74- (CSS віджетів спільний на весь сайт).
+   Учитель: пробіл або клік — далі. Кольори — лише змінними теми. */
+(function(){
+document.head.insertAdjacentHTML('beforeend','<style>'+
+'.ml74,.pw74{display:flex;flex-direction:column;gap:10px;flex:1;min-height:0;justify-content:center}'+
+'.ml74-cap,.pw74-cap{border:3px solid var(--ink);background:var(--paper-alt);padding:8px 18px;flex:none}'+
+'.ml74-cap b.k,.pw74-cap b.k{display:block;font:700 17px var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:2px}'+
+'.ml74-ask b.k,.pw74-ask b.k{color:var(--coral)}'+
+'.ml74-cap p,.pw74-cap p{font-size:23px;line-height:1.28;margin:0}'+
+/* лист */
+'.ml74-row{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(0,1fr);gap:20px;flex:none;align-items:stretch}'+
+'.ml74-box{border:3px solid var(--ink);background:var(--paper);padding:6px 16px 8px;display:flex;flex-direction:column;gap:4px}'+
+'.ml74-box.ml74-off{display:none}'+
+'.ml74-box>small,.ml74-side>small{font:700 16px var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}'+
+'.ml74-fixed{border-color:var(--mint,var(--ink))}.ml74-fixed>small{color:var(--ink)}'+
+'.ml74-l{display:flex;gap:10px;align-items:baseline;border-bottom:2px solid var(--line);padding-bottom:2px;font:600 21px/1.22 var(--body);color:var(--ink)}'+
+'.ml74-l i{font-style:normal;flex:none;width:56px;color:var(--muted)}'+
+'.ml74-l span.ml74-v{flex:1;min-width:0;overflow-wrap:anywhere}'+
+'.ml74-t{font:500 21px/1.3 var(--body);color:var(--ink)}.ml74-t p{margin:0 0 2px}'+
+'.ml74-files{display:flex;flex-wrap:wrap;gap:8px;margin-top:2px}'+
+'.ml74-file{border:2px solid var(--ink);border-radius:18px;padding:1px 12px;font:700 17px var(--mono);color:var(--ink);background:var(--paper-alt)}'+
+'.ml74-m{border-radius:4px;transition:background .3s,box-shadow .3s;box-decoration-break:clone;-webkit-box-decoration-break:clone}'+
+'.ml74-m.ml74-seen{box-shadow:inset 0 -3px 0 var(--coral)}'+
+'.ml74-m.ml74-hl{background:var(--sun-soft,var(--paper-alt));box-shadow:0 0 0 3px var(--coral)}'+
+'.ml74-m.ml74-b1.ml74-seen:before,.ml74-m.ml74-b1.ml74-hl:before{content:attr(data-m);display:inline-block;width:24px;height:24px;line-height:24px;'+
+  'margin-right:5px;border-radius:50%;background:var(--coral);color:var(--paper);font:800 15px/24px var(--body);text-align:center;vertical-align:2px}'+
+'.ml74-tip{display:none;font:700 18px/1.3 var(--mono);color:var(--coral);margin-top:2px}'+
+'.ml74-m.ml74-hl .ml74-tip{display:block}'+
+'.ml74-side{border:3px solid var(--line);background:var(--paper);padding:8px 14px;display:flex;flex-direction:column;gap:6px}'+
+'.ml74-side ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}'+
+'.ml74-side li{display:flex;gap:8px;align-items:baseline;font:700 21px/1.25 var(--body);color:var(--ink);animation:ml74f .9s}'+
+'.ml74-side li i{flex:none;font-style:normal;width:24px;height:24px;border-radius:50%;background:var(--coral);color:var(--paper);font:800 15px/24px var(--body);text-align:center}'+
+'.ml74-side li.ml74-now{background:var(--sun-soft,var(--paper-alt))}'+
+'@keyframes ml74f{0%{background:var(--sun)}100%{}}'+
+/* пароль */
+'.pw74-top{font:600 21px/1.3 var(--body);color:var(--muted);flex:none}'+
+'.pw74-list{display:flex;flex-direction:column;gap:6px;flex:none}'+
+'.pw74-r{display:grid;grid-template-columns:230px 190px minmax(0,1fr) 220px;gap:14px;align-items:center;border:3px solid var(--line);background:var(--paper);padding:3px 12px;transition:opacity .3s,border-color .3s}'+
+'.pw74-r.pw74-no{visibility:hidden}'+
+'.pw74-r.pw74-hl{border-color:var(--ink)}'+
+'.pw74-r code{font:800 23px var(--mono);color:var(--ink);overflow-wrap:anywhere}'+
+'.pw74-r small{font:600 18px/1.2 var(--body);color:var(--muted)}'+
+'.pw74-bar{height:22px;border:2px solid var(--ink);background:var(--paper-alt);position:relative}'+
+'.pw74-bar span{position:absolute;left:0;top:0;bottom:0;width:0;background:var(--accent);transition:width .8s ease}'+
+'.pw74-r.pw74-bad .pw74-bar span{background:var(--coral)}.pw74-r.pw74-good .pw74-bar span{background:var(--mint,var(--accent))}'+
+'.pw74-v{font:700 18px/1.2 var(--body);color:var(--muted)}'+
+'.pw74-t{font:800 21px/1.2 var(--body);color:var(--ink);text-align:right}'+
+'.pw74-r.pw74-bad .pw74-t{color:var(--coral)}'+
+/* учнівська стрічка (телефон вертикально) */
+'.feed .stage .ml74-row{grid-template-columns:1fr;gap:10px}'+
+'.feed .stage .ml74-l{font-size:16px}.feed .stage .ml74-l i{width:44px}.feed .stage .ml74-t{font-size:16px}'+
+'.feed .stage .ml74-file{font-size:14px}.feed .stage .ml74-tip{font-size:14px}.feed .stage .ml74-side li{font-size:16px}'+
+'.feed .stage .ml74-cap p,.feed .stage .pw74-cap p{font-size:19px}'+
+'.feed .stage .pw74-r{grid-template-columns:1fr auto;gap:4px 10px}'+
+'.feed .stage .pw74-bar{grid-column:1/-1;height:14px}.feed .stage .pw74-r code{font-size:18px}'+
+'.feed .stage .pw74-r small,.feed .stage .pw74-v{font-size:14px}.feed .stage .pw74-t{font-size:16px}.feed .stage .pw74-top{font-size:16px}'+
+'</style>');
+
+/* збірка вже екранує рядки YAML (&gt;) — спершу повертаємо символи, потім екрануємо один раз */
+const U=s=>{const t=document.createElement('textarea');t.innerHTML=String(s==null?'':s);return t.value};
+const E=t=>t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+  .replace(/&lt;(\/?)b&gt;/g,'<$1b>').replace(/\*\*(.+?)\*\*/g,'<b>$1</b>');
+const B=s=>E(U(s));
+const H=s=>U(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+/* [[N|фрагмент|підказка]] → позначка; перша позначка з номером N отримує кружечок */
+function MK(s,seen){s=U(s);let out='',last=0,m;const re=/\[\[(\d+)\|([^|\]]+?)(?:\|([^\]]+?))?\]\]/g;
+  while((m=re.exec(s))){out+=E(s.slice(last,m.index));
+   const first=seen&&!seen[m[1]];if(seen)seen[m[1]]=1;
+   out+='<span class="ml74-m'+(first?' ml74-b1':'')+'" data-m="'+m[1]+'">'+E(m[2])+
+     (m[3]?'<span class="ml74-tip">'+E(m[3])+'</span>':'')+'</span>';last=re.lastIndex}
+  return out+E(s.slice(last))}
+function caption(c,s,ask){c.classList.toggle(ask,!!s.ask);
+  c.querySelector('.k').textContent=U(s.k||'');c.querySelector('p').innerHTML=B(s.say||'')}
+const CAP=p=>'<div class="'+p+'-cap"><b class="k"></b><p></p></div>';
+
+function letter(m,cls,label,seen){m=m||{};
+  const L=(n,v)=>v==null?'':'<div class="ml74-l"><i>'+n+'</i><span class="ml74-v">'+MK(v,seen)+'</span></div>';
+  return '<div class="ml74-box '+cls+'"><small>'+B(label)+'</small>'+L('Від',m.vid)+L('Кому',m.komu)+L('Тема',m.tema)+
+   '<div class="ml74-t">'+(m.text||[]).map(p=>'<p>'+MK(p,seen)+'</p>').join('')+'</div>'+
+   ((m.files||[]).length?'<div class="ml74-files">'+m.files.map(f=>'<span class="ml74-file">'+MK(f,seen)+'</span>').join('')+'</div>':'')+
+   '</div>'}
+
+const LYST={html:d=>'<div class="ml74"><div class="ml74-row"><div class="ml74-mail">'+
+   letter(d.mail,'ml74-orig',(d.mail||{}).label||'Лист',{})+(d.fixed?letter(d.fixed,'ml74-fixed ml74-off',(d.fixed||{}).label||'Виправлений лист',null):'')+
+   '</div><div class="ml74-side"><small>'+B(d.side||'Знайдено')+'</small><ol></ol></div></div>'+CAP('ml74')+'</div>',
+ mount(r,d,api){
+  const steps=d.steps||[{}],M=[...r.querySelectorAll('.ml74-orig .ml74-m')],OL=r.querySelector('.ml74-side ol');
+  const O=r.querySelector('.ml74-orig'),F=r.querySelector('.ml74-fixed'),C=r.querySelector('.ml74-cap');
+  function step(i){const s=steps[i]||{},hl=(s.hl||[]).map(String),seen={};
+   steps.slice(0,i).forEach(p=>(p.hl||[]).forEach(x=>seen[x]=1));
+   M.forEach(el=>{const n=el.dataset.m;el.classList.toggle('ml74-hl',hl.includes(n));el.classList.toggle('ml74-seen',!!seen[n]&&!hl.includes(n))});
+   const fix=!!s.fix&&!!F;O.classList.toggle('ml74-off',fix);if(F)F.classList.toggle('ml74-off',!fix);
+   OL.innerHTML=steps.slice(0,i+1).filter(p=>p.n!=null).map(p=>'<li'+(p===s?' class="ml74-now"':'')+'><i>'+H(p.n)+'</i><span>'+H(p.k)+'</span></li>').join('');
+   caption(C,s,'ml74-ask')}
+  return{count:steps.length-1,step}}};
+W.lyst74=LYST;
+W.fish74={html:LYST.html,mount:LYST.mount};
+
+W.parol74={html:d=>'<div class="pw74">'+(d.speed?'<div class="pw74-top">'+B(d.speed)+'</div>':'')+'<div class="pw74-list">'+
+  (d.rows||[]).map(w=>'<div class="pw74-r pw74-no'+(w.bad?' pw74-bad':'')+(w.good?' pw74-good':'')+'">'+
+   '<div><code>'+H(w.p)+'</code><br><small>'+H(w.x||'')+'</small></div>'+
+   '<div class="pw74-v">'+B(w.v||'')+'</div>'+
+   '<div class="pw74-bar"><span></span></div>'+
+   '<div class="pw74-t">'+B(w.t||'')+'</div></div>').join('')+
+  '</div>'+CAP('pw74')+'</div>',
+ mount(r,d,api){
+  const steps=d.steps||[{}],R=[...r.querySelectorAll('.pw74-r')],C=r.querySelector('.pw74-cap'),rows=d.rows||[];
+  function step(i){const s=steps[i]||{},n=s.show||0;
+   R.forEach((el,j)=>{const on=j<n;el.classList.toggle('pw74-no',!on);el.classList.toggle('pw74-hl',s.hl===j);
+    el.querySelector('.pw74-bar span').style.width=(on?Math.max(1,Math.min(100,+rows[j].w||0)):0)+'%'});
+   caption(C,s,'pw74-ask')}
+  return{count:steps.length-1,step}}};
+})();
+}
+{
 /* sections/7-r1/widgets/cloud.js */
 /* ===== 7 клас, урок 7-5 «Хмарні сервіси. Онлайн-перекладачі. Синхронізація даних»: демонстрації, якими керує вчитель (пробіл або клік — далі) =====
    W.mt     — як працює онлайн-перекладач: електронний словник ⇒ дослівний переклад ⇒ узгодження за правилами мови;
@@ -2586,6 +2763,239 @@ W.gsync={html:()=>'<div class="c75" style="grid-template-columns:minmax(0,1fr) 3
    AR.forEach(a=>{a.classList.toggle('on',s.ar===a.dataset.a);a.classList.toggle('cut',!!s.cut)});
    r.querySelector('.act .k').textContent=s.k;r.querySelector('.act p').innerHTML=s.a;mark(i)}
   return{count:S.length-1,step}}};
+})();
+}
+{
+/* sections/7-r1/widgets/fakty2.js */
+/* ===== Факти та фейки, маніпуляції (урок 7-2) =====
+   W.dopys72 — «Переслати чи ні?»: повідомлення-«ланцюжок» перевіряємо за порадами, як розпізнати маніпуляцію.
+     head — підпис над повідомленням («Переслано»), msg: [{t, id?}] — частини тексту (id — щоб підсвітити),
+     signs: [назви ознак], steps: [{k, say, hl?: [id], from?: true, sign?: номер ознаки з 0, verdict?, ask?}]
+       hl — які частини підсвітити, from — підсвітити підпис «Переслано», sign — ознака, що «загоряється»
+       (ознаки накопичуються), verdict — висновок на плашці.
+   Класи — з префіксом dp72- (CSS віджетів спільний на весь сайт).
+   Учитель: пробіл або клік — далі. Кольори — лише змінними теми. */
+(function(){
+document.head.insertAdjacentHTML('beforeend','<style>'+
+'.dp72{display:flex;flex-direction:column;gap:14px;flex:1;min-height:0;justify-content:center}'+
+'.dp72-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:22px;align-items:stretch;flex:none}'+
+'.dp72-chat{border:3px solid var(--ink);border-radius:26px;background:var(--paper-alt);padding:16px 18px;display:flex;flex-direction:column;gap:10px;position:relative}'+
+'.dp72-from{align-self:flex-start;font:700 20px var(--body);color:var(--muted);font-style:italic;padding:2px 8px;border-radius:8px;transition:background .3s,color .3s}'+
+'.dp72-msg{background:var(--paper);border:2px solid var(--line);border-radius:4px 22px 22px 22px;padding:14px 18px;font:600 26px/1.32 var(--body);color:var(--ink)}'+
+'.dp72-msg span{transition:background .3s;border-radius:6px;padding:0 2px}'+
+'.dp72-on{background:var(--sun);color:var(--ink)}'+
+'.dp72-ver{position:absolute;right:-10px;top:-16px;transform:rotate(-8deg);border:4px solid var(--coral);color:var(--coral);background:var(--paper);'+
+ 'font:900 30px var(--body);letter-spacing:.08em;padding:2px 16px;opacity:0;transition:opacity .3s}'+
+'.dp72-ver.dp72-show{opacity:1}'+
+'.dp72-signs{display:flex;flex-direction:column;gap:10px;justify-content:center}'+
+'.dp72-s{display:flex;align-items:center;gap:14px;border:3px solid var(--line);background:var(--paper);padding:9px 14px;font:700 25px/1.2 var(--body);color:var(--muted);transition:all .3s}'+
+'.dp72-s i{flex:none;width:40px;height:40px;border-radius:50%;border:3px solid currentColor;display:flex;align-items:center;justify-content:center;font:800 22px var(--body);font-style:normal}'+
+'.dp72-s.dp72-lit{border-color:var(--coral);background:var(--coral-soft,var(--paper-alt));color:var(--ink)}'+
+'.dp72-s.dp72-lit i{color:var(--coral)}'+
+'.dp72-s.dp72-now{animation:dp72f 1.1s}@keyframes dp72f{0%{background:var(--sun)}100%{}}'+
+'.dp72-cap{border:3px solid var(--ink);background:var(--paper-alt);padding:8px 18px;flex:none}'+
+'.dp72-cap b.k{display:block;font:700 17px var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:2px}'+
+'.dp72-cap.dp72-ask b.k{color:var(--coral)}'+
+'.dp72-cap p{font-size:25px;line-height:1.28;margin:0}'+
+/* учнівська стрічка (телефон вертикально) */
+'.feed .stage .dp72-row{grid-template-columns:1fr;gap:10px}'+
+'.feed .stage .dp72-msg{font-size:19px}.feed .stage .dp72-from{font-size:15px}'+
+'.feed .stage .dp72-s{font-size:17px;padding:5px 10px;gap:10px}.feed .stage .dp72-s i{width:30px;height:30px;font-size:16px}'+
+'.feed .stage .dp72-ver{font-size:22px;right:0;top:-12px}'+
+'.feed .stage .dp72-cap p{font-size:19px}'+
+/* учнівська сторінка горизонтально */
+'html.student:not(.feed) .dp72{gap:5px}html.student:not(.feed) .dp72-row{gap:10px}'+
+'html.student:not(.feed) .dp72-chat{padding:6px 10px;gap:4px}html.student:not(.feed) .dp72-msg{font-size:15px;padding:6px 10px}'+
+'html.student:not(.feed) .dp72-from{font-size:12px}html.student:not(.feed) .dp72-signs{gap:4px}'+
+'html.student:not(.feed) .dp72-s{font-size:14px;padding:3px 8px;gap:8px}html.student:not(.feed) .dp72-s i{width:24px;height:24px;font-size:13px;border-width:2px}'+
+'html.student:not(.feed) .dp72-ver{font-size:18px;top:-10px}'+
+'html.student:not(.feed) .dp72-cap{padding:3px 12px}html.student:not(.feed) .dp72-cap p{font-size:16px}'+
+'</style>');
+
+/* збірка вже екранує рядки YAML (&gt;) — спершу повертаємо символи, потім екрануємо один раз */
+const U=s=>{const t=document.createElement('textarea');t.innerHTML=String(s);return t.value};
+const H=s=>U(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const B=s=>/<b>/.test(s)?s:H(s).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>');
+
+W.dopys72={html:d=>'<div class="dp72"><div class="dp72-row">'+
+  '<div class="dp72-chat"><div class="dp72-from">'+H(d.head||'Переслано')+'</div>'+
+  '<div class="dp72-msg">'+(d.msg||[]).map(m=>'<span data-p="'+H(m.id||'')+'">'+B(m.t)+'</span>').join('')+'</div>'+
+  '<div class="dp72-ver"></div></div>'+
+  '<div class="dp72-signs">'+(d.signs||[]).map((s,i)=>'<div class="dp72-s"><i>'+(i+1)+'</i><span>'+B(s)+'</span></div>').join('')+'</div>'+
+  '</div><div class="dp72-cap"><b class="k"></b><p></p></div></div>',
+ mount(r,d,api){
+  const steps=d.steps||[{}],P=[...r.querySelectorAll('.dp72-msg span')],S=[...r.querySelectorAll('.dp72-s')];
+  const F=r.querySelector('.dp72-from'),V=r.querySelector('.dp72-ver'),C=r.querySelector('.dp72-cap');
+  function step(i){const s=steps[i]||{},hl=s.hl||[];
+   const lit=new Set();steps.slice(0,i+1).forEach(x=>{if(x.sign!=null)lit.add(x.sign)});
+   P.forEach(el=>el.classList.toggle('dp72-on',hl.includes(el.dataset.p)));
+   F.classList.toggle('dp72-on',!!s.from);
+   S.forEach((el,j)=>{el.classList.toggle('dp72-lit',lit.has(j));el.classList.toggle('dp72-now',s.sign===j)});
+   V.textContent=U(s.verdict||'');V.classList.toggle('dp72-show',!!s.verdict);
+   C.classList.toggle('dp72-ask',!!s.ask);
+   C.querySelector('.k').textContent=U(s.k||'');C.querySelector('p').innerHTML=B(s.say||'')}
+  return{count:steps.length-1,step}}};
+})();
+}
+{
+/* sections/7-r1/widgets/hmara5.js */
+/* ===== 7 клас, урок 7-5 (v2): демонстрації W.mt, W.gdrive, W.gsync з cloud.js — верстка для учнівської «стрічки» (телефон вертикально) =====
+   Лише правила «.feed .stage …»: версія для дошки й стара версія уроку (legacy) не змінюються.
+   cloud.js не правимо — його використовує заморожений старий урок 7-5. Кольори — лише змінними теми. */
+document.head.insertAdjacentHTML('beforeend','<style>'+
+/* рушій v2 малює .ic як значок теми (квадрат кольору тексту з маскою) — у кнопках перекладача свої SVG, тож скидаємо */
+'.c75 .mt-foot .ic{width:auto;height:auto;background:none;-webkit-mask:none;mask:none}'+
+'.c75 .mt-foot .ic.hi{background:var(--sun)}'+
+'.feed .stage .c75{grid-template-columns:minmax(0,1fr)!important;gap:14px}'+
+'.feed .stage .c75 .tb button{font-size:16px}'+
+/* перекладач */
+'.feed .stage .mt-in,.feed .stage .mt-out{font-size:24px;padding:10px 12px;min-height:96px}'+
+'.feed .stage .mt-dict{min-height:0;gap:8px;padding:10px 12px}'+
+'.feed .stage .mt-w{min-width:0;font-size:20px;padding:4px 8px}.feed .stage .mt-w>b{font-size:21px}'+
+/* Google Диск: вужча бічна панель, у списку — лише назва й дата змін, меню праворуч */
+'.feed .stage .gd{grid-template-columns:120px minmax(0,1fr);height:440px}'+
+'.feed .stage .gd-side img{width:120px}'+
+'.feed .stage .gd-main{padding:8px 8px 8px 6px}'+
+'.feed .stage .gd-path{font-size:21px}'+
+'.feed .stage .gd-bar{width:max-content;max-width:100%}.feed .stage .gd-bar img{height:auto;max-height:34px;max-width:100%}'+
+'.feed .stage .gd-head,.feed .stage .gd-row{grid-template-columns:minmax(0,1fr) 76px}'+
+'.feed .stage .gd-head>span:nth-child(2),.feed .stage .gd-head>span:nth-child(4),'+
+'.feed .stage .gd-row>small:nth-of-type(1),.feed .stage .gd-row>small:nth-of-type(3){display:none}'+
+'.feed .stage .gd-row{font-size:17px}'+
+'.feed .stage .gd-ov{left:auto!important;right:6px;width:240px!important}'+
+'.feed .stage .gd-dlg{width:290px}'+
+'.feed .stage .gd-toast{left:126px;right:6px;font-size:16px}'+
+/* синхронізація: вужчий середній стовпчик */
+'.feed .stage .gs{grid-template-columns:minmax(0,1fr) 114px minmax(0,1fr);min-height:0}'+
+'.feed .stage .gs-mid{padding:0 3px}.feed .stage .gs-ar{width:76px;height:34px}'+
+'.feed .stage .gs-st{font-size:11px;max-width:110px;padding:4px 3px;letter-spacing:-.01em}'+
+'.feed .stage .gs-h{font-size:19px;padding:8px 10px;gap:8px}.feed .stage .gs-h svg{width:30px;height:30px}'+
+'.feed .stage .gs-files{padding:6px}.feed .stage .gs-f{font-size:17px;gap:6px;padding:4px 6px;grid-template-columns:22px minmax(0,1fr)}'+
+'.feed .stage .gs-f small{font-size:14px}.feed .stage .gs-f .i{width:20px;height:20px}'+
+'</style>');
+}
+{
+/* sections/7-r1/widgets/poshta3.js */
+/* ===== Електронне листування, адресна книга (урок 7-3) =====
+   W.shliakh73 — «Як лист потрапляє до адресата»: конверт іде від скриньки відправника через поштові сервери
+     до скриньки одержувача (модель, не вікно програми).
+     nodes: [{t, x, kind: pc|srv}] — вузли зліва направо (t — назва, x — адреса);
+     steps: [{k, say, at?: номер вузла з 0 (де конверт), hl?: [номери вузлів], tags?: [[номер вузла, текст]], ask?}]
+   W.vidpov73 — «Відповісти чи переслати?»: отриманий лист і що Gmail підставить у новий лист.
+     inbox: {vid, komu, tema, text, file}; steps: [{k, say, btn?: 0|1|2 (Відповісти, Відповісти всім, Переслати),
+       komu?, tema?, file?: true, quote?: true, row?: текст рядка ланцюжка, ask?}]
+   Класи — з префіксом sh73-/vp73- (CSS віджетів спільний на весь сайт).
+   Учитель: пробіл або клік — далі. Кольори — лише змінними теми. */
+(function(){
+document.head.insertAdjacentHTML('beforeend','<style>'+
+'.sh73,.vp73{display:flex;flex-direction:column;gap:14px;flex:1;min-height:0;justify-content:center}'+
+'.sh73-cap,.vp73-cap{border:3px solid var(--ink);background:var(--paper-alt);padding:8px 18px;flex:none}'+
+'.sh73-cap b.k,.vp73-cap b.k{display:block;font:700 17px var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:2px}'+
+'.sh73-ask b.k,.vp73-ask b.k{color:var(--coral)}'+
+'.sh73-cap p,.vp73-cap p{font-size:25px;line-height:1.28;margin:0}'+
+/* W.shliakh73 */
+'.sh73-wrap{position:relative;padding-top:58px;flex:none}'+
+'.sh73-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:34px}'+
+'.sh73-n{position:relative;border:3px solid var(--line);background:var(--paper);padding:12px 10px 12px;display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;min-height:212px;transition:border-color .3s,background .3s}'+
+'.sh73-n+.sh73-n:before{content:"";position:absolute;left:-31px;top:62px;width:28px;border-top:4px dashed var(--muted)}'+
+'.sh73-n.sh73-hl{border-color:var(--ink);background:var(--sun-soft,var(--paper-alt))}'+
+'.sh73-n svg{width:84px;height:70px;flex:none}'+
+'.sh73-n svg .sh73-st{fill:none;stroke:var(--ink);stroke-width:4;stroke-linejoin:round;stroke-linecap:round}'+
+'.sh73-n svg .sh73-fl{fill:var(--accent-soft,var(--paper-alt));stroke:var(--ink);stroke-width:4}'+
+'.sh73-n b{font:800 23px/1.15 var(--body);color:var(--ink)}'+
+'.sh73-n code{font:700 19px/1.2 var(--mono);color:var(--accent-ink,var(--accent));word-break:break-all}'+
+'.sh73-tag{margin-top:auto;font:700 18px var(--body);background:var(--mint-soft,var(--paper-alt));border:2px solid var(--ink);padding:2px 10px;visibility:hidden}'+
+'.sh73-tag.sh73-on{visibility:visible;animation:sh73f 1.1s}@keyframes sh73f{0%{background:var(--sun)}100%{}}'+
+'.sh73-env{position:absolute;top:0;width:64px;height:46px;margin-left:-32px;transition:left .7s ease,opacity .3s;opacity:0}'+
+'.sh73-env.sh73-on{opacity:1}'+
+'.sh73-env .sh73-eb{fill:var(--paper);stroke:var(--coral);stroke-width:4;stroke-linejoin:round}'+
+'.sh73-env .sh73-ev{fill:none;stroke:var(--coral);stroke-width:4;stroke-linejoin:round}'+
+/* W.vidpov73 */
+'.vp73-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:22px;flex:none;align-items:stretch}'+
+'.vp73-box{border:3px solid var(--line);background:var(--paper);padding:10px 16px 12px;display:flex;flex-direction:column;gap:6px;transition:opacity .3s,border-color .3s}'+
+'.vp73-box>small{font:700 16px var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}'+
+'.vp73-l{display:flex;gap:10px;align-items:baseline;border-bottom:2px solid var(--line);padding-bottom:4px;font:600 21px/1.25 var(--body);color:var(--ink);min-height:32px}'+
+'.vp73-l i{font-style:normal;flex:none;width:62px;color:var(--muted)}'+
+'.vp73-l span{flex:1;min-width:0;overflow-wrap:anywhere}'+
+'.vp73-l.vp73-new span{background:var(--sun-soft,var(--paper-alt));animation:sh73f 1.1s}'+
+'.vp73-t{font:600 21px/1.3 var(--body);color:var(--ink);min-height:30px}'+
+'.vp73-t.vp73-q{border-left:4px solid var(--line);padding-left:10px;color:var(--muted)}'+
+'.vp73-file{align-self:flex-start;border:2px solid var(--ink);border-radius:18px;padding:2px 14px;font:700 19px var(--mono);color:var(--ink);background:var(--paper-alt)}'+
+'.vp73-file.vp73-no{visibility:hidden}'+
+'.vp73-btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}'+
+'.vp73-btns span{border:2px solid var(--muted);border-radius:22px;padding:3px 14px;font:700 20px var(--body);color:var(--muted);transition:all .3s}'+
+'.vp73-btns span.vp73-on{border-color:var(--ink);background:var(--accent);color:var(--paper)}'+
+'.vp73-out.vp73-off{opacity:.3}.vp73-out.vp73-act{border-color:var(--ink)}'+
+'.vp73-rowl{display:none;border:2px solid var(--ink);background:var(--paper-alt);padding:8px 12px;font:700 22px/1.3 var(--body);color:var(--ink)}'+
+'.vp73-out.vp73-chain .vp73-rowl{display:block}.vp73-out.vp73-chain .vp73-cm{display:none}'+
+/* учнівська стрічка (телефон вертикально) */
+'.feed .stage .sh73-wrap{padding-top:0}.feed .stage .sh73-row{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}'+
+'.feed .stage .sh73-n{min-height:0}.feed .stage .sh73-n+.sh73-n:before{display:none}.feed .stage .sh73-env{display:none}'+
+'.feed .stage .sh73-n svg{width:60px;height:50px}.feed .stage .sh73-n b{font-size:18px}.feed .stage .sh73-n code{font-size:15px}.feed .stage .sh73-tag{font-size:15px}'+
+'.feed .stage .vp73-row{grid-template-columns:1fr;gap:10px}'+
+'.feed .stage .vp73-l,.feed .stage .vp73-t{font-size:17px}.feed .stage .vp73-l i{width:50px}'+
+'.feed .stage .vp73-btns span{font-size:16px}.feed .stage .vp73-file{font-size:15px}.feed .stage .vp73-rowl{font-size:17px}'+
+'.feed .stage .sh73-cap p,.feed .stage .vp73-cap p{font-size:20px}'+
+/* учнівська сторінка горизонтально: кадр 1280×720 масштабується, як на дошці; лише ховаємо зайвий відступ */
+'html.student:not(.feed) .sh73-wrap{padding-top:52px}'+
+'</style>');
+
+/* збірка вже екранує рядки YAML (&gt;) — спершу повертаємо символи, потім екрануємо один раз */
+const U=s=>{const t=document.createElement('textarea');t.innerHTML=String(s);return t.value};
+const H=s=>U(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const B=s=>/<b>/.test(s)?s:H(s).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>');
+function caption(c,s,ask){c.classList.toggle(ask,!!s.ask);
+  c.querySelector('.k').textContent=U(s.k||'');c.querySelector('p').innerHTML=B(s.say||'')}
+const CAP=p=>'<div class="'+p+'-cap"><b class="k"></b><p></p></div>';
+
+/* значки: комп’ютер і сервер — лінії кольором теми */
+const PC='<svg viewBox="0 0 84 70"><rect class="sh73-fl" x="8" y="4" width="68" height="44" rx="4"/><path class="sh73-st" d="M42 48v10M26 64h32"/>'+
+  '<rect class="sh73-st" x="24" y="14" width="36" height="24" rx="2"/><path class="sh73-st" d="M25 15l17 12 17-12"/></svg>';
+const SRV='<svg viewBox="0 0 84 70"><rect class="sh73-fl" x="20" y="3" width="44" height="64" rx="4"/>'+
+  '<path class="sh73-st" d="M20 24h44M20 45h44M30 14h14M30 35h14M30 56h14"/><circle class="sh73-st" cx="54" cy="14" r="2"/><circle class="sh73-st" cx="54" cy="35" r="2"/><circle class="sh73-st" cx="54" cy="56" r="2"/></svg>';
+const ENV='<svg class="sh73-env" viewBox="0 0 64 46"><rect class="sh73-eb" x="3" y="3" width="58" height="40" rx="4"/><path class="sh73-ev" d="M5 6l27 20L59 6"/></svg>';
+
+W.shliakh73={html:d=>'<div class="sh73"><div class="sh73-wrap">'+ENV+'<div class="sh73-row">'+
+  (d.nodes||[]).map(n=>'<div class="sh73-n">'+(n.kind==='srv'?SRV:PC)+'<b>'+B(n.t)+'</b><code>'+H(n.x||'')+'</code><span class="sh73-tag"></span></div>').join('')+
+  '</div></div>'+CAP('sh73')+'</div>',
+ mount(r,d,api){
+  const steps=d.steps||[{}],N=[...r.querySelectorAll('.sh73-n')],E=r.querySelector('.sh73-env'),C=r.querySelector('.sh73-cap');
+  const n=N.length||1;
+  function step(i){const s=steps[i]||{},hl=s.hl||[],tags=s.tags||[];
+   N.forEach((el,j)=>{el.classList.toggle('sh73-hl',hl.includes(j));
+    const t=tags.find(x=>x[0]===j),g=el.querySelector('.sh73-tag');
+    g.textContent=t?U(t[1]):'';g.classList.toggle('sh73-on',!!t)});
+   if(s.at!=null){E.style.left=((s.at+0.5)/n*100)+'%';E.classList.add('sh73-on')}else E.classList.remove('sh73-on');
+   caption(C,s,'sh73-ask')}
+  return{count:steps.length-1,step}}};
+
+
+W.vidpov73={html:d=>{const m=d.inbox||{};return '<div class="vp73"><div class="vp73-row">'+
+  '<div class="vp73-box vp73-in"><small>Отриманий лист</small>'+
+  '<div class="vp73-l"><i>Від</i><span>'+H(m.vid||'')+'</span></div>'+
+  '<div class="vp73-l"><i>Кому</i><span>'+H(m.komu||'')+'</span></div>'+
+  '<div class="vp73-l"><i>Тема</i><span>'+H(m.tema||'')+'</span></div>'+
+  '<div class="vp73-t">'+B(m.text||'')+'</div>'+(m.file?'<span class="vp73-file">'+H(m.file)+'</span>':'')+
+  '<div class="vp73-btns"><span>Відповісти</span><span>Відповісти всім</span><span>Переслати</span></div></div>'+
+  '<div class="vp73-box vp73-out"><small>Новий лист</small><div class="vp73-cm">'+
+  '<div class="vp73-l vp73-k"><i>Кому</i><span></span></div><div class="vp73-l vp73-m"><i>Тема</i><span></span></div>'+
+  '<div class="vp73-t vp73-b"></div><span class="vp73-file vp73-f">'+H(m.file||'')+'</span></div>'+
+  '<div class="vp73-rowl"></div></div>'+
+  '</div>'+CAP('vp73')+'</div>'},
+ mount(r,d,api){
+  const steps=d.steps||[{}],m=d.inbox||{},BT=[...r.querySelectorAll('.vp73-btns span')],O=r.querySelector('.vp73-out');
+  const K=r.querySelector('.vp73-k'),T=r.querySelector('.vp73-m'),BD=r.querySelector('.vp73-b'),FL=r.querySelector('.vp73-f');
+  const RW=r.querySelector('.vp73-rowl'),C=r.querySelector('.vp73-cap');
+  function step(i){const s=steps[i]||{},p=steps[i-1]||{},on=s.btn!=null||!!s.row;
+   BT.forEach((el,j)=>el.classList.toggle('vp73-on',s.btn===j));
+   O.classList.toggle('vp73-off',!on);O.classList.toggle('vp73-act',on);O.classList.toggle('vp73-chain',!!s.row);
+   K.querySelector('span').textContent=U(s.komu||'');T.querySelector('span').textContent=U(s.tema||'');
+   K.classList.toggle('vp73-new',!!s.komu&&s.komu!==p.komu);T.classList.toggle('vp73-new',!!s.tema&&s.tema!==p.tema);
+   BD.textContent=s.quote?U(m.text||''):'';BD.classList.toggle('vp73-q',!!s.quote);
+   FL.classList.toggle('vp73-no',!s.file);
+   RW.innerHTML=B(s.row||'');
+   caption(C,s,'vp73-ask')}
+  return{count:steps.length-1,step}}};
 })();
 }
 {
@@ -3600,6 +4010,113 @@ W.symcodes={html:()=>'<input class="field sc-i" style="width:100%;font-size:30px
   I.oninput=upd;return{count:ex.length-1,step(i){I.value=ex[i];upd()}}}};
 }
 {
+/* sections/8-r1/widgets/koduv1.js */
+/* ===== Кодування та декодування повідомлень (8 клас, урок 1) =====
+   W.polib81 — квадрат Полібія: пробіл/клік декодує наступну пару цифр (перша — стовпець, друга — рядок).
+   YAML: w: polib81, code: "24 14 43 13 21 13 62", done: "текст після останньої літери" (необов'язково).
+   Таблиця — як у підручнику (мал. 1.5): Й у 2-му рядку, І та Ї — на початку 3-го. Класи з префіксом pb81-.
+   W.cezar81 — шифр Цезаря: пробіл/клік — наступна літера; повзунок змінює зсув. YAML: word, shift (типово 4), dir (1 — кодування,
+   -1 — декодування). Пари «літера над її заміною» переносяться, тож вміщається і в стрічці на телефоні. Класи cz81-. */
+(function(){
+document.head.insertAdjacentHTML('beforeend','<style>'+
+'.cz81{display:flex;flex-direction:column;gap:22px;flex:1;min-height:0}'+
+'.cz81-top{display:flex;flex-wrap:wrap;align-items:center;gap:12px 18px;font:600 25px var(--body)}'+
+'.cz81-top input{width:220px;accent-color:var(--accent);height:30px}.cz81-top b{font:800 32px var(--mono);color:var(--accent)}'+
+'.cz81-top span.cz81-d{border:2px solid var(--line);border-radius:999px;padding:4px 14px;background:var(--paper)}'+
+'.cz81-ab{display:flex;flex-wrap:wrap;gap:4px;justify-content:center}'+
+'.cz81-ab i{font-style:normal;width:31px;display:flex;flex-direction:column;border-radius:8px;overflow:hidden;box-shadow:inset 0 0 0 2px var(--line);background:var(--paper)}'+
+'.cz81-ab i b{font:700 22px/1.45 var(--mono);text-align:center;color:var(--ink)}'+
+'.cz81-ab i b+b{background:var(--sun-soft)}'+
+'.cz81-ab i.cz81-on{box-shadow:inset 0 0 0 3px var(--coral)}.cz81-ab i.cz81-on b{background:var(--coral);color:var(--paper)}'+
+'.cz81-w{display:flex;flex-wrap:wrap;gap:14px 26px;align-items:center;justify-content:center}'+
+'.cz81-row{display:flex;gap:8px}.cz81-arr{font:800 42px var(--body);color:var(--muted)}'+
+'.cz81-row span{width:56px;height:66px;display:flex;align-items:center;justify-content:center;border-radius:12px;border:3px solid var(--line);'+
+ 'background:var(--paper);font:800 36px var(--mono);color:var(--ink);transition:background .3s}'+
+'.cz81-row span.cz81-ok{background:var(--mint-soft)}.cz81-row span.cz81-cur{border-color:var(--coral)}'+
+'</style>');
+const ABC='абвгґдеєжзиіїйклмнопрстуфхцчшщьюя'.split('');
+W.cezar81={
+ html:d=>{const w=String(d.word||'').split(''),k=d.shift||4,dir=d.dir===-1?-1:1;
+  return '<div class="cz81"><div class="cz81-top"><span>Зсув:</span><input type="range" min="1" max="10" value="'+k+'" aria-label="Зсув">'+
+   '<b class="cz81-k">'+k+'</b><span class="cz81-d">'+(dir>0?'кодування: праворуч':'декодування: ліворуч')+'</span></div>'+
+   '<div class="cz81-ab">'+ABC.map(()=>'<i><b></b><b></b></i>').join('')+'</div>'+
+   '<div class="cz81-w"><div class="cz81-row cz81-in">'+w.map(x=>'<span>'+x+'</span>').join('')+'</div><span class="cz81-arr">→</span>'+
+   '<div class="cz81-row cz81-out">'+w.map(()=>'<span></span>').join('')+'</div></div></div>'},
+ mount(root,d){const w=String(d.word||'').split(''),dir=d.dir===-1?-1:1;let k=d.shift||4,cur=0;
+  const R=root.querySelector('.cz81-top input'),K=root.querySelector('.cz81-k'),cells=[...root.querySelectorAll('.cz81-ab i')],
+   inp=[...root.querySelectorAll('.cz81-in span')],out=[...root.querySelectorAll('.cz81-out span')];
+  const enc=c=>{const i=ABC.indexOf(c);return i<0?c:ABC[(i+dir*k+33*10)%33]};
+  function draw(){K.textContent=k;const c=cur>0?w[cur-1]:null;
+   cells.forEach((x,i)=>{x.children[0].textContent=ABC[i];x.children[1].textContent=enc(ABC[i]);x.classList.toggle('cz81-on',ABC[i]===c)});
+   inp.forEach((x,i)=>x.classList.toggle('cz81-cur',i===cur-1));
+   out.forEach((x,i)=>{x.textContent=i<cur?enc(w[i]):'';x.classList.toggle('cz81-ok',i<cur);x.classList.toggle('cz81-cur',i===cur-1)})}
+  R.oninput=()=>{k=+R.value;draw()};
+  draw();
+  return{count:w.length,step(i){cur=i;draw()}}}
+};
+document.head.insertAdjacentHTML('beforeend','<style>'+
+'.pb81{display:flex;flex-wrap:wrap;gap:22px 34px;align-items:flex-start;justify-content:center;flex:1;min-height:0}'+
+'.pb81-tb{display:grid;grid-template-columns:repeat(7,56px);grid-auto-rows:56px;gap:4px;flex:none}'+
+'.pb81-tb i{font-style:normal;display:flex;align-items:center;justify-content:center;border-radius:10px;font:800 28px var(--mono);'+
+ 'background:var(--paper);box-shadow:inset 0 0 0 2px var(--line);color:var(--ink);transition:background .3s,color .3s,box-shadow .3s}'+
+'.pb81-tb i.pb81-h{background:var(--accent-soft);box-shadow:none;color:var(--accent-ink,var(--ink))}'+
+'.pb81-tb i.pb81-0{background:none;box-shadow:none}'+
+'.pb81-tb i.pb81-line{background:var(--sun-soft)}'+
+'.pb81-tb i.pb81-hh{background:var(--accent);color:var(--on-accent,var(--paper))}'+
+'.pb81-tb i.pb81-x{background:var(--coral);color:var(--paper);box-shadow:none;transform:scale(1.08)}'+
+'.pb81-side{flex:1 1 380px;max-width:600px;display:flex;flex-direction:column;gap:18px;min-width:0}'+
+'.pb81-cap{border:3px solid var(--line);border-radius:14px;background:var(--paper);padding:12px 18px;font:500 26px/1.35 var(--body);min-height:112px}'+
+'.pb81-cap p{margin:0}.pb81-cap b{color:var(--accent)}'+
+'.pb81-code,.pb81-out{display:flex;flex-wrap:wrap;gap:10px}'+
+'.pb81-code span{font:800 30px var(--mono);padding:6px 12px;border-radius:12px;border:3px solid var(--line);background:var(--paper);color:var(--muted);transition:all .3s}'+
+'.pb81-code span.pb81-on{border-color:var(--coral);color:var(--ink)}.pb81-code span.pb81-ok{color:var(--ink);background:var(--mint-soft)}'+
+'.pb81-out span{width:56px;height:66px;display:flex;align-items:center;justify-content:center;border-radius:12px;border:3px solid var(--line);'+
+ 'background:var(--paper);font:800 36px var(--mono);color:var(--ink);transition:background .3s}'+
+'.pb81-out span.pb81-ok{background:var(--mint-soft)}.pb81-out span.pb81-on{border-color:var(--coral)}'+
+'</style>');
+
+const ROWS=['АБВГҐД','ЕЄЖЗИЙ','ІЇКЛМН','ОПРСТУ','ФХЦЧШЩ','ЬЮЯ'];
+
+W.polib81={
+ html:d=>{
+  let t='<i class="pb81-0"></i>';
+  for(let c=1;c<=6;c++)t+='<i class="pb81-h" data-c="'+c+'">'+c+'</i>';
+  for(let r=1;r<=6;r++){
+   t+='<i class="pb81-h" data-r="'+r+'">'+r+'</i>';
+   for(let c=1;c<=6;c++){const L=ROWS[r-1][c-1];t+=L?'<i data-cr="'+c+r+'">'+L+'</i>':'<i class="pb81-0"></i>'}
+  }
+  const pairs=String(d.code||'').trim().split(/\s+/);
+  return '<div class="pb81"><div class="pb81-tb">'+t+'</div><div class="pb81-side">'+
+   '<div class="pb81-cap"></div>'+
+   '<div class="pb81-code">'+pairs.map(p=>'<span>'+p+'</span>').join('')+'</div>'+
+   '<div class="pb81-out">'+pairs.map(()=>'<span></span>').join('')+'</div></div></div>';
+ },
+ mount(root,d){
+  const pairs=String(d.code||'').trim().split(/\s+/);
+  const cells=[...root.querySelectorAll('.pb81-tb i')],code=[...root.querySelectorAll('.pb81-code span')],
+   out=[...root.querySelectorAll('.pb81-out span')],cap=root.querySelector('.pb81-cap');
+  const letter=p=>{const c=+p[0],r=+p[1];return (ROWS[r-1]||'')[c-1]||'?'};
+  function draw(n){
+   cells.forEach(x=>x.classList.remove('pb81-line','pb81-hh','pb81-x'));
+   code.forEach((x,i)=>{x.classList.toggle('pb81-ok',i<n-1||(n===pairs.length&&i<n));x.classList.toggle('pb81-on',i===n-1&&n<pairs.length)});
+   out.forEach((x,i)=>{x.textContent=i<n?letter(pairs[i]):'';x.classList.toggle('pb81-ok',i<n);x.classList.toggle('pb81-on',i===n-1&&n<pairs.length)});
+   if(n===0){cap.innerHTML='<p>Кожна літера — <b>дві цифри</b>: перша — номер <b>стовпця</b>, друга — номер <b>рядка</b>.</p>';return}
+   const p=pairs[n-1],c=p[0],r=p[1];
+   cells.forEach(x=>{
+    if(x.dataset.c===c||x.dataset.r===r)x.classList.add('pb81-hh');
+    const cr=x.dataset.cr;if(!cr)return;
+    if(cr===c+r)x.classList.add('pb81-x');else if(cr[0]===c||cr[1]===r)x.classList.add('pb81-line');
+   });
+   cap.innerHTML=n===pairs.length&&d.done?'<p>'+d.done+'</p>':
+    '<p><b>'+p+'</b>: стовпець '+c+', рядок '+r+' → <b>'+letter(p)+'</b></p>';
+  }
+  draw(0);
+  return{count:pairs.length,step(i){draw(i)}};
+ }
+};
+})();
+}
+{
 /* sections/8-r1/widgets/kolir3.js */
 /* ===== Кодування графічних і мультимедійних даних (8 клас, урок 3) =====
    W.pix83  — растровий малюнок → числа: пікселі, домовленість про коди кольорів, малюнок як 80 чисел і назад.
@@ -3813,6 +4330,116 @@ W.zvuk83={html:()=>'<div class="k83z"><svg viewBox="0 0 '+ZW+' '+ZH+'" aria-hidd
    V.textContent=i===4?samples(14,2,80).map(s=>String(Math.round(s[1])).replace('-','−')).join('  '):i===6?'42 числа замість 14':'';
    cap.innerHTML=b(ZS[i])}
   return{count:7,step}}};
+})();
+}
+{
+/* sections/8-r1/widgets/tekst2.js */
+/* ===== Кодування текстових даних. Таблиці кодів символів (8 клас, урок 2) =====
+   W.kody82  — одне слово в трьох таблицях: під кожним символом його коди в ASCII, Windows-1251 і Юнікоді («—» — символу в таблиці немає).
+               YAML: w: kody82, items: [{w: "Cat", t: "підпис"}, …]. Пробіл/клік — наступне слово. Класи k82-.
+   W.krak82  — звідки беруться «кракозябри»: слово зберегли за однією таблицею (числа), відкрили за іншою.
+               YAML: w: krak82, word: "Привіт", cases: [[зберегли, відкрили], …]; таблиці: "1251", "koi8", "utf8", "ascii".
+               Крок 0 — лише числа першого випадку, далі — по випадку на крок. Класи kr82-.
+   W.alt82   — символи Юнікоду за кодом: «Alt + цифри» → який символ з'явиться. YAML: w: alt82, rows: [[символ, назва, код], …].
+               Крок — наступний символ. Класи al82-.
+   Таблиці Windows-1251 і КОІ8-U (коди 128–255) вшито рядками нижче — однакові в усіх браузерах. */
+(function(){
+document.head.insertAdjacentHTML('beforeend','<style>'+
+'.k82{display:flex;flex-direction:column;gap:22px;flex:1;min-height:0;justify-content:center}'+
+'.k82-w{display:flex;flex-wrap:wrap;gap:16px;justify-content:center}'+
+'.k82-c{width:196px;box-sizing:border-box;border:3px solid var(--line);border-radius:18px;background:var(--paper);padding:8px 14px 12px;display:flex;flex-direction:column;gap:4px}'+
+'.k82-g{font:800 62px/1.2 var(--body);text-align:center;color:var(--ink);min-height:74px}'+
+'.k82-c span{display:flex;justify-content:space-between;align-items:baseline;gap:6px;font:600 21px var(--body);color:var(--muted)}'+
+'.k82-c em{font:800 27px var(--mono);font-style:normal;color:var(--accent)}.k82-c em.k82-no{color:var(--coral)}'+
+'.k82-t{font:600 26px/1.35 var(--body);text-align:center;margin:0;min-height:1.4em;color:var(--ink)}'+
+'.kr82{display:flex;flex-direction:column;gap:16px;flex:1;min-height:0;justify-content:center}'+
+'.kr82-r{display:flex;align-items:center;gap:10px 18px;flex-wrap:wrap}'+
+'.kr82-l{width:250px;flex:none;font:600 22px/1.25 var(--body);color:var(--muted)}.kr82-l b{display:block;font:800 25px var(--body);color:var(--ink)}'+
+'.kr82-q{display:flex;flex-wrap:wrap;gap:8px;flex:1;min-width:0}'+
+'.kr82-q span{min-width:54px;height:62px;padding:0 6px;box-sizing:border-box;display:flex;align-items:center;justify-content:center;border-radius:12px;'+
+ 'border:3px solid var(--line);background:var(--paper);font:800 34px var(--mono);color:var(--ink)}'+
+'.kr82-q.kr82-n span{font-size:24px;min-width:64px;height:48px}.kr82-q.kr82-n span.kr82-a{background:var(--sky-soft)}.kr82-q.kr82-n span.kr82-b{background:var(--sun-soft)}'+
+'.kr82-q.kr82-ok span{background:var(--mint-soft);border-color:var(--mint)}.kr82-q.kr82-bad span{background:var(--pink-soft);border-color:var(--coral)}'+
+'.kr82-v{margin:0;font:700 26px/1.35 var(--body);color:var(--ink);min-height:1.4em}.kr82-v.kr82-bad{color:var(--coral)}'+
+'.al82{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;flex:1;min-height:0;align-content:center}'+
+'.al82-c{border:3px solid var(--line);border-radius:18px;background:var(--paper);padding:12px 14px;display:flex;flex-direction:column;align-items:center;gap:6px;min-width:0}'+
+'.al82-k{display:flex;flex-wrap:wrap;gap:5px;justify-content:center;align-items:center}'+
+'.al82-k kbd{min-width:30px;height:38px;padding:0 6px;box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;border-radius:8px;'+
+ 'border:2px solid var(--line);border-bottom-width:4px;background:var(--paper);font:700 22px var(--mono);color:var(--ink)}'+
+'.al82-k kbd.al82-alt{background:var(--sun-soft)}.al82-k i{font:700 22px var(--body);font-style:normal;color:var(--muted)}'+
+'.al82-s{font:400 64px/1.15 "Segoe UI Symbol","Segoe UI Historic","Noto Sans Symbols","Noto Sans Symbols 2","Noto Sans Linear B",var(--body);color:var(--ink);min-height:76px}'+
+'.al82-c.al82-q .al82-s{color:var(--muted)}.al82-c.al82-on{border-color:var(--accent)}'+
+'.al82-n{font:600 21px/1.25 var(--body);color:var(--muted);text-align:center;min-height:1.3em}'+
+'</style>');
+const T1251="ЂЃ‚ѓ„…†‡€‰Љ‹ЊЌЋЏђ‘’“”•–—�™љ›њќћџ ЎўЈ¤Ґ¦§Ё©Є«¬­®Ї°±Ііґµ¶·ё№є»јЅѕїАБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдежзийклмнопрстуфхцчшщъыьэюя";
+const TKOI="─│┌┐└┘├┤┬┴┼▀▄█▌▐░▒▓⌠■∙√≈≤≥ ⌡°²·÷═║╒ёє╔ії╗╘╙╚╛ґ╝╞╟╠╡ЁЄ╣ІЇ╦╧╨╩╪Ґ╬©юабцдефгхийклмнопярстужвьызшэщчъЮАБЦДЕФГХИЙКЛМНОПЯРСТУЖВЬЫЗШЭЩЧЪ";
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const shown=ch=>ch===' '?'␣':ch===' '?'␣':esc(ch);
+/* код символу в 8-бітній таблиці (null — символу там немає) */
+const code8=(T,ch)=>{const u=ch.codePointAt(0);if(u<128)return u;const k=T.indexOf(ch);return k<0||ch==='�'?null:128+k};
+const utf8=ch=>{const u=ch.codePointAt(0);
+  if(u<0x80)return[u];if(u<0x800)return[0xC0|u>>6,0x80|u&63];
+  if(u<0x10000)return[0xE0|u>>12,0x80|u>>6&63,0x80|u&63];return[0xF0|u>>18,0x80|u>>12&63,0x80|u>>6&63,0x80|u&63]};
+const ENC={'1251':ch=>{const c=code8(T1251,ch);return[c===null?63:c]},'koi8':ch=>{const c=code8(TKOI,ch);return[c===null?63:c]},
+  'utf8':utf8,'ascii':ch=>{const u=ch.codePointAt(0);return[u<128?u:63]}};
+function dec(t,b){
+  if(t==='1251')return b.map(x=>x<128?String.fromCharCode(x):T1251[x-128]);
+  if(t==='koi8')return b.map(x=>x<128?String.fromCharCode(x):TKOI[x-128]);
+  if(t==='ascii')return b.map(x=>x<128?String.fromCharCode(x):'�');
+  const out=[];let i=0;                       /* UTF-8: неправильна послідовність — «�» на кожен байт */
+  while(i<b.length){const x=b[i];const n=x<0x80?1:x>=0xF0&&x<0xF8?4:x>=0xE0?3:x>=0xC2&&x<0xE0?2:0;
+    let ok=n>0&&i+n<=b.length;for(let k=1;ok&&k<n;k++)ok=(b[i+k]&0xC0)===0x80;
+    if(!ok){out.push('�');i++;continue}
+    let u=n===1?x:n===2?x&31:n===3?x&15:x&7;for(let k=1;k<n;k++)u=u<<6|b[i+k]&63;out.push(String.fromCodePoint(u));i+=n}
+  return out}
+const NAME={'1251':'Windows-1251','koi8':'КОІ8-U','utf8':'Юнікод (UTF-8)','ascii':'ASCII'};
+
+W.kody82={
+ html:()=>'<div class="k82"><div class="k82-w"></div><p class="k82-t"></p></div>',
+ mount(root,d){const it=(d.items||[]).map(x=>typeof x==='string'?{w:x}:x);if(!it.length)it.push({w:'Cat'});
+  const box=root.querySelector('.k82-w'),T=root.querySelector('.k82-t');
+  const row=(l,v)=>'<span>'+l+(v===null?'<em class="k82-no">—</em>':'<em>'+v+'</em>')+'</span>';
+  function draw(i){const x=it[Math.max(0,Math.min(it.length-1,i))];
+   box.innerHTML=[...String(x.w)].map(ch=>{const u=ch.codePointAt(0);
+    return '<div class="k82-c"><b class="k82-g">'+shown(ch)+'</b>'+row('ASCII',u<128?u:null)+row('Win-1251',code8(T1251,ch))+row('Юнікод',u)+'</div>'}).join('');
+   T.textContent=x.t||''}
+  draw(0);
+  return{count:it.length-1,step(i){draw(i)}}}
+};
+
+W.krak82={
+ html:()=>'<div class="kr82">'+
+  '<div class="kr82-r"><span class="kr82-l">Текст<b>набрали</b></span><div class="kr82-q kr82-w"></div></div>'+
+  '<div class="kr82-r"><span class="kr82-l">Зберегли за таблицею<b class="kr82-s"></b></span><div class="kr82-q kr82-n"></div></div>'+
+  '<div class="kr82-r"><span class="kr82-l">Відкрили за таблицею<b class="kr82-o"></b></span><div class="kr82-q kr82-res"></div></div>'+
+  '<p class="kr82-v"></p></div>',
+ mount(root,d){const word=[...String(d.word||'Привіт')],cases=(d.cases&&d.cases.length?d.cases:[['1251','1251'],['1251','koi8'],['utf8','1251'],['utf8','utf8']]);
+  const $=s=>root.querySelector(s),Wd=$('.kr82-w'),N=$('.kr82-n'),R=$('.kr82-res'),S=$('.kr82-s'),O=$('.kr82-o'),V=$('.kr82-v');
+  Wd.innerHTML=word.map(ch=>'<span>'+shown(ch)+'</span>').join('');
+  function draw(i){const c=cases[Math.max(0,Math.min(cases.length-1,i===0?0:i-1))],sv=String(c[0]),op=String(c[1]);
+   const per=word.map(ch=>ENC[sv]?ENC[sv](ch):[ch.codePointAt(0)]),bytes=[].concat(...per);
+   S.textContent=NAME[sv]||sv;
+   N.innerHTML=per.map((g,k)=>g.map(b=>'<span class="'+(sv==='utf8'?(k%2?'kr82-b':'kr82-a'):'')+'">'+b+'</span>').join('')).join('');
+   if(i===0){O.textContent='?';R.innerHTML='';R.className='kr82-q kr82-res';V.className='kr82-v';V.textContent='Пробіл або клік — відкриємо файл';return}
+   const out=dec(op,bytes),ok=out.join('')===word.join('');
+   O.textContent=NAME[op]||op;
+   R.innerHTML=out.map(ch=>'<span>'+shown(ch)+'</span>').join('');
+   R.className='kr82-q kr82-res '+(ok?'kr82-ok':'kr82-bad');
+   V.className='kr82-v'+(ok?'':' kr82-bad');
+   V.textContent=ok?'✓ Та сама таблиця — текст правильний':(op==='ascii'||out.indexOf('�')>=0?'✗ У цій таблиці немає таких кодів — замість літер «�»':'✗ Не та таблиця — «кракозябри». А числа ті самі!')}
+  draw(0);
+  return{count:cases.length,step(i){draw(i)}}}
+};
+
+W.alt82={
+ html:d=>'<div class="al82">'+(d.rows||[]).map(r=>'<div class="al82-c al82-q"><div class="al82-k"><kbd class="al82-alt">Alt</kbd><i>+</i>'+
+   String(r[2]).split('').map(x=>'<kbd>'+esc(x)+'</kbd>').join('')+'</div><div class="al82-s">?</div><div class="al82-n"></div></div>').join('')+'</div>',
+ mount(root,d){const rows=d.rows||[],cards=[...root.querySelectorAll('.al82-c')];
+  function draw(n){cards.forEach((c,k)=>{const on=k<n;c.classList.toggle('al82-q',!on);c.classList.toggle('al82-on',k===n-1);
+   c.querySelector('.al82-s').textContent=on?String(rows[k][0]):'?';c.querySelector('.al82-n').textContent=on?String(rows[k][1]):''})}
+  draw(0);
+  return{count:rows.length,step(i){draw(i)}}}
+};
 })();
 }
 {
@@ -5542,6 +6169,84 @@ W.dyktor4={html:d=>'<div class="dk4"><div class="dk4-m"><div class="dk4-pg"><div
 })();
 }
 {
+/* sections/9-r1/widgets/golos6.js */
+/* ===== Голосове введення тексту (урок 9-6, Практична робота 1) =====
+   W.golos6 — як голос стає текстом: мікрофон → сервіс розпізнавання мовлення (через Інтернет) → документ.
+     nodes: [{t, x}]  — ланки шляху по черзі;
+     steps: [{k, say, at, said, doc: [рядки], ask?}] — at — номер ланки, що працює (0 — жодна);
+       said — що людина каже в мікрофон; doc — текст у документі ПІСЛЯ кроку.
+       У рядках doc: **нове** — щойно з’явилось (підсвічено), ~слово~ — програма не впевнена (сіре підкреслення).
+   Це схема, а не вигляд програми: справжні вікна — на слайдах-знімках уроку.
+   Класи — з префіксом gl6-. Учитель: пробіл або клік — далі. Кольори — лише змінними теми. */
+(function(){
+document.head.insertAdjacentHTML('beforeend','<style>'+
+'.gl6{display:flex;flex-direction:column;gap:16px;flex:1;min-height:0;justify-content:center}'+
+'.gl6-w{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);align-items:stretch;flex:none}'+
+'.gl6-n{display:flex;align-items:stretch}'+
+'.gl6-n .c{flex:1;border:3px solid var(--line);background:var(--paper);padding:10px 16px;display:flex;flex-direction:column;gap:6px;min-height:128px;transition:all .3s}'+
+'.gl6-n .c i{font:800 20px var(--mono);font-style:normal;color:var(--muted)}'+
+'.gl6-n .c h4{margin:0;font:800 26px/1.15 var(--body);color:var(--ink)}'+
+'.gl6-n .c .x{font:600 21px/1.25 var(--body);color:var(--muted)}'+
+'.gl6-n .a{width:40px;flex:none;display:flex;align-items:center;justify-content:center;font:800 28px var(--body);color:var(--muted)}'+
+'.gl6-n:last-child .a{display:none}'+
+'.gl6-n.gl6-cur .c{border-color:var(--ink);background:var(--accent-tint);box-shadow:0 0 0 4px var(--accent-ink,var(--accent))}'+
+'.gl6-n.gl6-cur .c .x{color:var(--ink)}'+
+'.gl6-n.gl6-was .c{border-color:var(--ink)}'+
+'.gl6-b{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,3fr);gap:16px;flex:none}'+
+'.gl6-box{border:3px solid var(--ink);background:var(--paper);padding:10px 16px;min-height:150px}'+
+'.gl6-box small{display:block;font:700 17px var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}'+
+'.gl6-said p{margin:0;font:italic 600 26px/1.3 var(--body);color:var(--ink)}'+
+'.gl6-said p:not(:empty):before{content:"«"}.gl6-said p:not(:empty):after{content:"»"}'+
+'.gl6-doc{background:var(--paper-alt,var(--paper))}'+
+'.gl6-doc p{margin:0;font:500 26px/1.35 var(--body);color:var(--ink);min-height:1.35em}'+
+'.gl6-doc p b{background:var(--sun-soft,var(--accent-tint));box-shadow:0 0 0 2px var(--sun-soft,var(--accent-tint));font-weight:700}'+
+'.gl6-doc u.gl6-u{text-decoration:underline dotted var(--muted);text-decoration-thickness:3px;text-underline-offset:5px}'+
+'.gl6-doc .cur{display:inline-block;width:3px;height:1.1em;vertical-align:-.15em;background:var(--ink);margin-left:2px}'+
+'.gl6-cap{border:3px solid var(--ink);background:var(--paper-alt,var(--paper));padding:8px 18px;flex:none}'+
+'.gl6-cap b.k{display:block;font:700 18px var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:2px}'+
+'.gl6-cap.gl6-ask b.k{color:var(--coral)}'+
+'.gl6-cap p{font-size:26px;line-height:1.28;margin:0}'+
+/* учнівська стрічка (телефон вертикально, картка 600 px) */
+'.feed .stage .gl6-w{grid-auto-flow:row;grid-auto-columns:auto}'+
+'.feed .stage .gl6-n{flex-direction:column}.feed .stage .gl6-n .c{min-height:0}'+
+'.feed .stage .gl6-n .a{width:auto;height:24px;transform:rotate(90deg)}'+
+'.feed .stage .gl6-n .c h4{font-size:20px}.feed .stage .gl6-n .c .x{font-size:16px}'+
+'.feed .stage .gl6-b{grid-template-columns:minmax(0,1fr)}.feed .stage .gl6-box{min-height:0}'+
+'.feed .stage .gl6-said p,.feed .stage .gl6-doc p,.feed .stage .gl6-cap p{font-size:20px}'+
+/* учнівська сторінка горизонтально: нижче, бо під слайдом кнопки */
+'html.student:not(.feed) .gl6{gap:6px}'+
+'html.student:not(.feed) .gl6-n .c{min-height:0;padding:5px 10px;gap:2px}'+
+'html.student:not(.feed) .gl6-n .c h4{font-size:18px}html.student:not(.feed) .gl6-n .c .x{font-size:14px}'+
+'html.student:not(.feed) .gl6-box{min-height:0;padding:5px 10px}'+
+'html.student:not(.feed) .gl6-said p,html.student:not(.feed) .gl6-doc p{font-size:18px}'+
+'html.student:not(.feed) .gl6-cap{padding:4px 12px}html.student:not(.feed) .gl6-cap p{font-size:18px}'+
+'</style>');
+
+/* збірка вже екранує рядки YAML (&gt;) і робить **…** жирним (<b>) — тоді рядок беремо як є */
+const U=s=>{const t=document.createElement('textarea');t.innerHTML=String(s);return t.value};
+const H=s=>U(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const B=s=>/<b>/.test(s)?String(s):H(s).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>');
+const D=s=>B(s).replace(/~(.+?)~/g,'<u class="gl6-u">$1</u>');
+
+W.golos6={html:d=>'<div class="gl6"><div class="gl6-w">'+(d.nodes||[]).map((n,j)=>
+  '<div class="gl6-n"><div class="c"><i>'+(j+1)+'</i><h4>'+H(n.t)+'</h4><div class="x">'+H(n.x||'')+'</div></div><div class="a">→</div></div>').join('')+'</div>'+
+  '<div class="gl6-b"><div class="gl6-box gl6-said"><small>Ви говорите</small><p></p></div>'+
+  '<div class="gl6-box gl6-doc"><small>У документі</small><div class="t"></div></div></div>'+
+  '<div class="gl6-cap"><b class="k"></b><p></p></div></div>',
+ mount(r,d,api){
+  const steps=d.steps||[{}],N=[...r.querySelectorAll('.gl6-n')];
+  const SAID=r.querySelector('.gl6-said p'),DOC=r.querySelector('.gl6-doc .t'),CAP=r.querySelector('.gl6-cap');
+  function step(i){const s=steps[i]||{};
+   N.forEach((n,j)=>{const at=j+1;n.className='gl6-n'+(s.at===at?' gl6-cur':s.at>at?' gl6-was':'')});
+   SAID.textContent=U(s.said||'');
+   const lines=(s.doc&&s.doc.length)?s.doc:[''];
+   DOC.innerHTML=lines.map((l,j)=>'<p>'+D(l)+(j===lines.length-1?'<span class="cur"></span>':'')+'</p>').join('');
+   CAP.classList.toggle('gl6-ask',!!s.ask);
+   CAP.querySelector('.k').textContent=U(s.k||'');CAP.querySelector('p').innerHTML=B(s.say||'')}
+  return{count:steps.length-1,step}}};
+})();
+}
+{
 /* sections/9-r1/widgets/instal3.js */
 /* ===== Інсталяція, деінсталяція, драйвери (урок 9-3) =====
    W.instal3 — що змінює на комп’ютері інсталяція програми і чому не можна просто видалити папку.
@@ -5651,6 +6356,379 @@ W.drajver3={html:d=>'<div class="dr3"><div class="dr3-dev"><small>Пристрі
    DS.classList.toggle('dr3-y',done);
    caption(r,s)}
   return{count:steps.length-1,step}}};
+})();
+}
+{
+/* sections/9-r1/widgets/nalasht5.js */
+/* ===== Налаштування інтерфейсу для інклюзивності (урок 9-5) =====
+   W.lupa5 — три вигляди Екранної лупи Windows на справжньому знімку вікна Word: на весь екран, лінза, закріплено.
+     img:   ключ картинки (знімок екрана) зі specs;
+     z:     збільшення (2 = 200 %);
+     steps: [{k, mode: none|full|lens|dock, at: [x, y] (частки знімка, куди дивиться лупа),
+              to?: [[x, y], …] (лінза пливе за мишею цими точками), keys?, say}].
+   W.filtr5 — що роблять кольорові фільтри: зліва картинка попереднього перегляду з вікна «Фільтри кольору»,
+     справа — та сама з фільтром. deu — симуляція (так приблизно бачить людина з дейтеранопією, матриця Machado 2009),
+     gray — «Відтінки сірого», inv — «Інвертовані», igray — «Інвертовані відтінки сірого» (як у Windows).
+     img: ключ; steps: [{k, f: none|deu|gray|inv|igray, label, mark?: [x, y, w, h] у %, say}].
+   Класи — з префіксом lp5-/fl5- (стилі віджетів спільні для всього сайту).
+   Учитель: пробіл або клік — далі. Кольори — лише змінними теми. */
+(function(){
+document.head.insertAdjacentHTML('beforeend','<style>'+
+/* спільне: панель режимів і підпис */
+'.lp5,.fl5{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:22px;flex:1;min-height:0;align-items:center}'+
+'.lp5-side,.fl5-side{display:flex;flex-direction:column;gap:12px;min-width:0}'+
+'.lp5-m,.fl5-m{display:flex;flex-direction:column;gap:6px}'+
+'.lp5-m span,.fl5-m span{display:block;border:3px solid var(--line);background:var(--paper);padding:5px 12px;font:700 21px/1.2 var(--body);color:var(--muted);transition:background .2s,border-color .2s,color .2s}'+
+'.lp5-m span.lp5-on,.fl5-m span.fl5-on{border-color:var(--ink);background:var(--sun-soft,var(--paper-alt));color:var(--ink)}'+
+'.lp5-keys{font:800 22px var(--mono);color:var(--ink);border:3px dashed var(--line);padding:6px 12px;min-height:1em}'+
+'.lp5-keys:empty{display:none}'+
+'.lp5-cap,.fl5-cap{border:3px solid var(--ink);background:var(--paper-alt);padding:10px 16px}'+
+'.lp5-cap b.k,.fl5-cap b.k{display:block;font:700 18px var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:2px}'+
+'.lp5-cap p,.fl5-cap p{font-size:24px;line-height:1.28;margin:0}'+
+/* W.lupa5 */
+'.lp5-scr{position:relative;width:100%;aspect-ratio:1882/1141;border:3px solid var(--ink);overflow:hidden;background:var(--paper)}'+
+'.lp5-scr>img{position:absolute;left:0;top:0;width:100%;height:100%;display:block}'+
+'.lp5-box{position:absolute;overflow:hidden;display:none;background:var(--paper)}'+
+'.lp5-box img{position:absolute;display:block;max-width:none}'+
+'.lp5-box.lp5-anim,.lp5-box.lp5-anim img{transition:left 1.1s linear,top 1.1s linear}'+
+'.lp5-full{left:0;top:0;width:100%;height:100%}'+
+'.lp5-lens{width:38%;height:30%;border:5px solid var(--accent-ink,var(--accent));box-shadow:0 6px 18px rgba(0,0,0,.35)}'+
+'.lp5-dock{left:0;top:0;width:100%;height:40%;border-bottom:6px solid var(--accent-ink,var(--accent))}'+
+'.lp5-pct{position:absolute;right:10px;bottom:10px;font:800 22px var(--body);background:var(--ink);color:var(--paper);padding:2px 10px;display:none}'+
+/* W.filtr5 */
+'.fl5-pair{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px}'+
+'.fl5-fig{margin:0;display:flex;flex-direction:column;gap:6px;min-width:0}'+
+'.fl5-fig figcaption{font:700 19px/1.2 var(--body);color:var(--muted);letter-spacing:.04em;text-transform:uppercase;min-height:2.4em}'+
+'.fl5-pic{position:relative;border:3px solid var(--ink);line-height:0}'+
+'.fl5-pic img{width:100%;display:block;transition:filter .5s}'+
+'.fl5-pic.fl5-deu img{filter:url(#fl5-deu)}.fl5-pic.fl5-gray img{filter:grayscale(1)}'+
+'.fl5-pic.fl5-inv img{filter:invert(1)}.fl5-pic.fl5-igray img{filter:grayscale(1) invert(1)}'+
+'.fl5-mark{position:absolute;border:5px solid var(--sun);box-shadow:0 0 0 3px var(--ink);display:none}'+
+'.fl5-svg{position:absolute;width:0;height:0;overflow:hidden}'+
+/* учнівська стрічка (телефон вертикально) */
+'.feed .stage .lp5,.feed .stage .fl5{grid-template-columns:minmax(0,1fr);gap:12px}'+
+'.feed .stage .lp5-m,.feed .stage .fl5-m{flex-direction:row;flex-wrap:wrap}'+
+'.feed .stage .lp5-m span,.feed .stage .fl5-m span{font-size:17px;padding:3px 8px}'+
+'.feed .stage .lp5-cap p,.feed .stage .fl5-cap p{font-size:20px}.feed .stage .lp5-keys{font-size:18px}'+
+'.feed .stage .fl5-fig figcaption{font-size:15px}'+
+/* учнівська сторінка горизонтально: нижче, бо під слайдом кнопки */
+'html.student:not(.feed) .lp5,html.student:not(.feed) .fl5{grid-template-columns:minmax(0,1fr) 300px;gap:10px}'+
+'html.student:not(.feed) .lp5-scr{width:min(100%,600px)}'+
+'html.student:not(.feed) .lp5-side,html.student:not(.feed) .fl5-side{gap:6px}'+
+'html.student:not(.feed) .lp5-m,html.student:not(.feed) .fl5-m{gap:3px}'+
+'html.student:not(.feed) .lp5-m span,html.student:not(.feed) .fl5-m span{font-size:16px;padding:2px 8px}'+
+'html.student:not(.feed) .lp5-keys{font-size:16px;padding:3px 8px}'+
+'html.student:not(.feed) .lp5-cap,html.student:not(.feed) .fl5-cap{padding:4px 10px}'+
+'html.student:not(.feed) .lp5-cap p,html.student:not(.feed) .fl5-cap p{font-size:17px}'+
+'html.student:not(.feed) .fl5-fig figcaption{font-size:14px;min-height:0}'+
+'</style>');
+
+/* збірка вже екранує рядки YAML (&gt;) — спершу повертаємо символи, потім екрануємо один раз */
+const U=s=>{const t=document.createElement('textarea');t.innerHTML=String(s==null?'':s);return t.value};
+const H=s=>U(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+/* жирне збірка вже перетворила на <b> (і екранувала решту) — тоді рядок готовий */
+const B=s=>/<b>/.test(String(s))?String(s):H(s).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>');
+const SRC=k=>(typeof IMG!=='undefined'&&IMG[k])||'';
+function caption(r,cls,s){const c=r.querySelector('.'+cls);
+  c.querySelector('.k').textContent=U(s.k||'');c.querySelector('p').innerHTML=B(s.say||'')}
+
+/* ---------- W.lupa5 ---------- */
+const MODES5={none:'Лупу вимкнено',full:'На весь екран',lens:'Лінза',dock:'Закріплено'};
+W.lupa5={html:d=>{const src=SRC(d.img);
+  return '<div class="lp5"><div class="lp5-scr"><img src="'+src+'" alt="">'+
+   ['full','lens','dock'].map(m=>'<div class="lp5-box lp5-'+m+'"><img src="'+src+'" alt=""></div>').join('')+
+   '<span class="lp5-pct"></span></div>'+
+   '<div class="lp5-side"><div class="lp5-m">'+Object.keys(MODES5).map(m=>'<span data-m="'+m+'">'+MODES5[m]+'</span>').join('')+'</div>'+
+   '<div class="lp5-keys"></div><div class="lp5-cap"><b class="k"></b><p></p></div></div></div>'},
+ mount(r,d,api){
+  const steps=d.steps||[{}],z=+d.z||2;
+  const BOX={full:r.querySelector('.lp5-full'),lens:r.querySelector('.lp5-lens'),dock:r.querySelector('.lp5-dock')};
+  const PCT=r.querySelector('.lp5-pct'),KEYS=r.querySelector('.lp5-keys'),M=[...r.querySelectorAll('.lp5-m span')];
+  const SZ={full:[1,1],lens:[.38,.30],dock:[1,.40]};
+  const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+  /* fx, fy — точка знімка (частки), яку лупа показує в центрі своєї рамки */
+  function place(m,fx,fy){const box=BOX[m],im=box.querySelector('img'),[bw,bh]=SZ[m];
+   let bx=0,by=0;
+   if(m==='lens'){bx=clamp(fx-bw/2,0,1-bw);by=clamp(fy-bh/2,0,1-bh)}
+   im.style.width=(z/bw*100)+'%';im.style.height=(z/bh*100)+'%';
+   /* лінза показує те, що під нею; на весь екран і закріплено — навколо точки, але не за краєм знімка */
+   let ix,iy;
+   if(m==='lens'){ix=-(bx+bw/2)*z/bw+.5;iy=-(by+bh/2)*z/bh+.5}
+   else{ix=clamp(.5-fx*z/bw,1-z/bw,0);iy=clamp(.5-fy*z/bh,1-z/bh,0)}
+   im.style.left=(ix*100)+'%';im.style.top=(iy*100)+'%';
+   box.style.left=(bx*100)+'%';box.style.top=(by*100)+'%'}
+  let tm=[];const clear=()=>{tm.forEach(clearTimeout);tm=[]};
+  function step(i){clear();const s=steps[i]||{},m=MODES5[s.mode]?s.mode:'none',at=s.at||[.5,.5];
+   M.forEach(x=>x.classList.toggle('lp5-on',x.dataset.m===m));
+   KEYS.textContent=U(s.keys||'');caption(r,'lp5-cap',s);
+   Object.entries(BOX).forEach(([k,b])=>{b.classList.remove('lp5-anim');b.style.display=k===m?'block':'none'});
+   PCT.style.display=m==='none'?'none':'block';PCT.textContent=Math.round(z*100)+' %';
+   if(m==='none')return;
+   place(m,at[0],at[1]);
+   (s.to||[]).forEach((p,q)=>tm.push(setTimeout(()=>{BOX[m].classList.add('lp5-anim');place(m,p[0],p[1])},700+q*1300)))}
+  return{count:steps.length-1,step}}};
+
+/* ---------- W.filtr5 ---------- */
+const FL5={none:'Фільтр вимкнено',deu:'Як бачить людина з дейтеранопією',gray:'Відтінки сірого',inv:'Інвертовані',igray:'Інвертовані відтінки сірого'};
+/* дейтеранопія, повна (Machado, Oliveira, Fernandes 2009), у лінійному RGB */
+const DEU='0.367322 0.860646 -0.227968 0 0 0.280085 0.672501 0.047413 0 0 -0.011820 0.042940 0.968881 0 0 0 0 0 1 0';
+W.filtr5={html:d=>{const src=SRC(d.img);
+  return '<div class="fl5"><svg class="fl5-svg" aria-hidden="true"><filter id="fl5-deu" color-interpolation-filters="linearRGB">'+
+   '<feColorMatrix type="matrix" values="'+DEU+'"/></filter></svg>'+
+   '<div class="fl5-pair"><figure class="fl5-fig"><figcaption>Оригінал</figcaption><div class="fl5-pic"><img src="'+src+'" alt=""></div></figure>'+
+   '<figure class="fl5-fig"><figcaption class="fl5-lb"></figcaption><div class="fl5-pic fl5-out"><img src="'+src+'" alt=""><span class="fl5-mark"></span></div></figure></div>'+
+   '<div class="fl5-side"><div class="fl5-m">'+Object.keys(FL5).map(f=>'<span data-f="'+f+'">'+FL5[f]+'</span>').join('')+'</div>'+
+   '<div class="fl5-cap"><b class="k"></b><p></p></div></div></div>'},
+ mount(r,d,api){
+  const steps=d.steps||[{}],OUT=r.querySelector('.fl5-out'),LB=r.querySelector('.fl5-lb'),MK=r.querySelector('.fl5-mark'),
+        M=[...r.querySelectorAll('.fl5-m span')];
+  function step(i){const s=steps[i]||{},f=FL5[s.f]?s.f:'none';
+   OUT.className='fl5-pic fl5-out'+(f==='none'?'':' fl5-'+f);
+   LB.textContent=U(s.label||FL5[f]);
+   M.forEach(x=>x.classList.toggle('fl5-on',x.dataset.f===f));
+   const mk=s.mark;MK.style.display=mk?'block':'none';
+   if(mk){MK.style.left=mk[0]+'%';MK.style.top=mk[1]+'%';MK.style.width=mk[2]+'%';MK.style.height=mk[3]+'%'}
+   caption(r,'fl5-cap',s)}
+  return{count:steps.length-1,step}}};
+})();
+}
+{
+/* sections/9-r1/widgets/os2.js */
+/* ===== Операційні системи (урок 9-2) =====
+   W.shlyakh2 — як складові ОС працюють разом: увімкнення комп’ютера, друк, збереження файлу.
+     rows:  [[{id, t, x, out?}]] — ряди блоків згори донизу; out: true — не частина ОС (користувач, пристрої);
+     steps: [{k, say, path: [id…], ask?}] — path — блоки шляху по черзі (на них з’являються номери 1, 2, 3…);
+       не on — YAML читає його як «так».
+   W.chastky2 — частки ОС у світі й в Україні (стовпчики).
+     names: [назва ОС…]; sets: [{t, v: [відсотки в порядку names]}];
+     steps: [{k, say, show: скільки наборів видно (0…), hi: індекс ОС для підсвічування, ask?}].
+   Класи з префіксом sl2-/ch2- (стилі віджетів спільні на весь сайт).
+   Учитель: пробіл або клік — далі. Кольори — лише змінними теми. */
+(function(){
+document.head.insertAdjacentHTML('beforeend','<style>'+
+'.sl2{display:flex;flex-direction:column;gap:14px;flex:1;min-height:0;justify-content:center}'+
+'.sl2-os{border:3px solid var(--line);padding:30px 12px 10px;position:relative;display:flex;flex-direction:column;gap:8px}'+
+'.sl2-os>small{position:absolute;left:14px;top:4px;font:800 17px var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}'+
+'.sl2-r{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:10px}'+
+'.sl2-b{border:3px solid var(--line);background:var(--paper);padding:6px 14px 6px 52px;position:relative;min-height:52px;display:flex;align-items:center;gap:12px;transition:background .3s,border-color .3s}'+
+'.sl2-b h4{margin:0;font:800 25px/1.1 var(--body);color:var(--ink);white-space:nowrap}'+
+'.sl2-b .x{font:600 21px/1.2 var(--body);color:var(--muted)}'+
+'.sl2-b i{position:absolute;left:10px;top:50%;margin-top:-16px;width:32px;height:32px;border-radius:50%;font:800 19px/32px var(--body);font-style:normal;text-align:center;color:var(--paper);background:var(--accent-ink,var(--accent));visibility:hidden}'+
+'.sl2-b.sl2-out{border-style:dashed}'+
+'.sl2-b.sl2-on{border-color:var(--ink);background:var(--accent-tint)}'+
+'.sl2-b.sl2-on .x{color:var(--ink)}.sl2-b.sl2-on i{visibility:visible}'+
+'.sl2-b.sl2-new{animation:sl2f 1.2s}'+
+'@keyframes sl2f{0%{background:var(--sun)}100%{}}'+
+'.sl2-cap,.ch2-cap{border:3px solid var(--ink);background:var(--paper-alt);padding:8px 18px;flex:none}'+
+'.sl2-cap b.k,.ch2-cap b.k{display:block;font:700 18px var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:2px}'+
+'.sl2-cap.sl2-ask b.k,.ch2-cap.ch2-ask b.k{color:var(--coral)}'+
+'.sl2-cap p,.ch2-cap p{font-size:26px;line-height:1.28;margin:0}'+
+/* W.chastky2 */
+'.ch2{display:flex;flex-direction:column;gap:16px;flex:1;min-height:0;justify-content:center}'+
+'.ch2-g{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px}'+
+'.ch2-s{border:3px solid var(--line);background:var(--paper);padding:10px 16px;display:flex;flex-direction:column;gap:7px;transition:opacity .4s}'+
+'.ch2-s h4{margin:0 0 2px;font:800 26px var(--body);color:var(--ink)}'+
+'.ch2-s.ch2-hid{opacity:.12}'+
+'.ch2-l{display:grid;grid-template-columns:118px minmax(0,1fr);align-items:center;gap:10px}'+
+'.ch2-l b{font:700 21px var(--body);color:var(--ink)}'+
+'.ch2-l .t{height:30px;display:flex;align-items:center;gap:8px}'+
+'.ch2-l .f{height:100%;width:0;background:var(--muted);opacity:.45;transition:width .7s}'+
+'.ch2-l .v{font:800 21px var(--body);color:var(--muted);white-space:nowrap}'+
+'.ch2-l.ch2-hi .f{background:var(--accent-ink,var(--accent));opacity:1}.ch2-l.ch2-hi .v{color:var(--ink)}'+
+'.ch2-l.ch2-hi b{color:var(--accent-ink,var(--accent))}'+
+/* учнівська стрічка (телефон вертикально) */
+'.feed .stage .sl2-r{grid-auto-flow:row;grid-auto-columns:auto}'+
+'.feed .stage .sl2-b{flex-direction:column;align-items:flex-start;gap:0;padding:4px 10px 4px 46px}'+
+'.feed .stage .sl2-b h4{font-size:19px;white-space:normal}.feed .stage .sl2-b .x{font-size:16px}'+
+'.feed .stage .sl2-cap p,.feed .stage .ch2-cap p{font-size:21px}'+
+'.feed .stage .ch2-g{grid-template-columns:1fr;gap:10px}'+
+'.feed .stage .ch2-l{grid-template-columns:92px minmax(0,1fr)}.feed .stage .ch2-l b,.feed .stage .ch2-l .v{font-size:17px}'+
+'.feed .stage .ch2-l .t{height:22px}'+
+/* учнівська сторінка горизонтально */
+'html.student:not(.feed) .sl2,html.student:not(.feed) .ch2{gap:6px}'+
+'html.student:not(.feed) .sl2-os{padding:20px 8px 6px;gap:4px}html.student:not(.feed) .sl2-os>small{font-size:13px;top:2px}'+
+'html.student:not(.feed) .sl2-b{min-height:0;padding:2px 10px 2px 40px}html.student:not(.feed) .sl2-b h4{font-size:17px}html.student:not(.feed) .sl2-b .x{font-size:14px}'+
+'html.student:not(.feed) .sl2-b i{width:24px;height:24px;margin-top:-12px;font-size:14px;line-height:24px}'+
+'html.student:not(.feed) .sl2-cap,html.student:not(.feed) .ch2-cap{padding:4px 12px}html.student:not(.feed) .sl2-cap p,html.student:not(.feed) .ch2-cap p{font-size:19px}'+
+'html.student:not(.feed) .ch2-s{padding:4px 10px;gap:2px}html.student:not(.feed) .ch2-s h4{font-size:18px}'+
+'html.student:not(.feed) .ch2-l b,html.student:not(.feed) .ch2-l .v{font-size:15px}html.student:not(.feed) .ch2-l .t{height:18px}'+
+'</style>');
+
+/* збірка вже екранує рядки YAML (&gt;) — спершу повертаємо символи, потім екрануємо один раз */
+const U=s=>{const t=document.createElement('textarea');t.innerHTML=String(s);return t.value};
+const H=s=>U(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const B=s=>/<b>/.test(s)?s:H(s).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>');
+function caption(r,cls,s){const c=r.querySelector('.'+cls+'-cap');c.classList.toggle(cls+'-ask',!!s.ask);
+  c.querySelector('.k').textContent=U(s.k||'');c.querySelector('p').innerHTML=B(s.say||'')}
+
+const box=p=>'<div class="sl2-b'+(p.out?' sl2-out':'')+'" data-id="'+H(p.id)+'"><i></i><h4>'+H(p.t)+'</h4><div class="x">'+H(p.x||'')+'</div></div>';
+W.shlyakh2={html:d=>{const rows=d.rows||[];let os=false,h='';
+   rows.forEach(row=>{const inOs=row.some(p=>!p.out);
+    if(inOs&&!os){h+='<div class="sl2-os"><small>'+H(d.frame||'Операційна система')+'</small>';os=true}
+    if(!inOs&&os){h+='</div>';os=false}
+    h+='<div class="sl2-r">'+row.map(box).join('')+'</div>'});
+   if(os)h+='</div>';
+   return '<div class="sl2">'+h+'<div class="sl2-cap"><b class="k"></b><p></p></div></div>'},
+ mount(r,d,api){
+  const steps=d.steps||[{}],T=[...r.querySelectorAll('.sl2-b')];
+  function step(i){const s=steps[i]||{},on=(s.path||[]).map(String),pon=((steps[i-1]||{}).path||[]).map(String);
+   T.forEach(el=>{const id=el.dataset.id,n=on.indexOf(id);
+    el.classList.toggle('sl2-on',n>=0);el.classList.remove('sl2-new');
+    if(n>=0&&i>0&&pon.indexOf(id)<0){void el.offsetWidth;el.classList.add('sl2-new')}
+    el.querySelector('i').textContent=n>=0?String(n+1):''});
+   caption(r,'sl2',s)}
+  return{count:steps.length-1,step}}};
+
+W.chastky2={html:d=>{const names=d.names||[];
+   return '<div class="ch2"><div class="ch2-g">'+(d.sets||[]).map(st=>'<div class="ch2-s"><h4>'+H(st.t)+'</h4>'+
+    names.map((n,j)=>'<div class="ch2-l"><b>'+H(n)+'</b><div class="t"><div class="f"></div><span class="v"></span></div></div>').join('')+
+    '</div>').join('')+'</div><div class="ch2-cap"><b class="k"></b><p></p></div></div>'},
+ mount(r,d,api){
+  const steps=d.steps||[{}],sets=d.sets||[],S=[...r.querySelectorAll('.ch2-s')];
+  const max=Math.max(1,...sets.map(st=>Math.max(...(st.v||[0]).map(Number))));
+  function step(i){const s=steps[i]||{},show=Number(s.show||0),hi=s.hi===undefined||s.hi===null?-1:Number(s.hi);
+   S.forEach((el,k)=>{const vis=k<show,v=(sets[k]||{}).v||[];
+    el.classList.toggle('ch2-hid',!vis);
+    [...el.querySelectorAll('.ch2-l')].forEach((l,j)=>{const x=Number(v[j]||0);
+     l.querySelector('.f').style.width=vis?(x/max*82)+'%':'0';
+     l.querySelector('.v').textContent=vis?x+' %':'';
+     l.classList.toggle('ch2-hi',vis&&j===hi)})});
+   caption(r,'ch2',s)}
+  return{count:steps.length-1,step}}};
+})();
+}
+{
+/* sections/9-r1/widgets/systemy1.js */
+/* ===== Інформаційні системи і види програмного забезпечення (урок 9-1) =====
+   W.shema1 — узагальнена схема інформаційної системи: одна схема — різні системи.
+     boxes: [{id, t}] — блоки зліва направо (збирання → канали → опрацювання і зберігання → канали → користувачі);
+     back:  {t, from?} — нижня стрілка «Запити на нові дані» (з останнього блока назад до блока з id = from);
+     steps: [{sys, k, say, at?, x?, fill?: {id: текст}, ask?}] — sys — назва системи (новий sys — схема знову порожня);
+       at + x — заповнити один блок (id блока або 'back'); fill — заповнити кілька одразу. Текст накопичується
+       від першого кроку з тим самим sys. Поточний блок підсвічено.
+   W.vydy1 — куди віднести програму: дерево видів ПЗ і програми, що по черзі «лягають» у свій вид.
+     root: назва кореня; groups: [{t, bins: [{id, t, v?}]}] (v — як назвати вид у відповіді); items: [{t, to, why}];
+     intro: підпис першого кроку. Кроки: 0 — порожнє дерево; далі для кожної програми два кроки:
+       «Куди віднести?» (програма вгорі праворуч) і «Відповідь» (програма в своєму виді).
+   Класи — з префіксом sh1-/vd1- (тема «Swiss» ховає .fin, у темах є .cur, .ok…).
+   Учитель: пробіл або клік — далі. Кольори — лише змінними теми. */
+(function(){
+document.head.insertAdjacentHTML('beforeend','<style>'+
+/* W.shema1 */
+'.sh1{display:flex;flex-direction:column;gap:14px;flex:1;min-height:0;justify-content:center}'+
+'.sh1-sys{display:flex;align-items:baseline;gap:16px;flex:none}'+
+'.sh1-sys small{font:700 17px var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}'+
+'.sh1-sys b{font:800 30px/1.15 var(--body);color:var(--accent-ink,var(--accent))}'+
+'.sh1-g{display:grid;grid-template-columns:1.2fr 34px .85fr 34px 1.3fr 34px .85fr 34px 1.2fr;row-gap:10px;flex:none}'+
+'.sh1-b{border:3px solid var(--line);background:var(--paper);padding:10px 12px;min-height:200px;display:flex;flex-direction:column;gap:8px;transition:background .3s,border-color .3s}'+
+'.sh1-b h4{margin:0;font:800 23px/1.15 var(--body);color:var(--ink)}'+
+'.sh1-b .x{font:600 21px/1.25 var(--body);color:var(--ink)}'+
+'.sh1-b.sh1-k{border-style:dashed}'+
+'.sh1-b.sh1-f{border-color:var(--ink);background:var(--mint-soft)}'+
+'.sh1-b.sh1-c{border-color:var(--ink);background:var(--accent-tint);box-shadow:0 0 0 4px var(--accent-ink,var(--accent))}'+
+'.sh1-a{display:flex;align-items:center;justify-content:center;font:800 28px var(--body);color:var(--muted)}'+
+'.sh1-bk{grid-column:5/10;border:3px dashed var(--line);background:var(--paper);padding:8px 14px;display:flex;align-items:baseline;gap:12px;transition:background .3s}'+
+'.sh1-bk i{font:800 28px var(--body);font-style:normal;color:var(--muted)}'+
+'.sh1-bk h4{margin:0;font:800 21px var(--body);white-space:nowrap}'+
+'.sh1-bk .x{font:600 21px/1.25 var(--body)}'+
+'.sh1-bk.sh1-f{border-style:solid;border-color:var(--ink);background:var(--mint-soft)}'+
+'.sh1-bk.sh1-c{border-style:solid;border-color:var(--ink);background:var(--accent-tint);box-shadow:0 0 0 4px var(--accent-ink,var(--accent))}'+
+'.sh1-cap,.vd1-cap{border:3px solid var(--ink);background:var(--paper-alt);padding:8px 18px;flex:none}'+
+'.sh1-cap b.k,.vd1-cap b.k{display:block;font:700 17px var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:2px}'+
+'.sh1-cap.sh1-ask b.k,.vd1-cap.vd1-ask b.k{color:var(--coral)}'+
+'.sh1-cap p,.vd1-cap p{font-size:25px;line-height:1.28;margin:0}'+
+/* W.vydy1 */
+'.vd1{display:flex;flex-direction:column;gap:12px;flex:1;min-height:0;justify-content:center}'+
+'.vd1-top{display:flex;align-items:center;gap:18px;flex:none}'+
+'.vd1-root{flex:1;text-align:center;border:3px solid var(--ink);background:var(--paper-alt);padding:8px;font:800 26px var(--body)}'+
+'.vd1-new{width:300px;flex:none;border:3px dashed var(--line);padding:6px 12px;min-height:58px;display:flex;align-items:center;gap:10px}'+
+'.vd1-new small{font:700 15px var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}'+
+'.vd1-g{display:flex;gap:10px;flex:none}'+
+'.vd1-gr{display:flex;flex-direction:column;gap:10px;min-width:0}'+
+'.vd1-w1{flex:1 1 0}.vd1-w2{flex:2 1 0}.vd1-w3{flex:3 1 0}.vd1-w4{flex:4 1 0}.vd1-w5{flex:5 1 0}'+
+'.vd1-bs{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:10px}'+
+'.vd1-gh{border:3px solid var(--ink);background:var(--paper);text-align:center;padding:6px;font:800 23px var(--body)}'+
+'.vd1-bin{border:3px solid var(--line);background:var(--paper);padding:8px 10px;min-height:190px;display:flex;flex-direction:column;gap:8px;transition:background .3s}'+
+'.vd1-bin h4{margin:0 0 2px;font:800 21px/1.15 var(--body);color:var(--ink)}'+
+'.vd1-bin.vd1-c{border-color:var(--ink);background:var(--accent-tint);box-shadow:0 0 0 4px var(--accent-ink,var(--accent))}'+
+'.vd1-chip{display:inline-block;border:2px solid var(--ink);background:var(--mint-soft);padding:3px 10px;font:700 21px/1.2 var(--body);color:var(--ink)}'+
+'.vd1-chip.vd1-n{animation:vd1f 1.2s}'+
+'@keyframes vd1f{0%{background:var(--sun)}100%{}}'+
+'.vd1-new .vd1-chip{background:var(--sun-soft,var(--paper-alt));font-size:23px}'+
+/* учнівська стрічка (телефон вертикально, картка 600 px) */
+'.feed .stage .sh1-g{grid-template-columns:1fr;row-gap:4px}'+
+'.feed .stage .sh1-a{transform:rotate(90deg);height:26px}'+
+'.feed .stage .sh1-b{min-height:0;padding:6px 10px;gap:2px}.feed .stage .sh1-b h4{font-size:19px}.feed .stage .sh1-b .x{font-size:17px}'+
+'.feed .stage .sh1-bk{grid-column:1;flex-wrap:wrap}.feed .stage .sh1-bk h4{font-size:18px;white-space:normal}.feed .stage .sh1-bk .x{font-size:17px}'+
+'.feed .stage .sh1-sys b{font-size:24px}'+
+'.feed .stage .sh1-cap p,.feed .stage .vd1-cap p{font-size:20px}'+
+'.feed .stage .vd1-top{flex-direction:column;align-items:stretch;gap:6px}.feed .stage .vd1-new{width:auto}'+
+'.feed .stage .vd1-g{flex-direction:column}'+
+'.feed .stage .vd1-bs{grid-auto-flow:row;grid-template-columns:repeat(2,minmax(0,1fr))}'+
+'.feed .stage .vd1-gh{font-size:19px}'+
+'.feed .stage .vd1-bin{min-height:0}.feed .stage .vd1-bin h4{font-size:17px}.feed .stage .vd1-chip{font-size:17px}'+
+/* учнівська сторінка горизонтально: трохи нижче, бо під слайдом кнопки */
+'html.student:not(.feed) .sh1,html.student:not(.feed) .vd1{gap:8px}'+
+'html.student:not(.feed) .sh1-b{min-height:140px;padding:8px 10px;gap:4px}html.student:not(.feed) .sh1-b h4{font-size:20px}html.student:not(.feed) .sh1-b .x{font-size:18px}'+
+'html.student:not(.feed) .sh1-bk{padding:5px 12px}html.student:not(.feed) .sh1-bk h4,html.student:not(.feed) .sh1-bk .x{font-size:18px}'+
+'html.student:not(.feed) .sh1-sys b{font-size:24px}'+
+'html.student:not(.feed) .sh1-cap,html.student:not(.feed) .vd1-cap{padding:5px 14px}html.student:not(.feed) .sh1-cap p,html.student:not(.feed) .vd1-cap p{font-size:20px}'+
+'html.student:not(.feed) .vd1-root{font-size:22px;padding:5px}html.student:not(.feed) .vd1-new{min-height:0;padding:4px 10px}'+
+'html.student:not(.feed) .vd1-gh{font-size:20px;padding:4px}html.student:not(.feed) .vd1-bin{min-height:110px;padding:6px 8px;gap:6px}'+
+'html.student:not(.feed) .vd1-bin h4{font-size:18px}html.student:not(.feed) .vd1-chip{font-size:18px;padding:2px 8px}'+
+'</style>');
+
+/* збірка вже екранує рядки YAML (&gt;) і перетворює ** на <b> — спершу повертаємо символи, потім екрануємо один раз */
+const U=s=>{const t=document.createElement('textarea');t.innerHTML=String(s);return t.value};
+const H=s=>U(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const B=s=>/<b>/.test(s)?s:H(s).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>');
+function caption(c,s,ask){c.classList.toggle(ask,!!s.ask);
+  c.querySelector('.k').textContent=U(s.k||'');c.querySelector('p').innerHTML=B(s.say||'')}
+
+W.shema1={html:d=>{const bx=d.boxes||[],bk=d.back||{};
+  return '<div class="sh1"><div class="sh1-sys"><small>Система</small><b></b></div><div class="sh1-g">'+
+  bx.map((b,j)=>(j?'<div class="sh1-a">→</div>':'')+'<div class="sh1-b'+(/^k/.test(b.id)?' sh1-k':'')+'" data-id="'+H(b.id)+'"><h4>'+H(b.t)+'</h4><div class="x"></div></div>').join('')+
+  '<div class="sh1-bk" data-id="back"><i>↩</i><h4>'+H(bk.t||'Запити на нові дані')+'</h4><div class="x"></div></div>'+
+  '</div><div class="sh1-cap"><b class="k"></b><p></p></div></div>'},
+ mount(r,d,api){
+  const steps=d.steps||[{}];
+  const T=[...r.querySelectorAll('.sh1-b,.sh1-bk')],SY=r.querySelector('.sh1-sys b'),C=r.querySelector('.sh1-cap');
+  function step(i){const s=steps[i]||{};
+   let j0=i;while(j0>0&&(steps[j0-1]||{}).sys===s.sys)j0--;
+   const txt={};for(let j=j0;j<=i;j++){const t=steps[j]||{};if(t.at)txt[t.at]=t.x||'';if(t.fill)Object.assign(txt,t.fill)}
+   const cur=s.fill?Object.keys(s.fill):s.at?[s.at]:[];
+   T.forEach(el=>{const id=el.dataset.id,v=txt[id];
+    el.classList.toggle('sh1-f',v!=null&&v!=='');el.classList.toggle('sh1-c',cur.includes(id));
+    el.querySelector('.x').innerHTML=v?B(v):''});
+   SY.textContent=U(s.sys||'будь-яка');
+   caption(C,s,'sh1-ask')}
+  return{count:steps.length-1,step}}};
+
+W.vydy1={html:d=>{const gs=d.groups||[];
+  const grp=gs.map(g=>{const bs=g.bins||[];return '<div class="vd1-gr vd1-w'+Math.min(5,Math.max(1,bs.length))+'"><div class="vd1-gh">'+H(g.t)+'</div><div class="vd1-bs">'+
+   bs.map(b=>'<div class="vd1-bin" data-id="'+H(b.id)+'"><h4>'+H(b.t)+'</h4></div>').join('')+'</div></div>'}).join('');
+  return '<div class="vd1"><div class="vd1-top"><div class="vd1-root">'+H(d.root||'Програмне забезпечення')+'</div>'+
+   '<div class="vd1-new"><small>Програма</small></div></div><div class="vd1-g">'+grp+'</div>'+
+   '<div class="vd1-cap"><b class="k"></b><p></p></div></div>'},
+ mount(r,d,api){
+  const items=d.items||[],bins={};
+  (d.groups||[]).forEach(g=>(g.bins||[]).forEach(b=>bins[b.id]=b.v||b.t));
+  const BN=[...r.querySelectorAll('.vd1-bin')],NW=r.querySelector('.vd1-new'),C=r.querySelector('.vd1-cap');
+  function step(i){
+   const k=Math.ceil(i/2)-1,placed=i%2===0?k+1:k;  /* скільки програм уже на місці */
+   BN.forEach(b=>{b.querySelectorAll('.vd1-chip').forEach(c=>c.remove());b.classList.remove('vd1-c')});
+   items.slice(0,placed).forEach((it,j)=>{const b=BN.find(x=>x.dataset.id===it.to);if(!b)return;
+    b.insertAdjacentHTML('beforeend','<span class="vd1-chip'+(j===k&&i%2===0?' vd1-n':'')+'">'+H(it.t)+'</span>');
+    if(j===k&&i%2===0)b.classList.add('vd1-c')});
+   NW.querySelectorAll('.vd1-chip').forEach(c=>c.remove());
+   let s;
+   if(i===0)s={k:'Види програмного забезпечення',say:d.intro||'Куди віднести кожну програму?'};
+   else{const it=items[k]||{};
+    if(i%2){NW.insertAdjacentHTML('beforeend','<span class="vd1-chip">'+H(it.t)+'</span>');
+     s={k:'Куди віднести?',ask:true,say:'До якого виду належить **'+H(it.t)+'**?'}}
+    else s={k:'Відповідь',say:'**'+H(it.t)+'** — '+H(bins[it.to]||'')+': '+B(it.why||'')}}
+   caption(C,s,'vd1-ask')}
+  return{count:items.length*2,step}}};
 })();
 }
 {
