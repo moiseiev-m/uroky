@@ -432,7 +432,7 @@ kbd{font-family:var(--mono);font-size:.85em;border:1px solid var(--line);border-
 .feed .stage .fig figcaption{min-width:0;overflow-wrap:anywhere}
 /* титул */
 .feed .stage .s-title{min-height:0;padding-top:30px}
-.feed .stage .s-title .t-head{position:static;margin:0 0 20px}
+.feed .stage .s-title .t-head{position:relative;inset:auto;margin:0 0 20px}   /* relative: хвиля «Абстракту» й пунктир «Зошита» — під шапкою титулу, а не внизу картки */
 .feed .stage .s-title h2{font-size:46px}
 .feed .stage .stickers{display:none}   /* наліпки титулу розкладені під 1280×720 — у стрічці лише заважають */
 /* Біт — після змісту, не поверх */

@@ -352,6 +352,16 @@ function gotoKey(d){gotoBuf=(gotoBuf+d).slice(-3);const g=$('goto');g.hidden=fal
   clearTimeout(gotoT);gotoT=setTimeout(()=>{gotoBuf='';g.hidden=true},2500)}
 function gotoDo(){const n=+gotoBuf;gotoBuf='';$('goto').hidden=true;if(n>=1&&n<=S.length)go(n-1,0)}
 
+/* Копіювання: у коді на слайдах стоять невидимі символи — compile_lesson.py ставить нерозривний пробіл
+   і з'єднувач слів U+2060 у відступи {mono:…}, а в YAML U+2060 розриває ** і {змінна} f-рядків.
+   Без них скопійований рядок працює в Python (інакше: invalid non-printable character U+2060). */
+const COPY_HIDDEN=/[⁠​‌‍﻿]/g;
+document.addEventListener('copy',e=>{const s=getSelection();if(!s||s.isCollapsed||!e.clipboardData)return;
+  const t=s.toString();if(!/[⁠​‌‍﻿  ]/.test(t))return;
+  const box=document.createElement('div');for(let i=0;i<s.rangeCount;i++)box.appendChild(s.getRangeAt(i).cloneContents());
+  e.clipboardData.setData('text/plain',t.replace(COPY_HIDDEN,'').replace(/[  ]/g,' '));
+  e.clipboardData.setData('text/html',box.innerHTML.replace(COPY_HIDDEN,''));e.preventDefault()});
+
 document.addEventListener('keydown',e=>{if(!L)return;const k=e.key,a=document.activeElement,tag=(a&&a.tagName)||'';
   const typing=/INPUT|TEXTAREA/.test(tag)||(a&&a.isContentEditable);
   if(e.ctrlKey&&(k==='z'||k==='я')){if(!typing){e.preventDefault();undoPen()}return}
@@ -5184,7 +5194,7 @@ W.eniac15={html:()=>{
    F[k].style.borderColor=on?'':'var(--line)';X[k].textContent=on?d[2]:''})}
   return{count:D.length,step}}};
 
-/* Стрічка часу: перші ЕОМ (світ і Україна) і перші персональні комп’ютери, 1941–1981 */
+/* Стрічка часу: перші ЕОМ (світ і Україна) і перші персональні комп’ютери, 1941–1981 (ABC — 1942: добудовано й випробувано того року, у підручнику 1941) */
 W.chrono15={html:()=>'<style>.ch15-ax{position:relative;flex:none;height:400px;margin:4px 30px 0}'+
   '.ch15-ln{position:absolute;left:0;right:0;top:190px;height:6px;border-radius:3px;background:var(--ink)}'+
   '.ch15-tk{position:absolute;top:204px;transform:translateX(-50%);font-size:20px;color:var(--muted)}'+
@@ -5199,7 +5209,7 @@ W.chrono15={html:()=>'<style>.ch15-ax{position:relative;flex:none;height:400px;m
  mount(r){
   // [рік, назва, де, що, рівень: -2/-1 — над віссю, 1/2 — під віссю, Україна?]
   const E=[[1941,'Z3','Німеччина','К. Цузе: електромеханічні реле, двійкове кодування',-1],
-   [1941,'ABC','США','Дж. Атанасов і К. Беррі: електронні лампи, двійкове кодування',1],
+   [1942,'ABC','США','Дж. Атанасов і К. Беррі: електронні лампи, двійкове кодування',1],
    [1944,'Colossus','Велика Британія','секретна машина для дешифрування радіограм (1943–1944)',-2],
    [1944,'Mark-1','США','Г. Ейкен на замовлення IBM: реле, автоматичне керування',2],
    [1946,'ENIAC','США','Дж. Моклі й П. Еккерт: 18 000 ламп, 30 т',-1],
