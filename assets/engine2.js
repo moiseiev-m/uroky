@@ -653,11 +653,21 @@ V.home=d=>{const items=d.items||[];
    bit(d.bit||bt,'home',pUrl?'laptop':'wave')+'</div>'}};
 
 /* ===== Скріншот із підказками: → веде по позначках, лупа наближає ===== */
+// рука з витягнутим пальцем (кінчик угорі ліворуч) — підказка «натисніть» в учнівській версії
+const HAND='<svg viewBox="0 0 24 24"><path d="M7.2 3.8a1.8 1.8 0 0 1 3.6 0V10.4a1.7 1.7 0 0 1 3.4 0V11.2a1.7 1.7 0 0 1 3.4 0V12a1.6 1.6 0 0 1 3.2 0V16c0 3.6-2.7 6-6.3 6h-2.2c-2.1 0-3.5-.7-4.8-2.1L3.4 16.4a1.6 1.6 0 0 1 2.3-2.2L7.2 15.6Z"/><path d="M10.8 10.4V13.4M14.2 11.2V13.6M17.6 12V13.8"/></svg>';
 function shotMount(box,d,api){
   const side=el('div','hs-side'),tx=el('p','hs-text',txt(d.intro)||'Пробіл або клік — далі, або оберіть пункт списку.');
   const btns=(d.spots||[]).map((s,i)=>{const b=el('button','hs-btn',txt(s.l));b.onclick=()=>api.setStep(i+1);side.append(b);return b});
   const lupa=el('button','btn lupa on','<span class="ic" data-icon="search" aria-hidden="true"></span>Лупа');
   side.append(tx,lupa);
+  /* учнівська версія: діти не здогадуються, що пункти натискаються — рука «натискає» перший пункт,
+     доки учень сам не натисне будь-який; на телефоні вертикально — ще й рядок-підказка над пунктами */
+  if(document.documentElement.classList.contains('student')&&btns.length){
+    if(!d.intro)tx.innerHTML='Натисніть на пункт списку.';
+    side.prepend(el('p','hs-hint','<span class="hs-ico" aria-hidden="true">'+HAND+'</span>Натисніть на пункт — і побачите його на знімку'));
+    const hand=el('span','hs-hand',HAND);hand.setAttribute('aria-hidden','true');
+    btns[0].classList.add('hint');btns[0].append(hand);
+    side.addEventListener('click',e=>{if(e.target.closest('.hs-btn')){btns[0].classList.remove('hint');hand.remove()}})}
   const frame=el('div','frame'),inner=el('div','inner'),im=el('img'),spot=el('div','spot');
   inner.append(im,spot);frame.append(inner);box.append(side,frame);
   let dd=null,cur=0,zoom=true;

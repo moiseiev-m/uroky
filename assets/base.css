@@ -267,6 +267,18 @@ table.t tr.f{transform:none}
 .inner img{display:block;width:100%;height:auto;max-width:none}
 .spot{position:absolute;border:3px solid var(--coral);border-radius:6px;box-shadow:0 0 0 3000px rgba(30,20,80,.3);pointer-events:none;opacity:0;transition:opacity .3s}
 .spot.on{opacity:1}
+/* учнівська версія: рука «натискає» перший пункт, доки учень сам не натисне; рядок-підказка — лише в стрічці */
+.hs-hint{display:none}
+.feed .stage .hs-hint{display:flex;align-items:center;gap:10px;margin:0 0 4px;font-size:22px!important;line-height:1.3;font-weight:700;color:var(--ink-muted)}
+.hs-ico{flex:none;width:34px;height:34px}
+.student .hs-btn.hint{position:relative;animation:hs-ring 1.6s ease-out infinite}
+.hs-hand{position:absolute;right:6%;top:38%;width:54px;height:54px;pointer-events:none;z-index:3;
+  transform-origin:35% 10%;animation:hs-tap 1.6s ease-in-out infinite}
+:is(.hs-hand,.hs-ico) svg{display:block;width:100%;height:100%;overflow:visible}
+:is(.hs-hand,.hs-ico) path{fill:#fff;stroke:#1E1B4B;stroke-width:1.4;stroke-linejoin:round;stroke-linecap:round}
+@keyframes hs-tap{0%,100%{transform:translate(8px,12px)}40%,60%{transform:translate(0,0) scale(.88)}}
+@keyframes hs-ring{0%,35%{box-shadow:0 0 0 0 color-mix(in srgb,var(--accent) 70%,transparent)}100%{box-shadow:0 0 0 14px transparent}}
+@media (prefers-reduced-motion:reduce){.hs-hand,.student .hs-btn.hint{animation:none}}
 .dd{position:absolute;background:#fff;border:1px solid #999;box-shadow:0 6px 18px rgba(0,0,0,.3);font:13px "Segoe UI",sans-serif;color:#222;display:none;z-index:2;white-space:nowrap}
 .dd div{padding:3px 10px}
 .dd div:first-child{background:#CCE4F7}
