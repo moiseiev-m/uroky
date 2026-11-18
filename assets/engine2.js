@@ -568,16 +568,21 @@ function figure(b){return '<figure'+cls('fig',b.head?'has-head':'')+vars({'--h':
   img(b.img)+(b.head?'<figcaption><h3>'+txt(b.head)+'</h3></figcaption>':'')+'</figure>'}
 
 /* ===== Типи слайдів ===== */
-V.title=d=>({cls:'s-title',html:
+/* у відео (?video) титул без «Урок N» (учитель 18.11.2026: наступного року номери уроків зсунуться, відео — на роки);
+   на дошці й в учнівській версії номер лишається */
+V.title=d=>{const vid=/[?&]video\b/.test(location.search);
+  const meta=vid?txt(LESSON.par):'Урок '+LESSON.num+' · '+txt(LESSON.par);
+  const kick=vid?String(d.kicker||'').replace(/^\s*Урок\s*\d+\s*(·\s*)?/,''):d.kicker;
+  return{cls:'s-title',html:
   '<div class="deco" aria-hidden="true"></div>'+
   '<header class="t-head"><span class="t-subj">Інформатика · '+LESSON.grade+' клас</span>'+
-   '<span class="t-meta">Урок '+LESSON.num+' · '+txt(LESSON.par)+'</span></header>'+
+   '<span class="t-meta">'+meta+'</span></header>'+
   '<div class="t-main"><span class="t-badge" aria-hidden="true">'+LESSON.grade+'</span>'+
-   (d.kicker?'<p class="kicker">'+txt(d.kicker)+'</p>':'')+'<h2>'+txt(d.title)+'</h2>'+
+   (kick?'<p class="kicker">'+txt(kick)+'</p>':'')+'<h2>'+txt(d.title)+'</h2>'+
    (d.sub?'<p class="sub">'+txt(d.sub)+'</p>':'')+
    '<p class="author">'+AUTHOR+'</p><time class="date">'+today()+'</time></div>'+
   (d.stickers&&d.stickers.length?'<ul class="stickers" aria-hidden="true">'+d.stickers.map(s=>
-    '<li>'+(IMG[s]?img(s):'<i class="ic"'+at('data-icon',iconOf(s))+'></i>')+'</li>').join('')+'</ul>':'')});
+    '<li>'+(IMG[s]?img(s):'<i class="ic"'+at('data-icon',iconOf(s))+'></i>')+'</li>').join('')+'</ul>':'')}};
 
 V.text=d=>({html:head(d)+'<div'+cls('split',d.img?'has-img':'')+'><div class="col">'+blocks(d.body)+'</div>'+ill(d.img)+'</div>'});
 
@@ -639,12 +644,15 @@ V.widget=d=>{const w=W[d.w];
 
 /* «Домашнє»: картки завдань і картинка слайда. QR тесту прибрано зовсім (учитель 11.11.2026: тест не щороку,
    QR заважав, а відео живе роками) — тест лише кнопкою «Тест» угорі; QR практичної прибрано ще 19.10.2026. */
-V.home=d=>{const items=d.items||[];
+V.home=d=>{
   // у відео (сторінка з ?video — так відкриває vcap.py) кнопок угорі немає, тож Біт про них не каже
   const vid=/[?&]video\b/.test(location.search);
+  // Відео публічні (учитель 16.11.2026): домашнє — у Classroom, тож у відео замість нього «Запам’ятайте» з pidsumok
+  const sum=vid&&d.pidsumok&&d.pidsumok.length;
+  const items=(sum?d.pidsumok:d.items)||[];
   const pUrl=vid?'':(CFG.praktychnaUrl||'');
   const bt=pUrl?'Успіхів! Практична — кнопкою «Практична» вгорі.':'Успіхів! До зустрічі на наступному уроці.';
-  return{html:'<h2>Домашнє завдання</h2><div class="homewrap"'+vars({'--n':items.length})+'>'+
+  return{html:'<h2>'+(sum?plain(d.pidsumok_nazva||'Запам’ятайте'):'Домашнє завдання')+'</h2><div class="homewrap"'+vars({'--n':items.length})+'>'+
    '<ul class="home">'+items.map((it,i)=>'<li class="hw"'+at('data-icon',iconOf(it[0]))+'>'+
      '<span class="num" aria-hidden="true">'+pad2(i+1)+'</span><h3>'+plain(it[0])+'</h3>'+
      '<p class="main">'+txt(it[1])+'</p>'+(it[2]?'<p class="small">'+txt(it[2])+'</p>':'')+'</li>').join('')+'</ul>'+
@@ -656,10 +664,17 @@ V.home=d=>{const items=d.items||[];
 // рука з витягнутим пальцем (кінчик угорі ліворуч) — підказка «натисніть» в учнівській версії
 const HAND='<svg viewBox="0 0 24 24"><path d="M7.2 3.8a1.8 1.8 0 0 1 3.6 0V10.4a1.7 1.7 0 0 1 3.4 0V11.2a1.7 1.7 0 0 1 3.4 0V12a1.6 1.6 0 0 1 3.2 0V16c0 3.6-2.7 6-6.3 6h-2.2c-2.1 0-3.5-.7-4.8-2.1L3.4 16.4a1.6 1.6 0 0 1 2.3-2.2L7.2 15.6Z"/><path d="M10.8 10.4V13.4M14.2 11.2V13.6M17.6 12V13.8"/></svg>';
 function shotMount(box,d,api){
-  const side=el('div','hs-side'),tx=el('p','hs-text',txt(d.intro)||'Пробіл або клік — далі, або оберіть пункт списку.');
+  /* у відео (?video) підказка без «Пробіл або клік — далі…»: у відео нічого не натискають (17.11.2026) */
+  const inVideo=/[?&]video\b/.test(location.search);
+  const intro=()=>{const t=txt(d.intro)||'Пробіл або клік — далі, або оберіть пункт списку.';
+    return inVideo?t.replace(/\s*Пробіл або клік[^.]*\.?/g,'').trim():t};
+  const side=el('div','hs-side'),tx=el('p','hs-text',intro());
   const btns=(d.spots||[]).map((s,i)=>{const b=el('button','hs-btn',txt(s.l));b.onclick=()=>api.setStep(i+1);side.append(b);return b});
-  const lupa=el('button','btn lupa on','<span class="ic" data-icon="search" aria-hidden="true"></span>Лупа');
-  side.append(tx,lupa);
+  /* відео без лупи (?video&bezlupy — так відкриває vcap.py): весь знімок з рамкою, без кнопки «Лупа»,
+     бо на збільшеному знімку не видно, де це місце у вікні програми (учитель 16.11.2026: пілот 6-12, 17.11 — усі відео); на дошці лупа як була */
+  const vid=inVideo&&/[?&]bezlupy\b/.test(location.search);
+  const lupa=el('button','btn lupa'+(vid?'':' on'),'<span class="ic" data-icon="search" aria-hidden="true"></span>Лупа');
+  side.append(tx);if(!vid)side.append(lupa);
   /* учнівська версія: діти не здогадуються, що пункти натискаються — рука «натискає» перший пункт,
      доки учень сам не натисне будь-який; на телефоні вертикально — ще й рядок-підказка над пунктами */
   if(document.documentElement.classList.contains('student')&&btns.length){
@@ -670,7 +685,7 @@ function shotMount(box,d,api){
     side.addEventListener('click',e=>{if(e.target.closest('.hs-btn')){btns[0].classList.remove('hint');hand.remove()}})}
   const frame=el('div','frame'),inner=el('div','inner'),im=el('img'),spot=el('div','spot');
   inner.append(im,spot);frame.append(inner);box.append(side,frame);
-  let dd=null,cur=0,zoom=true;
+  let dd=null,cur=0,zoom=!vid;
   /* кадр займає вільне місце праворуч від списку й під заголовком; d.w / d.h — найбільший розмір.
      Слайд схований (розмірів ще немає) — запасні 790×520, рушій перерахує при показі (relayout). */
   function room(){
@@ -683,8 +698,12 @@ function shotMount(box,d,api){
     frame.style.width=w+'px';frame.style.height=h+'px';inner.style.width=w+'px';return[w,h]}
   function show(){const s=cur?d.spots[cur-1]:null;const wh=layout(),w=wh[0],h=wh[1];if(dd)dd.style.display='none';
     btns.forEach((b,k)=>b.classList.toggle('on',k===cur-1));
-    tx.innerHTML=s?txt(s.t):(txt(d.intro)||'Пробіл або клік — далі, або оберіть пункт списку.');
-    if(s&&s.r){const x=s.r[0],y=s.r[1],rw=s.r[2],rh=s.r[3];
+    const it=s?txt(s.t):intro();tx.innerHTML=it;tx.style.visibility=it?'':'hidden';
+    /* знімок ще вантажиться (повільний інтернет, телефон учня) — позначку лупи не показуємо: інакше рамка
+       з затемненням стоїть на порожньому кадрі, а картинка з’являється під нею пізніше (учитель 16.11.2026);
+       im.onload знову викличе show() — позначка проявиться вже над знімком */
+    const ready=im.complete&&im.naturalWidth>0;
+    if(s&&s.r&&ready){const x=s.r[0],y=s.r[1],rw=s.r[2],rh=s.r[3];
       spot.style.cssText='left:'+x+'%;top:'+y+'%;width:'+rw+'%;height:'+rh+'%';spot.classList.add('on');
       let k=1,tX=0,tY=0;
       if(zoom){k=Math.max(1,Math.min(3,Math.min(.5/(rw/100),.5/(rh/100))));
@@ -692,7 +711,7 @@ function shotMount(box,d,api){
         tX=Math.min(0,Math.max(w-k*w,w/2-k*cx));tY=Math.min(0,Math.max(h-k*h,h/2-k*cy))}
       inner.style.transform='translate('+tX+'px,'+tY+'px) scale('+k+')';spot.style.borderWidth=(3/k)+'px'}
     else{spot.classList.remove('on');inner.style.transform='none'}
-    if(s&&s.dd){if(!dd){dd=el('div','dd');inner.append(dd)}
+    if(s&&s.dd&&ready){if(!dd){dd=el('div','dd');inner.append(dd)}
       dd.innerHTML=s.dd.map(t=>'<div>'+txt(t)+'</div>').join('');
       dd.style.left=(s.r[0]+18)+'%';dd.style.top=(s.r[1]+s.r[3])+'%';dd.style.display='block'}}
   function step(i){cur=i;const key=(cur?d.spots[cur-1].img:null)||d.img;

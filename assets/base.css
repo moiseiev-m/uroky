@@ -258,6 +258,9 @@ table.t tr.f{transform:none}
 /* ===== Скріншот із підказками ===== */
 .shot{display:grid;grid-template-columns:330px 1fr;gap:24px;flex:1;min-height:0}
 .hs-side{display:flex;flex-direction:column;gap:7px;min-height:0}
+/* пункти, підказка й «Лупа» не стискаються: інакше довга підказка вилазила за свою рамку (6-12 слайд 8, учитель 16.11.2026),
+   а так стовпчик стає вищим і автопідгонка це бачить */
+.hs-side>*{flex-shrink:0}
 .hs-btn{border:2px solid var(--line);background:var(--paper);border-radius:12px;padding:6px 12px;font-size:18px;font-weight:800;cursor:pointer;text-align:left}
 .hs-btn.on{border-color:var(--coral);background:var(--pink-soft)}
 .hs-text{font-size:21px!important;line-height:1.38;margin:6px 0 0;background:var(--sun-soft);border-radius:14px;padding:12px 14px;min-height:64px}
